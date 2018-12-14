@@ -9,7 +9,7 @@ import { getConf } from '../../../configuration'
 
 import './LinearGenomeView.scss'
 
-const dragHandleHeight = 3
+const dragHandleSize = 3
 
 @inject('rootModel')
 @observer
@@ -36,8 +36,7 @@ class LinearGenomeView extends Component {
     // that are *currently* being displayed
     const visibleBlocksOffsetPx = blocks[0] ? offsetPx - blocks[0].offsetPx : 0
     const height =
-      scaleBarHeight +
-      tracks.reduce((a, b) => a + b.height + dragHandleHeight, 0)
+      scaleBarHeight + tracks.reduce((a, b) => a + b.height + dragHandleSize, 0)
     const style = {
       display: 'grid',
       width: `${width}px`,
@@ -47,10 +46,10 @@ class LinearGenomeView extends Component {
           t =>
             `[track-${t.id}] ${t.height}px [resize-${
               t.id
-            }] ${dragHandleHeight}px`,
+            }] ${dragHandleSize}px`,
         )
         .join(' ')}`,
-      gridTemplateColumns: `[controls] ${controlsWidth}px [blocks] auto`,
+      gridTemplateColumns: `[controls] ${controlsWidth}px [controls-resize-handle] ${dragHandleSize}px [blocks] auto`,
     }
     // console.log(style)
     return (
@@ -63,6 +62,15 @@ class LinearGenomeView extends Component {
             select tracks
           </button>
         </div>
+        <div
+          className="controls-resize-handle drag-handle drag-handle-vertical"
+          style={{
+            gridColumn: 'controls-resize-handle',
+            gridRowStart: '1',
+            gridRowEnd: '50',
+          }}
+        />
+
         <ScaleBar
           style={{ gridColumn: 'blocks', gridRow: 'scale-bar' }}
           height={scaleBarHeight}

@@ -38,9 +38,18 @@
 
     .drag-handle {
       background: #ccc;
-      cursor: ns-resize;
-      width: 100%;
       box-sizing: border-box;
-      border-top: 1px solid #fafafa;
+
+      &.drag-handle-horizontal {
+        cursor: ns-resize;
+        width: 100%;
+        border-top: 1px solid #fafafa;
+      }
+
+      &.drag-handle-vertical {
+        cursor: ew-resize;
+        height: 100%;
+        border-left: 1px solid #fafafa;
+      }
     }
 }
