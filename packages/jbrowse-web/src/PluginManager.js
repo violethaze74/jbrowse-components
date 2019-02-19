@@ -1,6 +1,7 @@
 import React from 'react'
 import * as mst from 'mobx-state-tree'
 
+import Plugin from './Plugin'
 import RendererType from './pluggableElementTypes/RendererType'
 import AdapterType from './pluggableElementTypes/AdapterType'
 import TrackType from './pluggableElementTypes/TrackType'
@@ -82,13 +83,43 @@ export default class PluginManager {
   }
 
   addPlugin(plugin) {
+    const instantiated = this.ensureInstantiated(plugin)
     if (this.started)
       throw new Error('JBrowse already configured, cannot add plugins')
-    if (this.plugins.includes(plugin))
+    if (this.plugins.includes(instantiated))
       throw new Error(`plugin already installed`)
-    plugin.install(this)
-    this.plugins.push(plugin)
+    instantiated.install(this)
+    this.plugins.push(instantiated)
     return this
+  }
+
+  ensureInstantiated(thing) {
+    if (typeof thing.install === 'function') return thing
+    if (typeof thing.prototype.install === 'function') {
+      return new thing() // eslint-disable-line new-cap
+    }
+    if (typeof thing === 'function') return this.wrapFunctionPlugin(thing)
+    return thing
+  }
+
+  /**
+   *
+   * @param {function} functionPlugin function of pluginManager => array[type spec]
+   */
+  wrapFunctionPlugin(functionPlugin) {
+    return {
+      configure: Plugin.prototype.configure,
+      install: pluginManager => {
+        const types = functionPlugin(pluginManager)
+        types.forEach(({ type, ...spec }) => {
+          pluginManager.addElementType(type, () => {
+            const TypeClass = pluginManager.typeBaseClasses[type]
+            if (!TypeClass) throw new Error(`unknown type name ${type}`)
+            return new TypeClass(spec)
+          })
+        })
+      },
+    }
   }
 
   /** get a MST type for the union of all specified pluggable MST types */
