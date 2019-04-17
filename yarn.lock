@@ -856,14 +856,6 @@
     "@babel/helper-regex" "^7.0.0"
     regexpu-core "^4.1.3"
 
-"@babel/polyfill@^7.4.0":
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.4.0.tgz#90f9d68ae34ac42ab4b4aa03151848f536960218"
-  integrity sha512-bVsjsrtsDflIHp5I6caaAa2V25Kzn50HKPL6g3X0P0ni1ks+58cPB8Mz6AOKVuRPgaVdq/OwEUc/1vKqX+Mo4A==
-  dependencies:
-    core-js "^2.6.5"
-    regenerator-runtime "^0.13.2"
-
 "@babel/preset-env@7.3.4", "@babel/preset-env@^7.3.4":
   version "7.3.4"
   resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.3.4.tgz#887cf38b6d23c82f19b5135298bdb160062e33e1"
@@ -1004,6 +996,13 @@
   version "7.4.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.2.tgz#f5ab6897320f16decd855eed70b705908a313fe8"
   integrity sha512-7Bl2rALb7HpvXFL7TETNzKSAeBVCPHELzc0C//9FCxN8nsiueWSJBqaF+2oIJScyILStASR/Cx5WMkXGYTiJFA==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
+"@babel/runtime@^7.4.3":
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.3.tgz#79888e452034223ad9609187a0ad1fe0d2ad4bdc"
+  integrity sha512-9lsJwJLxDh/T3Q3SZszfWOTkk3pHbkmH+3KY+zwIDmsNlxsumuhS2TH3NIpktU4kNvfzy+k3eLT7aTJSPTo0OA==
   dependencies:
     regenerator-runtime "^0.13.2"
 
@@ -1154,20 +1153,17 @@
     long "^4.0.0"
     quick-lru "^2.0.0"
 
-"@gmod/bbi@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@gmod/bbi/-/bbi-1.0.9.tgz#902ec66925c3bce3106bd508566613967c5d6011"
-  integrity sha512-nZjLE35Ok83kdRXp5csoF4Ph2iBvzwJXm3pHzvfP2/HzqvTUCAMtFv0NzYTT5YCzjMfGxUXkEBLsFyicjdNEiw==
+"@gmod/bbi@^1.0.14":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@gmod/bbi/-/bbi-1.0.14.tgz#8e31d9fb3c4e73333202f5b89fc2d035b4d2f587"
+  integrity sha512-v7h0aJEBFhDFC+mVqxRjFli6XTAHnObedwqongpJQ0P4Pc7fS9rjxNFWcITLF0ceDrHwp0d/x3p5IFIYOrFkXw==
   dependencies:
-    "@babel/polyfill" "^7.4.0"
     "@babel/runtime" "^7.4.2"
-    "@gmod/binary-parser" "^1.3.3"
+    "@gmod/binary-parser" "^1.3.5"
     abortable-promise-cache "^1.0.1"
     buffer-crc32 "^0.2.13"
-    core-js "3"
-    cross-fetch "^3.0.1"
     es6-promisify "^6.0.1"
-    long "^4.0.0"
+    generic-filehandle "^1.0.8"
     quick-lru "^3.0.0"
     rxjs "^6.4.0"
 
@@ -1186,6 +1182,13 @@
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/@gmod/binary-parser/-/binary-parser-1.3.3.tgz#a29b69e19afcce8fff632cf0325c7c24d4544792"
   integrity sha512-+NZOfXj9Ajd6Yr2GW7I4mH+2uEjoBQALznDRoPiMyYZek3s0r8mHB30L9SS0OjzdINx2hM+zXf1uRD/b8Nv8PA==
+  dependencies:
+    long "^4.0.0"
+
+"@gmod/binary-parser@^1.3.5":
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/@gmod/binary-parser/-/binary-parser-1.3.5.tgz#6b460565ce8b2df2c03c05b5a617791dfd779c35"
+  integrity sha512-nLMMPogdATElfosg/o2eF0RihUBHNjgKxhtsT2NhKGhGtP9M8SiUSSg3/S7++tjY/1/uL1OKHQx/CvmPcatHsA==
   dependencies:
     long "^4.0.0"
 
@@ -4148,11 +4151,6 @@ core-js@2.5.7:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.7.tgz#f972608ff0cead68b841a16a932d0b183791814e"
   integrity sha512-RszJCAxg/PP6uzXVXL6BsxSXx/B05oJAQ2vkJRjyjrEcNVycaqOmNb5OTxZPE3xa5gwZduqza6L9JOCenh/Ecw==
 
-core-js@3:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.0.0.tgz#a8dbfa978d29bfc263bfb66c556d0ca924c28957"
-  integrity sha512-WBmxlgH2122EzEJ6GH8o9L/FeoUKxxxZ6q6VUxoTlsE4EvbTWKJb447eyVxTEuq0LpXjlq/kCB2qgBvsYRkLvQ==
-
 core-js@^1.0.0:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
@@ -4162,11 +4160,6 @@ core-js@^2.4.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.0.tgz#1e30793e9ee5782b307e37ffa22da0eacddd84d4"
   integrity sha512-kLRC6ncVpuEW/1kwrOXYX6KQASCVtrh1gQr/UiaVgFlf9WE5Vp+lNe5+h3LuMr5PAucWnnEXwH0nQHRH/gpGtw==
-
-core-js@^2.6.5:
-  version "2.6.5"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.5.tgz#44bc8d249e7fb2ff5d00e0341a7ffb94fbf67895"
-  integrity sha512-klh/kDpwX8hryYL14M9w/xei6vrv6sE8gTHDG7/T/+SEovB/G4ejwcfE/CBzO6Edsu+OETZMZ3wcX/EjUkrl5A==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -4231,14 +4224,6 @@ cross-fetch@^2.2.2:
   dependencies:
     node-fetch "2.1.2"
     whatwg-fetch "2.0.4"
-
-cross-fetch@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.1.tgz#3f207bbd829a76e9aa2a953348bd1f2a3cf388a7"
-  integrity sha512-qWtpgBAF8ioqBOddRD+pHhrdzm/UWOArkrlIU7c08DlNbOxo5GfUbSY2vr90ZypWf0raW+HNN1F38pi5CEOjiQ==
-  dependencies:
-    node-fetch "2.3.0"
-    whatwg-fetch "3.0.0"
 
 cross-spawn@6.0.5, cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
@@ -5884,6 +5869,11 @@ file-saver@^2.0.0:
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.0.tgz#74eef7748159503b60008a15af2f1930fb5df7ab"
   integrity sha512-cYM1ic5DAkg25pHKgi5f10ziAM7RJU37gaH1XQlyNDrtUnzhC/dfoV9zf2OmF0RMKi42jG5B0JWBnPQqyj/G6g==
 
+file-uri-to-path@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
+  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
+
 fileset@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/fileset/-/fileset-2.0.3.tgz#8e7548a96d3cc2327ee5e674168723a333bba2a0"
@@ -6181,6 +6171,15 @@ gaze@^1.0.0:
   integrity sha512-BRdNm8hbWzFzWHERTrejLqwHDfS4GibPoq5wjTPIoJHoBtKGPg3xAFfxmM+9ztbXelxcf2hwQcaz1PtmFeue8g==
   dependencies:
     globule "^1.0.0"
+
+generic-filehandle@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/generic-filehandle/-/generic-filehandle-1.0.8.tgz#7cdb026884a237cec28a44fdbd1bd6eb0b5b408c"
+  integrity sha512-JlccwYLF2V+C7gbZB7/kXRP+t2KXVWI5GTjAB0NtMVx7AiOQ/5Sn/BfOjitQ/cM7QxjvBDdExlY0QrZHRTxg+g==
+  dependencies:
+    "@babel/runtime" "^7.4.3"
+    es6-promisify "^6.0.1"
+    file-uri-to-path "^1.0.0"
 
 genfun@^5.0.0:
   version "5.0.0"
@@ -9281,11 +9280,6 @@ node-fetch@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.2.tgz#ab884e8e7e57e38a944753cec706f788d1768bb5"
   integrity sha1-q4hOjn5X44qUR1POxwb3iNF2i7U=
-
-node-fetch@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.3.0.tgz#1a1d940bbfb916a1d3e0219f037e89e71f8c5fa5"
-  integrity sha512-MOd8pV3fxENbryESLgVIeaGKrdl+uaYhCSSVkjeOb/31/njTpcis5aWfdqgNlHIrKOLRbMnfPINPOML2CIFeXA==
 
 node-fetch@^1.0.1:
   version "1.7.3"
