@@ -1,23 +1,30 @@
-import { types, getRoot } from 'mobx-state-tree'
+import { types, getRoot, IAnyType } from 'mobx-state-tree'
 import { stringToFunction, functionRegexp } from '../util/functionStrings'
 import { inDevelopment } from '../util'
 import { FileLocation } from '../mst-types'
 
-function isValidColorString(/* str */) {
+function isValidColorString(/* str */): boolean {
   // TODO: check all the crazy cases for whether it's a valid HTML/CSS color string
   return true
 }
-const typeModels = {
-  stringArray: types.array(types.string),
-  stringArrayMap: types.map(types.array(types.string)),
-  numberMap: types.map(types.number),
-  boolean: types.boolean,
-  color: types.refinement('Color', types.string, isValidColorString),
-  integer: types.integer,
-  number: types.number,
-  string: types.string,
-  fileLocation: FileLocation,
-  frozen: types.frozen(),
+function getTypeModel(type: string): IAnyType {
+  const typeModels: Record<string, IAnyType> = {
+    stringArray: types.array(types.string),
+    stringArrayMap: types.map(types.array(types.string)),
+    numberMap: types.map(types.number),
+    boolean: types.boolean,
+    color: types.refinement('Color', types.string, isValidColorString),
+    integer: types.integer,
+    number: types.number,
+    string: types.string,
+    fileLocation: FileLocation,
+    frozen: types.frozen(),
+  }
+  if (!(type in typeModels))
+    throw new Error(
+      `no builtin config slot type "${type}", and no 'model' param provided`,
+    )
+  return typeModels[type]
 }
 
 // default values we use if the defaultValue is malformed or does not work
@@ -34,7 +41,19 @@ const fallbackDefaults = {
   frozen: {},
 }
 
-const literalJSON = self => ({
+const LiteralJSON = types
+  .model({
+    value: 5,
+  })
+  .views(self => ({
+    get valueJSON() {
+      return self.value
+    },
+  }))
+
+const literalJSON = (
+  self: IAnyType,
+): { views: { readonly valueJSON: any } } => ({
   views: {
     get valueJSON() {
       return self.value
@@ -65,13 +84,13 @@ const typeModelExtensions = {
       },
     },
     actions: {
-      add(val) {
+      add(val: string) {
         self.value.push(val)
       },
-      removeAtIndex(idx) {
+      removeAtIndex(idx: number) {
         self.value.splice(idx, 1)
       },
-      setAtIndex(idx, val) {
+      setAtIndex(idx: number, val: string) {
         self.value[idx] = val
       },
     },
@@ -83,19 +102,19 @@ const typeModelExtensions = {
       },
     },
     actions: {
-      add(key, val) {
+      add(key: string, val: string[]) {
         self.value.set(key, val)
       },
-      remove(key) {
+      remove(key: string) {
         self.value.delete(key)
       },
-      addToKey(key, val) {
+      addToKey(key: string, val: string) {
         self.value.get(key).push(val)
       },
-      removeAtKeyIndex(key, idx) {
+      removeAtKeyIndex(key: string, idx: number) {
         self.value.get(key).splice(idx, 1)
       },
-      setAtKeyIndex(key, idx, val) {
+      setAtKeyIndex(key: string, idx: number, val: string) {
         self.value.get(key)[idx] = val
       },
     },
@@ -107,10 +126,10 @@ const typeModelExtensions = {
       },
     },
     actions: {
-      add(key, val) {
+      add(key: string, val: number) {
         self.value.set(key, val)
       },
-      remove(key) {
+      remove(key: string) {
         self.value.delete(key)
       },
     },
@@ -136,11 +155,23 @@ const FunctionStringType = types.refinement(
  *  of the function callback, default []
  */
 export default function ConfigSlot(
-  slotName,
-  { description = '', model, type, defaultValue, functionSignature = [] },
-) {
+  slotName: string,
+  {
+    description = '',
+    model,
+    type,
+    defaultValue,
+    functionSignature = [],
+  }: {
+    description: string
+    model: IAnyType
+    type: string
+    defaultValue: any
+    functionSignature: string[]
+  },
+): Record<string, any> {
   if (!type) throw new Error('type name required')
-  if (!model) model = typeModels[type]
+  if (!model) model = getTypeModel(type)
   if (!model) {
     throw new Error(
       `no builtin config slot type "${type}", and no 'model' param provided`,
@@ -169,7 +200,7 @@ export default function ConfigSlot(
     }))
     .views(self => ({
       get func() {
-        if (self.isCallback) {
+        if (this.isCallback) {
           // compile this as a function
           return stringToFunction(String(self.value), {
             bind: [getRoot(self)],
@@ -188,7 +219,7 @@ export default function ConfigSlot(
       // for embedding in either JSON or a JS function string.
       // many of the data types override this in typeModelExtensions
       get valueJSON() {
-        if (self.isCallback) return undefined
+        if (this.isCallback) return undefined
         return self.value && self.value.toJSON
           ? self.value.toJSON()
           : `'${self.value}'`
@@ -215,7 +246,7 @@ export default function ConfigSlot(
       snap.value !== defaultValue ? snap.value : undefined,
     )
     .actions(self => ({
-      set(newVal) {
+      set(newVal: any) {
         self.value = newVal
       },
       convertToCallback() {
@@ -252,7 +283,8 @@ export default function ConfigSlot(
   // if there are any type-specific extensions (views or actions)
   //  to the slot, add those in
   if (typeModelExtensions[type]) {
-    slot = slot.extend(typeModelExtensions[type])
+    // slot = slot.extend(typeModelExtensions[type])
+    slot = slot.extend(literalJSON)
   }
 
   const completeModel = types.optional(slot, {

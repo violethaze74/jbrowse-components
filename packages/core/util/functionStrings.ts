@@ -1,6 +1,6 @@
 export const functionRegexp = /^\s*function\s*\(([^)]*)\)\s*{([\w\W]*)/
 
-const compilationCache = {}
+const compilationCache: Record<string, Function> = {}
 /**
  * compile a function to a string
  *
@@ -10,7 +10,14 @@ const compilationCache = {}
  *  compiled function will check at runtime that the proper number
  *  of arguments were passed to it
  */
-export function stringToFunction(str, options = {}) {
+export function stringToFunction(
+  str: string,
+  options: {
+    verifyFunctionSignature?: string[]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    bind?: [any, ...any[]]
+  } = {},
+): Function {
   const { verifyFunctionSignature } = options
 
   const cacheKey = `${verifyFunctionSignature &&

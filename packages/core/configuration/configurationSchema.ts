@@ -7,6 +7,7 @@ import {
   isOptionalType,
   isStateTreeNode,
   getType,
+  IAnyModelType,
 } from 'mobx-state-tree'
 
 import { ElementId } from '../mst-types'
@@ -18,7 +19,8 @@ import {
   getDefaultValue,
 } from '../util/mst-reflection'
 
-function isEmptyObject(thing) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isEmptyObject(thing: any): boolean {
   return (
     typeof thing === 'object' &&
     !Array.isArray(thing) &&
@@ -26,11 +28,12 @@ function isEmptyObject(thing) {
   )
 }
 
-function isEmptyArray(thing) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isEmptyArray(thing: any): boolean {
   return Array.isArray(thing) && thing.length === 0
 }
 
-export function isConfigurationSchemaType(thing) {
+export function isConfigurationSchemaType(thing: any): boolean {
   if (!thing) return false
 
   // written as a series of if-statements instead of a big logical OR
@@ -69,7 +72,8 @@ export function isConfigurationSchemaType(thing) {
   return false
 }
 
-export function isConfigurationModel(thing) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isConfigurationModel(thing: any): boolean {
   return isStateTreeNode(thing) && isConfigurationSchemaType(getType(thing))
 }
 
@@ -80,15 +84,17 @@ export function isConfigurationModel(thing) {
  * @param {mst union type} unionType
  * @returns {Array[string]} type names contained in the union
  */
-export function getTypeNamesFromExplicitlyTypedUnion(unionType) {
+export function getTypeNamesFromExplicitlyTypedUnion(
+  unionType: IAnyModelType,
+): string[] {
   if (isUnionType(unionType)) {
-    const typeNames = []
+    const typeNames: string[] = []
     getUnionSubTypes(unionType).forEach(type => {
       let typeName = getTypeNamesFromExplicitlyTypedUnion(type)
       if (!typeName.length) typeName = [getDefaultValue(type).type]
       if (!typeName[0]) {
         // debugger
-        throw new Error('invalid config schema type', type)
+        throw new Error(`invalid config schema type: ${type}`)
       }
       typeNames.push(...typeName)
     })
@@ -97,7 +103,8 @@ export function getTypeNamesFromExplicitlyTypedUnion(unionType) {
   return []
 }
 
-export function isConfigurationSlotType(thing) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isConfigurationSlotType(thing: any): boolean {
   return !!thing.isJBrowseConfigurationSlot
 }
 

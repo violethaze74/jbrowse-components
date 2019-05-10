@@ -4,19 +4,25 @@ import {
   isUnionType,
   isArrayType,
   isMapType,
+  IAnyModelType,
+  OptionalProperty,
 } from 'mobx-state-tree'
 
 /**
  * get the inner type of an MST optional or array type object
  *
- * @param {IModelType} type
- * @returns {IModelType}
+ * @param {IAnyModelType} type
+ * @returns {IAnyModelType}
  */
-export function getSubType(type) {
+export function getSubType(
+  type: IAnyModelType & OptionalProperty,
+): IAnyModelType {
   let t
   if (isOptionalType(type)) {
+    // @ts-ignore
     t = type._subtype || type.type
   } else if (isArrayType(type) || isMapType(type)) {
+    // @ts-ignore
     t = type._subtype || type._subType || type.subType
   } else {
     throw new TypeError('unsupported mst type')
@@ -31,11 +37,11 @@ export function getSubType(type) {
 /**
  * get the array of
  * @param {MST Union Type obj} unionType
- * @returns {Array<IModelType>}
+ * @returns {IAnyModelType[]}
  */
-export function getUnionSubTypes(unionType) {
+export function getUnionSubTypes(unionType: IAnyModelType): IAnyModelType[] {
   if (!isUnionType(unionType)) throw new TypeError('not an MST union type')
-  // eslint-disable-next-line no-underscore-dangle
+  // @ts-ignore eslint-disable-next-line no-underscore-dangle
   const t = unionType._types || unionType.types
   if (!t) {
     // debugger
@@ -47,18 +53,22 @@ export function getUnionSubTypes(unionType) {
 /**
  * get the type of one of the properties of the given MST model type
  *
- * @param {IModelType} type
+ * @param {IAnyModelType} type
  * @param {string} propertyName
  * @returns {IModelType}
  */
-export function getPropertyType(type, propertyName) {
+export function getPropertyType(
+  type: IAnyModelType,
+  propertyName: string,
+): IAnyModelType {
   const propertyType = type.properties[propertyName]
   return propertyType
 }
 
-export function getDefaultValue(type) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getDefaultValue(type: IAnyModelType & OptionalProperty): any {
   if (!isOptionalType(type))
     throw new TypeError('type must be an optional type')
-  // eslint-disable-next-line no-underscore-dangle
+  // @ts-ignore eslint-disable-next-line no-underscore-dangle
   return type._defaultValue || type.defaultValue
 }
