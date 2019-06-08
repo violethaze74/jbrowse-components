@@ -1,4 +1,5 @@
 import NCListAdapterPlugin from '@gmod/jbrowse-plugin-nclist-adapter'
+import BreakpointViewsPlugin from '@gmod/jbrowse-plugin-breakpoint-views'
 import MainMenuBarPlugin from './plugins/MainMenuBar'
 
 // adapters
@@ -40,6 +41,7 @@ export default [
   BigWigAdapterPlugin,
   BigBedAdapterPlugin,
   LinearGenomeViewPlugin,
+  BreakpointViewsPlugin,
   AlignmentsTrackPlugin,
   DataHubManagerDrawerWidgetPlugin,
   AddTrackDrawerWidgetPlugin,

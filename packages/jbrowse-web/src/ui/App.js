@@ -163,6 +163,12 @@ function App(props) {
             >
               Add linear view
             </button>
+            <button
+              type="button"
+              onClick={() => rootModel.addView('SplitBreakpointView', {})}
+            >
+              Add split breakpoint view
+            </button>
             <select
               onChange={event => setActiveSession(event.target.value)}
               value={activeSession}
