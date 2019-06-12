@@ -58,7 +58,8 @@ describe('valid file tests', () => {
   })
 
   it('click and drag to move sideways', async () => {
-    const { getByTestId } = render(<JBrowse configs={[config]} />)
+    const { getByTestId, getByText } = render(<JBrowse configs={[config]} />)
+    await waitForElement(() => getByText('ctgA'))
     fireEvent.click(
       await waitForElement(() => getByTestId('volvox_alignments')),
     )

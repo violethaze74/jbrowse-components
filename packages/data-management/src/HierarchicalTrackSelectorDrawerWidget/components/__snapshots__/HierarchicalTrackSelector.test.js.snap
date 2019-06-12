@@ -52,6 +52,25 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
   <div
     class="MuiFormGroup-root-82"
   />
+  <div
+    class="MuiCircularProgress-root-105 MuiCircularProgress-colorPrimary-108 MuiCircularProgress-indeterminate-107"
+    role="progressbar"
+    style="width: 40px; height: 40px;"
+  >
+    <svg
+      class="MuiCircularProgress-svg-110"
+      viewBox="22 22 44 44"
+    >
+      <circle
+        class="MuiCircularProgress-circle-111 MuiCircularProgress-circleIndeterminate-113"
+        cx="44"
+        cy="44"
+        fill="none"
+        r="20.2"
+        stroke-width="3.6"
+      />
+    </svg>
+  </div>
   <button
     class="MuiButtonBase-root-69 MuiFab-root-84 MuiFab-secondary-87 HierarchicalTrackSelector-fab-3"
     tabindex="0"
@@ -126,6 +145,25 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
   <div
     class="MuiFormGroup-root-82"
   />
+  <div
+    class="MuiCircularProgress-root-105 MuiCircularProgress-colorPrimary-108 MuiCircularProgress-indeterminate-107"
+    role="progressbar"
+    style="width: 40px; height: 40px;"
+  >
+    <svg
+      class="MuiCircularProgress-svg-110"
+      viewBox="22 22 44 44"
+    >
+      <circle
+        class="MuiCircularProgress-circle-111 MuiCircularProgress-circleIndeterminate-113"
+        cx="44"
+        cy="44"
+        fill="none"
+        r="20.2"
+        stroke-width="3.6"
+      />
+    </svg>
+  </div>
   <button
     class="MuiButtonBase-root-69 MuiFab-root-84 MuiFab-secondary-87 HierarchicalTrackSelector-fab-3"
     tabindex="0"

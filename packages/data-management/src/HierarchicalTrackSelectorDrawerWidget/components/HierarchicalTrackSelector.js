@@ -12,10 +12,10 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { PropTypes as MobxPropTypes } from 'mobx-react'
 import { observer } from 'mobx-react-lite'
-import { getRoot } from 'mobx-state-tree'
 import propTypes from 'prop-types'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
+import { getContainingAssembly } from '@gmod/jbrowse-core/util/tracks'
 import Contents from './Contents'
 
 const styles = theme => ({
@@ -36,6 +36,7 @@ const styles = theme => ({
   connectionsPaper: {
     padding: theme.spacing.unit,
     marginTop: theme.spacing.unit,
+    background: '#3b3b3b',
   },
   tabs: {
     marginBottom: theme.spacing.unit,
@@ -45,9 +46,43 @@ const styles = theme => ({
 function HierarchicalTrackSelector(props) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [assemblyIdx, setAssemblyIdx] = useState(0)
+  const [hierarchy, setHierarchy] = useState(new Map())
+  const [connectionHierarchies, setConnectionHierarchies] = useState(new Map())
 
-  const { model, classes } = props
-  const rootModel = getRoot(model)
+  const { model, session, classes } = props
+
+  const { trackConfigs } = session
+
+  useEffect(() => {
+    function generateHierarchy(trackConfigurations) {
+      const newHierarchy = new Map()
+      const newConnectionHierarchies = new Map()
+
+      trackConfigurations.forEach(trackConf => {
+        // console.log(trackConf)
+        let thisHierarchy = newHierarchy
+        if (trackConf.connectionName) {
+          const { connectionName } = trackConf
+          if (!newConnectionHierarchies.has(connectionName))
+            newConnectionHierarchies.set(connectionName, new Map())
+          thisHierarchy = newConnectionHierarchies.get(connectionName)
+        }
+        const categories = [...(readConfObject(trackConf, 'category') || [])]
+
+        let currLevel = thisHierarchy
+        for (let i = 0; i < categories.length; i += 1) {
+          const category = categories[i]
+          if (!currLevel.has(category)) currLevel.set(category, new Map())
+          currLevel = currLevel.get(category)
+        }
+        currLevel.set(trackConf.configId, trackConf)
+      })
+      setHierarchy(newHierarchy)
+      setConnectionHierarchies(newConnectionHierarchies)
+    }
+
+    generateHierarchy(trackConfigs)
+  }, [trackConfigs])
 
   function handleTabChange(event, newIdx) {
     setAssemblyIdx(newIdx)
@@ -67,24 +102,22 @@ function HierarchicalTrackSelector(props) {
 
   function addConnection() {
     handleFabClose()
-    if (!rootModel.drawerWidgets.get('addConnectionDrawerWidget'))
-      rootModel.addDrawerWidget(
+    if (!session.drawerWidgets.get('addConnectionDrawerWidget'))
+      session.addDrawerWidget(
         'AddConnectionDrawerWidget',
         'addConnectionDrawerWidget',
       )
-    rootModel.showDrawerWidget(
-      rootModel.drawerWidgets.get('addConnectionDrawerWidget'),
+    session.showDrawerWidget(
+      session.drawerWidgets.get('addConnectionDrawerWidget'),
     )
   }
 
   function addTrack() {
     handleFabClose()
-    rootModel.addDrawerWidget('AddTrackDrawerWidget', 'addTrackDrawerWidget', {
+    session.addDrawerWidget('AddTrackDrawerWidget', 'addTrackDrawerWidget', {
       view: model.view.id,
     })
-    rootModel.showDrawerWidget(
-      rootModel.drawerWidgets.get('addTrackDrawerWidget'),
-    )
+    session.showDrawerWidget(session.drawerWidgets.get('addTrackDrawerWidget'))
   }
 
   function filter(trackConfig) {
@@ -95,9 +128,15 @@ function HierarchicalTrackSelector(props) {
 
   const { assemblyNames } = model
   const assemblyName = assemblyNames[assemblyIdx]
+  function assemblyNameFilter(trackConfig) {
+    return (
+      readConfObject(getContainingAssembly(trackConfig), 'assemblyName') ===
+      assemblyName
+    )
+  }
   const filterError =
-    model.trackConfigurations(assemblyName) > 0 &&
-    model.trackConfigurations(assemblyName).filter(filter).length === 0
+    trackConfigs.filter(assemblyNameFilter) > 0 &&
+    trackConfigs.filter(assemblyNameFilter).filter(filter).length === 0
 
   return (
     <div
@@ -136,22 +175,28 @@ function HierarchicalTrackSelector(props) {
       />
       <Contents
         model={model}
+        session={session}
+        hierarchy={hierarchy}
         filterPredicate={filter}
         assemblyName={assemblyName}
         top
       />
-      {rootModel.connections.size ? (
+      {connectionHierarchies.size ? (
         <>
           <Typography variant="h5">Connections:</Typography>
-          {Array.from(rootModel.connections.keys()).map(connectionName => (
+          {Array.from(connectionHierarchies.keys()).map(connectionName => (
             <Paper
               key={connectionName}
               className={classes.connectionsPaper}
               elevation={8}
             >
-              <Typography variant="h6">{connectionName}</Typography>
+              <Typography variant="h6" style={{ color: 'white' }}>
+                {connectionName}
+              </Typography>
               <Contents
                 model={model}
+                session={session}
+                hierarchy={connectionHierarchies.get(connectionName)}
                 filterPredicate={filter}
                 connection={connectionName}
                 assemblyName={assemblyName}
