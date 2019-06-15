@@ -28,7 +28,7 @@ export default class extends Plugin {
       return new TrackType({
         name: 'AlignmentsTrack',
         configSchema,
-        stateModel: alignmentsTrackModelFactory(pluginManager, configSchema),
+        stateModel: alignmentsTrackModelFactory(configSchema),
       })
     })
 

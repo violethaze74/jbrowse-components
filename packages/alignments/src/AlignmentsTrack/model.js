@@ -9,7 +9,7 @@ import {
   blockBasedTrackModel,
 } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { getRoot, types } from 'mobx-state-tree'
-import TrackControls from '../components/TrackControls'
+import TrackControls from './components/TrackControls'
 
 // using a map because it preserves order
 const rendererTypes = new Map([
@@ -17,7 +17,7 @@ const rendererTypes = new Map([
   ['svg', 'SvgFeatureRenderer'],
 ])
 
-export default (pluginManager, configSchema) =>
+export default configSchema =>
   types.compose(
     'AlignmentsTrack',
     blockBasedTrackModel,
