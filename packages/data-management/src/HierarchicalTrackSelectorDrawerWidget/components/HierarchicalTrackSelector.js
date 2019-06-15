@@ -102,22 +102,17 @@ function HierarchicalTrackSelector(props) {
 
   function addConnection() {
     handleFabClose()
-    if (!session.drawerWidgets.get('addConnectionDrawerWidget'))
-      session.addDrawerWidget(
-        'AddConnectionDrawerWidget',
-        'addConnectionDrawerWidget',
-      )
     session.showDrawerWidget(
-      session.drawerWidgets.get('addConnectionDrawerWidget'),
+      'addConnectionDrawerWidget',
+      'AddConnectionDrawerWidget',
     )
   }
 
   function addTrack() {
     handleFabClose()
-    session.addDrawerWidget('AddTrackDrawerWidget', 'addTrackDrawerWidget', {
+    session.showDrawerWidget('addTrackDrawerWidget', 'AddTrackDrawerWidget', {
       view: model.view.id,
     })
-    session.showDrawerWidget(session.drawerWidgets.get('addTrackDrawerWidget'))
   }
 
   function filter(trackConfig) {

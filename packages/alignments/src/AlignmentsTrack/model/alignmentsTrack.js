@@ -50,7 +50,7 @@ export default (pluginManager, configSchema) =>
             )
           const featureWidget = root.drawerWidgets.get('alignmentsFeature')
           featureWidget.setFeatureData(feature.data)
-          root.showDrawerWidget(featureWidget)
+          root.showDrawerWidget(featureWidget.id)
           root.setSelection(feature)
         },
         clearFeatureSelection() {

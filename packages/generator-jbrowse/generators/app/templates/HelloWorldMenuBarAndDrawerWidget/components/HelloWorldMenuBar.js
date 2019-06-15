@@ -18,13 +18,9 @@ const styles = {
 }
 
 function onClick(rootModel) {
-  if (!rootModel.drawerWidgets.get('id-helloworlddrawerwidget'))
-    rootModel.addDrawerWidget(
-      'HelloWorldDrawerWidget',
-      'id-helloworlddrawerwidget',
-    )
   rootModel.showDrawerWidget(
-    rootModel.drawerWidgets.get('id-helloworlddrawerwidget'),
+    'id-helloworlddrawerwidget',
+    'HelloWorldDrawerWidget',
   )
 }
 

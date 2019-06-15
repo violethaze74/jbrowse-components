@@ -179,7 +179,7 @@ export function stateModelFactory(pluginManager) {
             'hierarchicalTrackSelector',
           )
           selector.setView(self)
-          rootModel.showDrawerWidget(selector)
+          rootModel.showDrawerWidget(selector.id)
         } else {
           throw new Error(
             `invalid track selector type ${self.trackSelectorType}`,

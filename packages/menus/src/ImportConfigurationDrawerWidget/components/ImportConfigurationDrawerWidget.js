@@ -16,7 +16,6 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/styles'
 import { observer } from 'mobx-react-lite'
-import { getRoot } from 'mobx-state-tree'
 import React, { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
@@ -132,16 +131,13 @@ function ImportConfiguration(props) {
   }, [acceptedFiles])
   const classes = useStyles({ isDragActive })
 
-  const { addSessions, setActiveSession, model } = props
-  const rootModel = getRoot(model)
+  const { addSessions, setActiveSession, session } = props
 
   async function importConfigs() {
     try {
       await addSessions(acceptedFilesParsed.map(file => file.config))
       setActiveSession(acceptedFilesParsed[0].config.defaultSession.sessionName)
-      rootModel.hideDrawerWidget(
-        rootModel.drawerWidgets.get('importConfigurationDrawerWidget'),
-      )
+      session.hideDrawerWidget('importConfigurationDrawerWidget')
     } catch (error) {
       setErrorMessage(`${error}`)
     }

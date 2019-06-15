@@ -83,9 +83,7 @@ function AddConnectionDrawerWidget(props) {
 
   function handleFinish() {
     rootModel.configuration.addConnection(configModel)
-    rootModel.hideDrawerWidget(
-      rootModel.drawerWidgets.get('addConnectionDrawerWidget'),
-    )
+    rootModel.hideDrawerWidget('addConnectionDrawerWidget')
   }
 
   function checkNextEnabled() {
