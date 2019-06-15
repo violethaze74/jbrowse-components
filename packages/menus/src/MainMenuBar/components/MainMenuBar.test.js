@@ -17,7 +17,7 @@ describe('<MainMenuBar />', () => {
       defaultSession: { menuBars: [{ id: 'testing', type: 'MainMenuBar' }] },
     })
     const model = rootModel.menuBars[0]
-    const wrapper = shallow(<MainMenuBar model={model} />)
+    const wrapper = shallow(<MainMenuBar model={model} session={rootModel} />)
       .first()
       .shallow()
     expect(wrapper).toMatchSnapshot()

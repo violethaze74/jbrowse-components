@@ -1,7 +1,7 @@
 import { ElementId } from '@gmod/jbrowse-core/mst-types'
 import { stringToFunction } from '@gmod/jbrowse-core/util/functionStrings'
 import saveAs from 'file-saver'
-import { getRoot, getSnapshot, types } from 'mobx-state-tree'
+import { getSnapshot, types } from 'mobx-state-tree'
 
 export const MenuItemModel = types
   .model('MenuItemModel', {
@@ -9,7 +9,7 @@ export const MenuItemModel = types
     icon: types.optional(types.string, ''),
     callback: types.optional(
       types.string,
-      'function(model){console.log(model)}',
+      'function(session){console.log(session)}',
     ),
   })
   .views(self => ({
@@ -23,36 +23,20 @@ export const MenuItemModel = types
     getAction(action) {
       return this[action]
     },
-    openAbout() {
-      const rootModel = getRoot(self)
-      if (!rootModel.drawerWidgets.get('aboutDrawerWidget'))
-        rootModel.addDrawerWidget('AboutDrawerWidget', 'aboutDrawerWidget')
-      rootModel.showDrawerWidget(
-        rootModel.drawerWidgets.get('aboutDrawerWidget'),
+    openAbout(session) {
+      session.showDrawerWidget('aboutDrawerWidget', 'AboutDrawerWidget')
+    },
+    openHelp(session) {
+      session.showDrawerWidget('helpDrawerWidget', 'HelpDrawerWidget')
+    },
+    openConfigurationImport(session) {
+      session.showDrawerWidget(
+        'importConfigurationDrawerWidget',
+        'ImportConfigurationDrawerWidget',
       )
     },
-    openHelp() {
-      const rootModel = getRoot(self)
-      if (!rootModel.drawerWidgets.get('helpDrawerWidget'))
-        rootModel.addDrawerWidget('HelpDrawerWidget', 'helpDrawerWidget')
-      rootModel.showDrawerWidget(
-        rootModel.drawerWidgets.get('helpDrawerWidget'),
-      )
-    },
-    openConfigurationImport() {
-      const rootModel = getRoot(self)
-      if (!rootModel.drawerWidgets.get('importConfigurationDrawerWidget'))
-        rootModel.addDrawerWidget(
-          'ImportConfigurationDrawerWidget',
-          'importConfigurationDrawerWidget',
-        )
-      rootModel.showDrawerWidget(
-        rootModel.drawerWidgets.get('importConfigurationDrawerWidget'),
-      )
-    },
-    exportConfiguration() {
-      const rootModel = getRoot(self)
-      const initialSnap = JSON.stringify(getSnapshot(rootModel.configuration))
+    exportConfiguration(session) {
+      const initialSnap = JSON.stringify(getSnapshot(session.configuration))
       const filter = (key, value) => {
         if (key === 'configId' || key === 'id') {
           const re = new RegExp(`"${value}"`, 'g')
@@ -61,7 +45,7 @@ export const MenuItemModel = types
         return value
       }
       const configSnap = JSON.stringify(
-        getSnapshot(rootModel.configuration),
+        getSnapshot(session.configuration),
         filter,
         '  ',
       )
@@ -80,7 +64,7 @@ const MenuModel = types
   })
   .actions(self => ({
     addMenuItem({ name, icon = undefined, callback = undefined }) {
-      self.menuItems.push(MenuItemModel.create({ name, icon, callback }))
+      self.menuItems.push({ name, icon, callback })
     },
   }))
 
@@ -101,9 +85,9 @@ export default types
       })
     },
     unshiftMenu({ name, menuItems = [] }) {
-      self.menus.unshift(MenuModel.create({ name, menuItems }))
+      self.menus.unshift({ name, menuItems })
     },
     pushMenu({ name, menuItems = [] }) {
-      self.menus.push(MenuModel.create({ name, menuItems }))
+      self.menus.push({ name, menuItems })
     },
   }))

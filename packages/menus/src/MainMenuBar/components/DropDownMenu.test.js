@@ -45,7 +45,7 @@ describe('<DropDownMenu />', () => {
       <DropDownMenu
         menuTitle={menu.name}
         menuItems={menu.menuItems}
-        rootModel={rootModel}
+        session={rootModel}
       />,
     )
     expect(container.firstChild).toMatchSnapshot()
@@ -57,7 +57,7 @@ describe('<DropDownMenu />', () => {
       <DropDownMenu
         menuTitle={menu.name}
         menuItems={menu.menuItems}
-        rootModel={rootModel}
+        session={rootModel}
       />,
     )
     fireEvent.click(getByTestId('dropDownMenuButton'))

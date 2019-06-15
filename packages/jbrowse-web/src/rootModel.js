@@ -206,12 +206,12 @@ export default pluginManager => {
             id === 'configEditor' &&
             drawerWidget.target.configId === view.configuration.configId
           )
-            self.hideDrawerWidget(drawerWidget)
+            self.hideDrawerWidget(drawerWidget.id)
           else if (
             id === 'hierarchicalTrackSelector' &&
             drawerWidget.view.id === view.id
           )
-            self.hideDrawerWidget(drawerWidget)
+            self.hideDrawerWidget(drawerWidget.id)
         }
         self.views.remove(view)
       },
@@ -242,14 +242,32 @@ export default pluginManager => {
         self.drawerWidgets.set(model.id, model)
       },
 
-      showDrawerWidget(drawerWidget) {
-        if (self.activeDrawerWidgets.has(drawerWidget.id))
-          self.activeDrawerWidgets.delete(drawerWidget.id)
-        self.activeDrawerWidgets.set(drawerWidget.id, drawerWidget)
+      showDrawerWidget(
+        drawerWidgetId,
+        drawerWidgetTypeName,
+        initialState = {},
+      ) {
+        if (!self.drawerWidgets.has(drawerWidgetId)) {
+          if (!drawerWidgetTypeName)
+            throw new Error(
+              `Cannot show drawer widget ${drawerWidgetId}. No drawer widget with that ID exists, and a typeName was not provided to create a new one.`,
+            )
+          self.addDrawerWidget(
+            drawerWidgetTypeName,
+            drawerWidgetId,
+            initialState,
+          )
+        }
+        if (self.activeDrawerWidgets.has(drawerWidgetId))
+          self.activeDrawerWidgets.delete(drawerWidgetId)
+        self.activeDrawerWidgets.set(
+          drawerWidgetId,
+          self.drawerWidgets.get(drawerWidgetId),
+        )
       },
 
-      hideDrawerWidget(drawerWidget) {
-        self.activeDrawerWidgets.delete(drawerWidget.id)
+      hideDrawerWidget(drawerWidgetId) {
+        self.activeDrawerWidgets.delete(drawerWidgetId)
       },
 
       hideAllDrawerWidgets() {
@@ -312,7 +330,7 @@ export default pluginManager => {
           )
         const editor = self.drawerWidgets.get('configEditor')
         editor.setTarget(configuration)
-        self.showDrawerWidget(editor)
+        self.showDrawerWidget(editor.id)
       },
 
       clearConnections() {

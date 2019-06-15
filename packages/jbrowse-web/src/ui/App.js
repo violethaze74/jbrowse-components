@@ -103,7 +103,9 @@ function App(props) {
                 className={classes.drawerCloseButton}
                 color="inherit"
                 aria-label="Close"
-                onClick={() => rootModel.hideDrawerWidget(activeDrawerWidget)}
+                onClick={() =>
+                  rootModel.hideDrawerWidget(activeDrawerWidget.id)
+                }
               >
                 <Icon fontSize="small">close</Icon>
               </IconButton>
@@ -143,6 +145,7 @@ function App(props) {
                 <LazyReactComponent
                   key={`view-${menuBar.id}`}
                   model={menuBar}
+                  session={rootModel}
                 />
               </React.Suspense>
             )
