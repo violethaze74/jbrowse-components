@@ -5,24 +5,24 @@ import MainMenuBarModel, { MenuItemModel } from './model'
 jest.mock('file-saver')
 
 test('can export configuration', () => {
-  const rootSchema = types.model({
+  const sessionSchema = types.model({
     configuration: ConfigurationSchema('Toaster', {
       foo: { type: 'number', defaultValue: 42 },
     }),
-    item: MenuItemModel,
   })
 
-  const model = rootSchema.create({
-    item: {
-      name: 'export',
-      callback: 'exportConfiguration',
-    },
+  const menuItem = MenuItemModel.create({
+    name: 'export',
+    callback: 'exportConfiguration',
+  })
+
+  const session = sessionSchema.create({
     configuration: {
       foo: 99,
     },
   })
 
-  const jsonString = model.item.func()
+  const jsonString = menuItem.func(session)
   expect(jsonString).toContain('"foo": 99')
 })
 

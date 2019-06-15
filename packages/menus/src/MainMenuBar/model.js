@@ -52,8 +52,8 @@ export const MenuItemModel = types
       saveAs(new Blob([configSnap]), 'jbrowse_configuration.json')
       return configSnap
     },
-    importConfiguration() {
-      self.openConfigurationImport()
+    importConfiguration(session) {
+      self.openConfigurationImport(session)
     },
   }))
 
