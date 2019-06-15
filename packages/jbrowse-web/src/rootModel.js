@@ -87,6 +87,25 @@ export default pluginManager => {
         for (activeDrawerWidget of self.activeDrawerWidgets.values());
         return activeDrawerWidget
       },
+
+      get trackConfigs() {
+        const trackConfigurations = []
+        self.configuration.assemblies.forEach(assemblyConf => {
+          trackConfigurations.push(...assemblyConf.tracks)
+        })
+        Array.from(self.connections.keys()).forEach(connectionName => {
+          const connectionConf = self.connections.get(connectionName)
+          connectionConf.assemblies.forEach(assemblyConf => {
+            trackConfigurations.push(
+              ...assemblyConf.tracks.map(trackConf => {
+                trackConf.connectionName = connectionName
+                return trackConf
+              }),
+            )
+          })
+        })
+        return trackConfigurations
+      },
     }))
     .actions(self => ({
       afterCreate() {
