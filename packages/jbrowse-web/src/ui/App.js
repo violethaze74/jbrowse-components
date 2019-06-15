@@ -119,6 +119,7 @@ function App(props) {
           >
             <LazyReactComponent
               model={activeDrawerWidget}
+              session={rootModel}
               addSessions={addSessions}
               setActiveSession={setActiveSession}
             />

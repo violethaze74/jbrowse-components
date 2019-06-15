@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
 import Tooltip from '@material-ui/core/Tooltip'
 import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
-import { getRoot } from 'mobx-state-tree'
 import propTypes from 'prop-types'
 import React from 'react'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
@@ -41,8 +40,7 @@ const styles = theme => ({
 })
 
 function TrackEntry(props) {
-  const { model, disabled, trackConf, assemblyName, classes } = props
-  const rootModel = getRoot(model)
+  const { model, session, disabled, trackConf, assemblyName, classes } = props
   const titleText = assemblyName
     ? `The reference sequence for ${assemblyName}`
     : readConfObject(trackConf, 'description')
@@ -73,7 +71,7 @@ function TrackEntry(props) {
         </Tooltip>
         <IconButton
           className={classes.configureButton}
-          onClick={() => rootModel.editConfiguration(trackConf)}
+          onClick={() => session.editConfiguration(trackConf)}
         >
           <Icon fontSize="small">settings</Icon>
         </IconButton>

@@ -38,6 +38,8 @@ const styles = theme => ({
 function Category(props) {
   const {
     model,
+    session,
+    hierarchy,
     path,
     filterPredicate,
     disabled,
@@ -47,6 +49,25 @@ function Category(props) {
   } = props
   const pathName = path.join('|')
   const name = path[path.length - 1]
+
+  function allFilteredTracksInCategoryPath(subPath) {
+    let currentHier = hierarchy
+    subPath.forEach(pathItem => {
+      currentHier = currentHier.get(pathItem) || new Map()
+    })
+    let tracks = {}
+    currentHier.forEach((contents, categoryName) => {
+      if (contents.configId) {
+        if (filterPredicate(contents)) tracks[contents.configId] = contents
+      } else {
+        tracks = {
+          ...tracks,
+          ...allFilteredTracksInCategoryPath(subPath.concat([categoryName])),
+        }
+      }
+    })
+    return tracks
+  }
 
   return (
     <ExpansionPanel
@@ -64,13 +85,15 @@ function Category(props) {
       >
         <Typography variant="button">{`${name} (${
           Object.keys(
-            model.allTracksInCategoryPath(path, connection, assemblyName),
+            allFilteredTracksInCategoryPath(path, connection, assemblyName),
           ).length
         })`}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.expansionPanelDetails}>
         <Contents
           model={model}
+          session={session}
+          hierarchy={hierarchy}
           path={path}
           filterPredicate={filterPredicate}
           disabled={disabled}

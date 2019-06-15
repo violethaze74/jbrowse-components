@@ -13,7 +13,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     firstView.activateTrackSelector()
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
-    const { container } = render(<HierarchicalTrackSelector model={model} />)
+    const { container } = render(
+      <HierarchicalTrackSelector model={model} session={rootModel} />,
+    )
     expect(container.firstChild).toMatchSnapshot()
   })
 
@@ -57,7 +59,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     firstView.activateTrackSelector()
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
-    const { container } = render(<HierarchicalTrackSelector model={model} />)
+    const { container } = render(
+      <HierarchicalTrackSelector model={model} session={rootModel} />,
+    )
     expect(container.firstChild).toMatchSnapshot()
   })
 
@@ -106,7 +110,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     firstView.activateTrackSelector()
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
-    const { container } = render(<HierarchicalTrackSelector model={model} />)
+    const { container } = render(
+      <HierarchicalTrackSelector model={model} session={rootModel} />,
+    )
     expect(container.firstChild).toMatchSnapshot()
   })
 })

@@ -4,7 +4,6 @@ import FormGroup from '@material-ui/core/FormGroup'
 import { withStyles } from '@material-ui/core/styles'
 import { PropTypes as MobxPropTypes } from 'mobx-react'
 import { observer } from 'mobx-react-lite'
-import { getRoot } from 'mobx-state-tree'
 import propTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 // eslint-disable-next-line import/no-cycle
@@ -21,6 +20,8 @@ const styles = theme => ({
 function Contents(props) {
   const {
     model,
+    session,
+    hierarchy,
     path,
     filterPredicate,
     disabled,
@@ -30,17 +31,14 @@ function Contents(props) {
     assemblyName,
   } = props
 
-  let hierarchy = connection
-    ? model.connectionHierarchy(connection, assemblyName)
-    : model.hierarchy(assemblyName)
-
+  let subHierarchy = hierarchy
   path.forEach(pathEntry => {
-    hierarchy = hierarchy.get(pathEntry) || new Map()
+    subHierarchy = subHierarchy.get(pathEntry) || new Map()
   })
 
   const initialTrackConfigurations = []
   const initialCategories = []
-  Array.from(hierarchy)
+  Array.from(subHierarchy)
     .slice(0, 50)
     .forEach(([name, contents]) => {
       if (contents.configId) {
@@ -59,7 +57,7 @@ function Contents(props) {
       const numLoaded = categories.length + trackConfigurations.length
       const loadedTrackConfigurations = []
       const loadedCategories = []
-      Array.from(hierarchy)
+      Array.from(subHierarchy)
         .slice(numLoaded, numLoaded + 10)
         .forEach(([name, contents]) => {
           if (contents.configId) {
@@ -80,13 +78,12 @@ function Contents(props) {
       cancelIdleCallback(handle)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hierarchy.size, categories.length, trackConfigurations.length])
+  }, [subHierarchy.size, categories.length, trackConfigurations.length])
 
-  const rootModel = getRoot(model)
-  const { assemblyManager } = rootModel
+  const { assemblyManager } = session
   const assemblyData = assemblyManager.assemblyData.get(assemblyName)
   const doneLoading =
-    categories.length + trackConfigurations.length === hierarchy.size
+    categories.length + trackConfigurations.length === subHierarchy.size
   return (
     <>
       {top && assemblyData && !connection ? (
@@ -94,6 +91,7 @@ function Contents(props) {
           <FormGroup>
             <TrackEntry
               model={model}
+              session={session}
               trackConf={assemblyData.sequence}
               assemblyName={assemblyName}
             />
@@ -106,6 +104,7 @@ function Contents(props) {
           return (
             <TrackEntry
               key={trackConf.configId}
+              session={session}
               model={model}
               trackConf={trackConf}
               disabled={disabled}
@@ -118,6 +117,8 @@ function Contents(props) {
         <Category
           key={name}
           model={model}
+          session={session}
+          hierarchy={hierarchy}
           path={path.concat([name])}
           filterPredicate={filterPredicate}
           disabled={disabled}
