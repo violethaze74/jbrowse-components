@@ -12,6 +12,10 @@ const layoutPropType = ReactPropTypes.shape({
 function PileupRendering(props) {
   const highlightOverlayCanvas = useRef()
   const [featureIdUnderMouse, setFeatureIdUnderMouse] = useState()
+  const [mouseIsDown, setMouseIsDown] = useState(false)
+  const [movedDuringLastMouseDown, setMovedDuringLastMouseDown] = useState(
+    false,
+  )
 
   const {
     trackModel,
@@ -66,6 +70,8 @@ function PileupRendering(props) {
   }, [bpPerPx, horizontallyFlipped, layout, region, selectedFeatureId])
 
   function onMouseDown(event) {
+    setMouseIsDown(true)
+    setMovedDuringLastMouseDown(false)
     callMouseHandler('MouseDown', event)
   }
 
@@ -84,11 +90,12 @@ function PileupRendering(props) {
   }
 
   function onMouseUp(event) {
+    setMouseIsDown(false)
     callMouseHandler('MouseUp', event)
   }
 
   function onClick(event) {
-    callMouseHandler('Click', event)
+    if (!movedDuringLastMouseDown) callMouseHandler('Click', event)
   }
 
   function onMouseLeave(event) {
@@ -98,6 +105,7 @@ function PileupRendering(props) {
   }
 
   function onMouseMove(event) {
+    if (mouseIsDown) setMovedDuringLastMouseDown(true)
     const featureIdCurrentlyUnderMouse = findFeatureIdUnderMouse(event)
     if (featureIdUnderMouse === featureIdCurrentlyUnderMouse) {
       callMouseHandler('MouseMove', event)
