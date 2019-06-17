@@ -133,6 +133,8 @@ function Contents(props) {
 Contents.propTypes = {
   assemblyName: propTypes.string,
   model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
+  hierarchy: propTypes.shape().isRequired,
   path: propTypes.arrayOf(propTypes.string),
   filterPredicate: propTypes.func,
   disabled: propTypes.bool,

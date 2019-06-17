@@ -82,6 +82,7 @@ function TrackEntry(props) {
 
 TrackEntry.propTypes = {
   model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
   disabled: propTypes.bool,
   trackConf: MobxPropTypes.objectOrObservableObject.isRequired,
   assemblyName: propTypes.string,

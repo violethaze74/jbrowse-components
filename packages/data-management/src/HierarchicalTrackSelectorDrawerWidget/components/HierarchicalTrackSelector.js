@@ -221,6 +221,7 @@ function HierarchicalTrackSelector(props) {
 HierarchicalTrackSelector.propTypes = {
   classes: propTypes.objectOf(propTypes.string).isRequired,
   model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(HierarchicalTrackSelector))

@@ -257,7 +257,7 @@ function ImportConfiguration(props) {
 ImportConfiguration.propTypes = {
   addSessions: PropTypes.func.isRequired,
   setActiveSession: PropTypes.func.isRequired,
-  model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default observer(ImportConfiguration)
