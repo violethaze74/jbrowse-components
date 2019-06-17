@@ -9,16 +9,18 @@ const createMockTrackStateModel = track =>
       staticBlocks: types.frozen(),
       track: track.stateModel,
     })
-    .actions(self => {
-      return {
-        setSelection(thing) {
-          self.selection = thing
-        },
-        clearSelection() {
-          self.selection = undefined
-        },
-      }
-    })
+    .actions(self => ({
+      setSelection(thing) {
+        self.selection = thing
+      },
+      clearSelection() {
+        self.selection = undefined
+      },
+      event(event, target, targetType) {
+        if (event.type === 'click' && targetType === 'alignmentsFeature')
+          self.setSelection(target)
+      },
+    }))
 
 const createMockTrack = track =>
   createMockTrackStateModel(track).create({
@@ -78,13 +80,17 @@ test('test selection in alignments track model with mock root', async () => {
     pluginManager.getTrackType('AlignmentsTrack'),
   )
 
-  rootModel.track.selectFeature({
-    id() {
-      return 1234
+  rootModel.event(
+    { type: 'click' },
+    {
+      id() {
+        return 1234
+      },
     },
-  })
+    'alignmentsFeature',
+  )
   expect(rootModel.selection.id()).toBe(1234)
 
-  rootModel.track.clearFeatureSelection()
+  rootModel.event({ type: 'click' }, undefined, 'alignmentsFeature')
   expect(rootModel.selection).not.toBeTruthy()
 })

@@ -137,7 +137,7 @@ describe('some error state', () => {
   })
 })
 
-describe('variant', () => {
+describe.only('variant', () => {
   it('click on a vcf feature', async () => {
     const { getByTestId: byId, getByText } = render(
       <JBrowse configs={[config]} />,

@@ -122,6 +122,15 @@ export default pluginManager => {
         })
       },
 
+      event(event, target, targetType) {
+        return self.pluginManager.actionManager.performAction(
+          self,
+          targetType,
+          event.type,
+          target,
+        )
+      },
+
       addConnection(connectionConf) {
         const connectionType = pluginManager.getConnectionType(
           connectionConf.type,

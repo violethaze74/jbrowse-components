@@ -1,159 +1,187 @@
 import { PropTypes as CommonPropTypes } from '@gmod/jbrowse-core/mst-types'
-import { observer } from 'mobx-react'
+import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import Box from './Box'
 import './SvgFeatureRendering.scss'
 
-class SvgFeatureRendering extends Component {
-  static propTypes = {
-    layout: ReactPropTypes.shape({
-      addRect: ReactPropTypes.func.isRequired,
-      getTotalHeight: ReactPropTypes.func.isRequired,
-    }).isRequired,
+function SvgFeatureRendering(props) {
+  const [mouseIsDown, setMouseIsDown] = useState(false)
+  const [movedDuringLastMouseDown, setMovedDuringLastMouseDown] = useState(
+    false,
+  )
 
-    region: CommonPropTypes.Region.isRequired,
-    bpPerPx: ReactPropTypes.number.isRequired,
-    horizontallyFlipped: ReactPropTypes.bool,
-    features: ReactPropTypes.instanceOf(Map),
-    config: CommonPropTypes.ConfigSchema.isRequired,
-    trackModel: ReactPropTypes.shape({
-      /** id of the currently selected feature, if any */
-      selectedFeatureId: ReactPropTypes.string,
-    }),
+  const {
+    region,
+    bpPerPx,
+    layout,
+    horizontallyFlipped,
+    config,
+    features,
+    targetType,
+    session,
+  } = props
 
-    onMouseDown: ReactPropTypes.func,
-    onMouseUp: ReactPropTypes.func,
-    onMouseEnter: ReactPropTypes.func,
-    onMouseLeave: ReactPropTypes.func,
-    onMouseOver: ReactPropTypes.func,
-    onMouseOut: ReactPropTypes.func,
-    onClick: ReactPropTypes.func,
-  }
-
-  static defaultProps = {
-    horizontallyFlipped: false,
-
-    trackModel: {},
-
-    features: new Map(),
-
-    onMouseDown: undefined,
-    onMouseUp: undefined,
-    onMouseEnter: undefined,
-    onMouseLeave: undefined,
-    onMouseOver: undefined,
-    onMouseOut: undefined,
-    onClick: undefined,
-  }
-
-  onMouseDown = event => {
-    const { onMouseDown: handler } = this.props
+  function onMouseDown(event) {
+    setMouseIsDown(true)
+    setMovedDuringLastMouseDown(false)
+    const { onMouseDown: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onMouseUp = event => {
-    const { onMouseUp: handler } = this.props
+  function onMouseUp(event) {
+    setMouseIsDown(false)
+    const { onMouseUp: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onMouseEnter = event => {
-    const { onMouseEnter: handler } = this.props
+  function onMouseEnter(event) {
+    const { onMouseEnter: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onMouseLeave = event => {
-    const { onMouseLeave: handler } = this.props
+  function onMouseLeave(event) {
+    const { onMouseLeave: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onMouseOver = event => {
-    const { onMouseOver: handler } = this.props
+  function onMouseOver(event) {
+    const { onMouseOver: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onMouseOut = event => {
-    const { onMouseOut: handler } = this.props
+  function onMouseOut(event) {
+    const { onMouseOut: handler } = props
     if (!handler) return undefined
     return handler(event)
   }
 
-  onClick = event => {
-    const { onClick: handler } = this.props
-    if (!handler) return undefined
-    return handler(event)
+  function onMouseMove() {
+    if (mouseIsDown) setMovedDuringLastMouseDown(true)
   }
 
-  chooseGlyphComponent(/* feature */) {
+  function onClick(event) {
+    if (!movedDuringLastMouseDown) {
+      const { onClick: handler } = props
+      session.event(event, undefined, targetType)
+      if (!handler) return undefined
+      return handler(event)
+    }
+    return undefined
+  }
+
+  function chooseGlyphComponent(/* feature */) {
     return Box
   }
 
-  render() {
-    const {
-      region,
-      bpPerPx,
-      layout,
-      horizontallyFlipped,
-      config,
-      features,
-      trackModel: { selectedFeatureId },
-    } = this.props
-
-    const featuresRendered = []
-    for (const feature of features.values()) {
-      try {
-        const FeatureComponent = this.chooseGlyphComponent(feature)
-        const layoutRecord = FeatureComponent.layout({
-          feature,
-          horizontallyFlipped,
-          bpPerPx,
-          region,
-          config,
-          layout,
-        })
-        featuresRendered.push(
-          <FeatureComponent
-            {...this.props}
-            layoutRecord={layoutRecord}
-            feature={feature}
-            key={feature.id()}
-            selectedFeatureId={selectedFeatureId}
-          />,
-        )
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    const width = (region.end - region.start) / bpPerPx
-    const height = layout.getTotalHeight()
-
-    return (
-      <svg
-        className="SvgFeatureRendering"
-        width={`${width}px`}
-        height={`${height}px`}
-        style={{
-          position: 'relative',
-        }}
-        onMouseDown={this.onMouseDown}
-        onMouseUp={this.onMouseUp}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOut}
-        onFocus={this.onMouseEnter}
-        onBlur={this.onMouseLeave}
-        onClick={this.onClick}
-      >
-        {featuresRendered}
-      </svg>
+  // is the globally-selected thing probably a feature?
+  let selectedFeatureId
+  if (session) {
+    const { selection } = session
+    // does it quack like a feature?
+    if (
+      selection &&
+      typeof selection.get === 'function' &&
+      typeof selection.id === 'function'
     )
+      // probably is a feature
+      selectedFeatureId = selection.id()
   }
+
+  const featuresRendered = []
+  for (const feature of features.values()) {
+    try {
+      const FeatureComponent = chooseGlyphComponent(feature)
+      const layoutRecord = FeatureComponent.layout({
+        feature,
+        horizontallyFlipped,
+        bpPerPx,
+        region,
+        config,
+        layout,
+      })
+      featuresRendered.push(
+        <FeatureComponent
+          {...props}
+          layoutRecord={layoutRecord}
+          feature={feature}
+          key={feature.id()}
+          selectedFeatureId={selectedFeatureId}
+        />,
+      )
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const width = (region.end - region.start) / bpPerPx
+  const height = layout.getTotalHeight()
+
+  return (
+    <svg
+      className="SvgFeatureRendering"
+      width={`${width}px`}
+      height={`${height}px`}
+      style={{
+        position: 'relative',
+      }}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onMouseOver={onMouseOver}
+      onMouseOut={onMouseOut}
+      onFocus={onMouseEnter}
+      onBlur={onMouseLeave}
+      onMouseMove={onMouseMove}
+      onClick={onClick}
+    >
+      {featuresRendered}
+    </svg>
+  )
 }
+
+SvgFeatureRendering.propTypes = {
+  layout: ReactPropTypes.shape({
+    addRect: ReactPropTypes.func.isRequired,
+    getTotalHeight: ReactPropTypes.func.isRequired,
+  }).isRequired,
+
+  region: CommonPropTypes.Region.isRequired,
+  bpPerPx: ReactPropTypes.number.isRequired,
+  horizontallyFlipped: ReactPropTypes.bool,
+  features: ReactPropTypes.instanceOf(Map),
+  config: CommonPropTypes.ConfigSchema.isRequired,
+  targetType: ReactPropTypes.string,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
+
+  onMouseDown: ReactPropTypes.func,
+  onMouseUp: ReactPropTypes.func,
+  onMouseEnter: ReactPropTypes.func,
+  onMouseLeave: ReactPropTypes.func,
+  onMouseOver: ReactPropTypes.func,
+  onMouseOut: ReactPropTypes.func,
+  onClick: ReactPropTypes.func,
+}
+
+SvgFeatureRendering.defaultProps = {
+  horizontallyFlipped: false,
+  targetType: 'feature',
+
+  features: new Map(),
+
+  onMouseDown: undefined,
+  onMouseUp: undefined,
+  onMouseEnter: undefined,
+  onMouseLeave: undefined,
+  onMouseOver: undefined,
+  onMouseOut: undefined,
+  onClick: undefined,
+}
+
 export default observer(SvgFeatureRendering)

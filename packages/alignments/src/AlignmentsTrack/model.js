@@ -8,7 +8,7 @@ import {
   BlockBasedTrack,
   blockBasedTrackModel,
 } from '@gmod/jbrowse-plugin-linear-genome-view'
-import { getRoot, types } from 'mobx-state-tree'
+import { types } from 'mobx-state-tree'
 import TrackControls from './components/TrackControls'
 
 // using a map because it preserves order
@@ -34,27 +34,6 @@ export default configSchema =>
         rendererTypeChoices: Array.from(rendererTypes.keys()),
       }))
       .actions(self => ({
-        selectFeature(feature) {
-          const root = getRoot(self)
-          // TODO: we shouldn't need to have to get this deep into knowing about
-          // drawer widgets here, the drawer widget should be a reaction to
-          // setting a selected feature...right???
-          if (root.drawerWidgets) {
-            if (!root.drawerWidgets.get('alignmentsFeature'))
-              root.addDrawerWidget(
-                'AlignmentsFeatureDrawerWidget',
-                'alignmentsFeature',
-              )
-            const featureWidget = root.drawerWidgets.get('alignmentsFeature')
-            featureWidget.setFeatureData(feature.data)
-            root.showDrawerWidget(featureWidget)
-          }
-          root.setSelection(feature)
-        },
-        clearFeatureSelection() {
-          const root = getRoot(self)
-          root.clearSelection()
-        },
         setRenderer(newRenderer) {
           self.selectedRendering = newRenderer
         },
@@ -78,26 +57,6 @@ export default configSchema =>
         },
 
         /**
-         * returns a string feature ID if the globally-selected object
-         * is probably a feature
-         */
-        get selectedFeatureId() {
-          const root = getRoot(self)
-          if (!root) return undefined
-          const { selection } = root
-          // does it quack like a feature?
-          if (
-            selection &&
-            typeof selection.get === 'function' &&
-            typeof selection.id === 'function'
-          ) {
-            // probably is a feature
-            return selection.id()
-          }
-          return undefined
-        },
-
-        /**
          * the react props that are passed to the Renderer when data
          * is rendered in this track
          */
@@ -108,16 +67,9 @@ export default configSchema =>
           )
           return {
             ...getParentRenderProps(self),
-            trackModel: self,
             config,
-            onFeatureClick(event, featureId) {
-              // try to find the feature in our layout
-              const feature = self.features.get(featureId)
-              self.selectFeature(feature)
-            },
-            onClick() {
-              self.clearFeatureSelection()
-            },
+            getFeature: featureId => self.features.get(featureId),
+            targetType: 'alignmentsFeature',
           }
         },
 

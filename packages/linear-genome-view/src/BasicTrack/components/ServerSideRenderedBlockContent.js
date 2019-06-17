@@ -49,11 +49,9 @@ const BlockMessage = withStyles(styles)(({ messageText, classes }) => (
   <div className={classes.blockMessage}>{messageText}</div>
 ))
 
-const ServerSideRenderedBlockContent = observer(({ model }) => {
+export default observer(({ model, session }) => {
   if (model.error) return <ErrorMessage error={model.error} />
   if (model.message) return <BlockMessage messageText={model.message} />
   if (!model.filled) return <LoadingMessage />
-  return <ServerSideRenderedContent model={model} />
+  return <ServerSideRenderedContent model={model} session={session} />
 })
-
-export default ServerSideRenderedBlockContent

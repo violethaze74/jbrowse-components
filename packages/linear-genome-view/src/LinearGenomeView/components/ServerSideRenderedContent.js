@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { observer, PropTypes } from 'mobx-react'
 import { hydrate, unmountComponentAtNode } from 'react-dom'
 import { isAlive, isStateTreeNode, getSnapshot } from 'mobx-state-tree'
@@ -7,72 +7,67 @@ import { isAlive, isStateTreeNode, getSnapshot } from 'mobx-state-tree'
  * A block whose content is rendered outside of the main thread and hydrated by this
  * component.
  */
-class ServerSideRenderedContent extends Component {
-  static propTypes = {
-    model: PropTypes.observableObject.isRequired,
-  }
+function ServerSideRenderedContent(props) {
+  const ssrContainerNode = useRef()
+  const [hydrated, setHydrated] = useState(false)
 
-  constructor(props) {
-    super(props)
-    this.ssrContainerNode = React.createRef()
-  }
+  const { model, session } = props
+  const { data, region, html, renderProps, renderingComponent } = model
 
-  componentDidMount() {
-    this.doHydrate()
-  }
+  useEffect(() => {
+    let domNode
 
-  componentDidUpdate() {
-    this.doHydrate()
-  }
-
-  componentWillUnmount() {
-    const domNode = this.ssrContainerNode.current
-    if (domNode && this.hydrated) unmountComponentAtNode(domNode.firstChild)
-  }
-
-  doHydrate() {
-    const { model } = this.props
-    const { data, region, html, renderProps, renderingComponent } = model
-    const domNode = this.ssrContainerNode.current
-    if (domNode && model.filled) {
-      if (this.hydrated) unmountComponentAtNode(domNode.firstChild)
-      domNode.innerHTML = `<div className="ssr-container-inner"></div>`
-      domNode.firstChild.innerHTML = html
-      // defer main-thread rendering and hydration for when
-      // we have some free time. helps keep the framerate up.
-      requestIdleCallback(
-        () => {
-          if (!isAlive(model) || !isAlive(region)) return
-          const serializedRegion = isStateTreeNode(region)
-            ? getSnapshot(region)
-            : region
-          const mainThreadRendering = React.createElement(
-            renderingComponent,
-            {
-              ...data,
-              region: serializedRegion,
-              ...renderProps,
-            },
-            null,
-          )
-          hydrate(mainThreadRendering, domNode.firstChild)
-          this.hydrated = true
-        },
-        { timeout: 50 },
-      )
+    function doHydrate() {
+      domNode = ssrContainerNode.current
+      if (domNode && model.filled) {
+        if (hydrated) unmountComponentAtNode(domNode.firstChild)
+        domNode.innerHTML = `<div className="ssr-container-inner"></div>`
+        domNode.firstChild.innerHTML = html
+        // defer main-thread rendering and hydration for when
+        // we have some free time. helps keep the framerate up.
+        requestIdleCallback(
+          () => {
+            if (!isAlive(model) || !isAlive(region)) return
+            const serializedRegion = isStateTreeNode(region)
+              ? getSnapshot(region)
+              : region
+            const mainThreadRendering = React.createElement(
+              renderingComponent,
+              {
+                ...data,
+                region: serializedRegion,
+                session,
+                ...renderProps,
+              },
+              null,
+            )
+            hydrate(mainThreadRendering, domNode.firstChild)
+            setHydrated(true)
+          },
+          { timeout: 10 },
+        )
+      }
     }
-  }
 
-  render() {
-    const { model } = this.props
-    return (
-      <div
-        ref={this.ssrContainerNode}
-        data-html-size={model.html.length}
-        className="ssr-container"
-      />
-    )
-  }
+    doHydrate()
+
+    return () => {
+      if (domNode && hydrated) unmountComponentAtNode(domNode.firstChild)
+    }
+  })
+
+  return (
+    <div
+      ref={ssrContainerNode}
+      data-html-size={model.html.length}
+      className="ssr-container"
+    />
+  )
+}
+
+ServerSideRenderedContent.propTypes = {
+  model: PropTypes.observableObject.isRequired,
+  session: PropTypes.objectOrObservableObject.isRequired,
 }
 
 export default observer(ServerSideRenderedContent)

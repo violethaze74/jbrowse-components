@@ -1,3 +1,5 @@
+import { createMuiTheme } from '@material-ui/core/styles'
+import { ThemeProvider } from '@material-ui/styles'
 import React from 'react'
 import { render } from 'react-testing-library'
 import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
@@ -5,6 +7,8 @@ import HierarchicalTrackSelector from './HierarchicalTrackSelector'
 
 window.requestIdleCallback = cb => cb()
 window.cancelIdleCallback = () => {}
+
+const theme = createMuiTheme()
 
 describe('HierarchicalTrackSelector drawer widget', () => {
   it('renders with just the required model elements', async () => {
@@ -14,7 +18,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
     const { container } = render(
-      <HierarchicalTrackSelector model={model} session={rootModel} />,
+      <ThemeProvider theme={theme}>
+        <HierarchicalTrackSelector model={model} session={rootModel} />
+      </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
@@ -60,7 +66,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
     const { container } = render(
-      <HierarchicalTrackSelector model={model} session={rootModel} />,
+      <ThemeProvider theme={theme}>
+        <HierarchicalTrackSelector model={model} session={rootModel} />
+      </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
@@ -111,7 +119,9 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
 
     const { container } = render(
-      <HierarchicalTrackSelector model={model} session={rootModel} />,
+      <ThemeProvider theme={theme}>
+        <HierarchicalTrackSelector model={model} session={rootModel} />
+      </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()
   })

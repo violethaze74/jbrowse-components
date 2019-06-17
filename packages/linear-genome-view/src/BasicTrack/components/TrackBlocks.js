@@ -36,11 +36,17 @@ const ElidedBlockMarker = withStyles(styles)(function ElidedBlockMarker({
   )
 })
 
-function TrackBlocks({ classes, model, offsetPx, bpPerPx, blockState }) {
-  const { blockDefinitions } = model
+function TrackBlocks({
+  classes,
+  model,
+  offsetPx,
+  bpPerPx,
+  blockState,
+  session,
+}) {
   return (
     <div data-testid="Block" className={classes.trackBlocks}>
-      {blockDefinitions.map(block => {
+      {model.blockDefinitions.map(block => {
         if (block instanceof ContentBlock) {
           const state = blockState.get(block.key)
           return (
@@ -56,7 +62,7 @@ function TrackBlocks({ classes, model, offsetPx, bpPerPx, blockState }) {
               bpPerPx={bpPerPx}
             >
               {state && state.reactComponent ? (
-                <state.reactComponent model={state} />
+                <state.reactComponent model={state} session={session} />
               ) : (
                 ' '
               )}
@@ -84,6 +90,7 @@ TrackBlocks.propTypes = {
   bpPerPx: ReactPropTypes.number.isRequired,
   blockState: PropTypes.observableMap.isRequired,
   model: PropTypes.observableObject.isRequired,
+  session: PropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(TrackBlocks))

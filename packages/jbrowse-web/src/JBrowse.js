@@ -128,10 +128,7 @@ function JBrowse(props) {
     <ThemeProvider theme={Theme}>
       <CssBaseline />
       <App
-        rootModel={sessions.get(activeSession)}
-        getViewType={pluginManager.getViewType}
-        getDrawerWidgetType={pluginManager.getDrawerWidgetType}
-        getMenuBarType={pluginManager.getMenuBarType}
+        session={sessions.get(activeSession)}
         sessionNames={Array.from(sessions.keys())}
         activeSession={activeSession}
         setActiveSession={setActiveSession}

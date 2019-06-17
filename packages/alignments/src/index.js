@@ -60,5 +60,25 @@ export default class extends Plugin {
           configSchema: pileupRendererConfigSchema,
         }),
     )
+
+    pluginManager.registerAction(
+      'alignmentsFeature',
+      'click',
+      (session, feature) => {
+        if (!feature) {
+          session.clearSelection()
+          return
+        }
+        if (!session.drawerWidgets.get('alignmentsFeature'))
+          session.addDrawerWidget(
+            'AlignmentsFeatureDrawerWidget',
+            'alignmentsFeature',
+          )
+        const featureWidget = session.drawerWidgets.get('alignmentsFeature')
+        featureWidget.setFeatureData(feature.data)
+        session.showDrawerWidget(featureWidget.id)
+        session.setSelection(feature)
+      },
+    )
   }
 }

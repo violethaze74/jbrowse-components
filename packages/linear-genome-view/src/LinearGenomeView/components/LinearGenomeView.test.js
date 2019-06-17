@@ -20,7 +20,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const { container } = render(<LinearGenomeView model={model} />)
+    const { container } = render(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     expect(container).toMatchSnapshot()
   })
   it('renders one track, no blocks', async () => {
@@ -73,7 +75,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const { container } = render(<LinearGenomeView model={model} />)
+    const { container } = render(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     expect(container).toMatchSnapshot()
   })
   it('renders two tracks, two regions', async () => {
@@ -147,7 +151,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const { container } = render(<LinearGenomeView model={model} />)
+    const { container } = render(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     expect(container).toMatchSnapshot()
   })
 })

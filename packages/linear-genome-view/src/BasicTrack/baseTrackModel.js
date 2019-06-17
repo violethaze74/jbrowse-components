@@ -34,7 +34,7 @@ export const BaseTrackConfig = ConfigurationSchema('BaseTrack', {
 // these MST models only exist for tracks that are *shown*.
 // they should contain only UI state for the track, and have
 // a reference to a track configuration (stored under
-// root.configuration.assemblies.get(assemblyName).tracks).
+// root.configuration.assemblies[idx].tracks).
 
 // note that multiple displayed tracks could use the same configuration.
 const minTrackHeight = 20
@@ -141,11 +141,11 @@ export default types
     setHeight(trackHeight) {
       if (trackHeight >= minTrackHeight) self.height = trackHeight
     },
+
     setError(e) {
       self.ready = true
       self.error = e
     },
-
     activateConfigurationUI() {
       getRoot(self).editConfiguration(self.configuration)
     },

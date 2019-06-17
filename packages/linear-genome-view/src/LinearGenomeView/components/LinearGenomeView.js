@@ -2,7 +2,6 @@ import { Icon, IconButton, withStyles } from '@material-ui/core'
 import ToggleButton from '@material-ui/lab/ToggleButton'
 import classnames from 'classnames'
 import { observer, PropTypes } from 'mobx-react'
-import { getRoot } from 'mobx-state-tree'
 import ReactPropTypes from 'prop-types'
 import React from 'react'
 
@@ -52,8 +51,7 @@ const styles = theme => ({
 
 function LinearGenomeView(props) {
   const scaleBarHeight = 32
-  const { classes, model } = props
-  const rootModel = getRoot(model)
+  const { classes, model, session } = props
   const {
     id,
     staticBlocks,
@@ -110,10 +108,10 @@ function LinearGenomeView(props) {
                 title="select tracks"
                 className={classes.toggleButton}
                 selected={
-                  rootModel.visibleDrawerWidget &&
-                  rootModel.visibleDrawerWidget.id ===
+                  session.visibleDrawerWidget &&
+                  session.visibleDrawerWidget.id ===
                     'hierarchicalTrackSelector' &&
-                  rootModel.visibleDrawerWidget.view.id === model.id
+                  session.visibleDrawerWidget.view.id === model.id
                 }
                 value="track_select"
                 data_testid="track_select"
@@ -174,6 +172,7 @@ function LinearGenomeView(props) {
           >
             <track.RenderingComponent
               model={track}
+              session={session}
               offsetPx={offsetPx}
               bpPerPx={bpPerPx}
               blockState={{}}
@@ -193,6 +192,7 @@ function LinearGenomeView(props) {
 LinearGenomeView.propTypes = {
   classes: ReactPropTypes.objectOf(ReactPropTypes.string).isRequired,
   model: PropTypes.objectOrObservableObject.isRequired,
+  session: PropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(LinearGenomeView))

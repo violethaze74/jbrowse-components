@@ -10,6 +10,7 @@ import MenuBarType from './pluggableElementTypes/MenuBarType'
 import ConnectionType from './pluggableElementTypes/ConnectionType'
 
 import { ConfigurationSchema } from './configuration'
+import ActionManager from './ActionManager'
 
 // little helper class that keeps groups of callbacks that are
 // then run in a specified order by group
@@ -51,6 +52,8 @@ export default class PluginManager {
     'drawer widget',
     'menu bar',
   )
+
+  actionManager = new ActionManager()
 
   typeBaseClasses = {
     renderer: RendererType,
@@ -95,7 +98,6 @@ export default class PluginManager {
     if (this.plugins.includes(plugin)) {
       throw new Error('plugin already installed')
     }
-    // if (!plugin.install) console.error(plugin)
     plugin.install(this)
     this.plugins.push(plugin)
     return this
@@ -173,6 +175,10 @@ export default class PluginManager {
     return this.getElementTypesInGroup(groupName)
       .map(t => t[memberName])
       .filter(m => !!m)
+  }
+
+  registerAction(actionTargetType, eventType, action) {
+    this.actionManager.registerAction(actionTargetType, eventType, action)
   }
 
   configure() {
