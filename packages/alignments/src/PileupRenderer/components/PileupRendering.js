@@ -19,15 +19,30 @@ function PileupRendering(props) {
   )
 
   const {
-    trackModel,
     region,
     bpPerPx,
     layout,
     horizontallyFlipped,
     width,
     height,
+    getFeature,
+    targetType,
+    session,
   } = props
-  const { selectedFeatureId } = trackModel
+
+  // is the globally-selected thing probably a feature?
+  let selectedFeatureId
+  if (session) {
+    const { selection } = session
+    // does it quack like a feature?
+    if (
+      selection &&
+      typeof selection.get === 'function' &&
+      typeof selection.id === 'function'
+    )
+      // probably is a feature
+      selectedFeatureId = selection.id()
+  }
 
   useEffect(() => {
     function updateSelectionHighlight() {
@@ -96,7 +111,10 @@ function PileupRendering(props) {
   }
 
   function onClick(event) {
-    if (!movedDuringLastMouseDown) callMouseHandler('Click', event)
+    if (!movedDuringLastMouseDown) {
+      session.event(event, getFeature(featureIdUnderMouse), targetType)
+      callMouseHandler('Click', event)
+    }
   }
 
   function onMouseLeave(event) {
@@ -201,10 +219,7 @@ PileupRendering.propTypes = {
   bpPerPx: ReactPropTypes.number.isRequired,
   horizontallyFlipped: ReactPropTypes.bool,
 
-  trackModel: ReactPropTypes.shape({
-    /** id of the currently selected feature, if any */
-    selectedFeatureId: ReactPropTypes.string,
-  }),
+  targetType: ReactPropTypes.string,
 
   onFeatureMouseDown: ReactPropTypes.func,
   onFeatureMouseEnter: ReactPropTypes.func,
@@ -230,7 +245,7 @@ PileupRendering.propTypes = {
 PileupRendering.defaultProps = {
   horizontallyFlipped: false,
 
-  trackModel: {},
+  targetType: 'feature',
 
   onFeatureMouseDown: undefined,
   onFeatureMouseEnter: undefined,

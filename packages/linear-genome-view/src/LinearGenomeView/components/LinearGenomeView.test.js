@@ -20,7 +20,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const component = renderer.create(<LinearGenomeView model={model} />)
+    const component = renderer.create(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     const tree = component.toJSON()
     expect(tree).toMatchSnapshot()
   })
@@ -74,7 +76,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const component = renderer.create(<LinearGenomeView model={model} />)
+    const component = renderer.create(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     const tree = component.toJSON()
     expect(tree).toMatchSnapshot()
   })
@@ -149,7 +153,9 @@ describe('LinearGenomeView genome view component', () => {
       },
     })
     const model = rootModel.views[0]
-    const component = renderer.create(<LinearGenomeView model={model} />)
+    const component = renderer.create(
+      <LinearGenomeView model={model} session={rootModel} />,
+    )
     const tree = component.toJSON()
     expect(tree).toMatchSnapshot()
   })

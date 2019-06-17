@@ -26,7 +26,7 @@ exports[`one 1`] = `
         "start": 1,
       }
     }
-    trackModel={Object {}}
+    targetType="feature"
     width={500}
   />
   <canvas

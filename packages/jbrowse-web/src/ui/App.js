@@ -58,10 +58,7 @@ const styles = theme => ({
 function App(props) {
   const {
     classes,
-    getDrawerWidgetType,
-    getViewType,
-    getMenuBarType,
-    rootModel,
+    session,
     sessionNames,
     activeSession,
     setActiveSession,
@@ -69,11 +66,13 @@ function App(props) {
     size,
   } = props
 
-  useEffect(() => {
-    rootModel.updateWidth(size.width)
-  }, [rootModel, size])
+  const { pluginManager } = session
 
-  const drawerWidgets = Array.from(rootModel.activeDrawerWidgets.values())
+  useEffect(() => {
+    session.updateWidth(size.width)
+  }, [session, size])
+
+  const drawerWidgets = Array.from(session.activeDrawerWidgets.values())
   let drawerComponent
   if (drawerWidgets.length) {
     const activeDrawerWidget = drawerWidgets[drawerWidgets.length - 1]
@@ -81,7 +80,7 @@ function App(props) {
       LazyReactComponent,
       HeadingComponent,
       heading,
-    } = getDrawerWidgetType(activeDrawerWidget.type)
+    } = pluginManager.getDrawerWidgetType(activeDrawerWidget.type)
     drawerComponent = (
       <Slide direction="left" in>
         <div>
@@ -103,9 +102,7 @@ function App(props) {
                 className={classes.drawerCloseButton}
                 color="inherit"
                 aria-label="Close"
-                onClick={() =>
-                  rootModel.hideDrawerWidget(activeDrawerWidget.id)
-                }
+                onClick={() => session.hideDrawerWidget(activeDrawerWidget.id)}
               >
                 <Icon fontSize="small">close</Icon>
               </IconButton>
@@ -121,7 +118,7 @@ function App(props) {
           >
             <LazyReactComponent
               model={activeDrawerWidget}
-              session={rootModel}
+              session={session}
               addSessions={addSessions}
               setActiveSession={setActiveSession}
             />
@@ -135,8 +132,10 @@ function App(props) {
     <div className={classes.root}>
       <div className={classes.menuBarsAndComponents}>
         <div className={classes.menuBars}>
-          {rootModel.menuBars.map(menuBar => {
-            const { LazyReactComponent } = getMenuBarType(menuBar.type)
+          {session.menuBars.map(menuBar => {
+            const { LazyReactComponent } = pluginManager.getMenuBarType(
+              menuBar.type,
+            )
             return (
               <React.Suspense
                 key={`view-${menuBar.id}`}
@@ -145,7 +144,7 @@ function App(props) {
                 <LazyReactComponent
                   key={`view-${menuBar.id}`}
                   model={menuBar}
-                  session={rootModel}
+                  session={session}
                 />
               </React.Suspense>
             )
@@ -153,17 +152,23 @@ function App(props) {
         </div>
         <Scrollbars
           className={classes.components}
-          style={{ width: rootModel.width }}
+          style={{ width: session.width }}
         >
-          {rootModel.views.map(view => {
-            const { ReactComponent } = getViewType(view.type)
-            return <ReactComponent key={`view-${view.id}`} model={view} />
+          {session.views.map(view => {
+            const { ReactComponent } = pluginManager.getViewType(view.type)
+            return (
+              <ReactComponent
+                key={`view-${view.id}`}
+                model={view}
+                session={session}
+              />
+            )
           })}
           <div className={classes.developer}>
             <h3>Developer tools</h3>
             <button
               type="button"
-              onClick={() => rootModel.addView('LinearGenomeView', {})}
+              onClick={() => session.addView('LinearGenomeView', {})}
             >
               Add linear view
             </button>
@@ -181,8 +186,8 @@ function App(props) {
         </Scrollbars>
       </div>
       <Drawer
-        rootModel={rootModel}
-        open={Boolean(rootModel.activeDrawerWidgets.size)}
+        rootModel={session}
+        open={Boolean(session.activeDrawerWidgets.size)}
       >
         {drawerComponent}
       </Drawer>
@@ -192,10 +197,7 @@ function App(props) {
 
 App.propTypes = {
   classes: ReactPropTypes.objectOf(ReactPropTypes.string).isRequired,
-  rootModel: PropTypes.observableObject.isRequired,
-  getViewType: ReactPropTypes.func.isRequired,
-  getDrawerWidgetType: ReactPropTypes.func.isRequired,
-  getMenuBarType: ReactPropTypes.func.isRequired,
+  session: PropTypes.observableObject.isRequired,
   size: ReactPropTypes.objectOf(ReactPropTypes.number).isRequired,
   sessionNames: ReactPropTypes.arrayOf(ReactPropTypes.string).isRequired,
   activeSession: ReactPropTypes.string.isRequired,
