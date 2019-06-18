@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { PropTypes as MobxPropTypes } from 'mobx-react'
 import { observer } from 'mobx-react-lite'
-import { getRoot } from 'mobx-state-tree'
 import propTypes from 'prop-types'
 import React, { useState } from 'react'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
@@ -44,9 +43,7 @@ function AddTrackDrawerWidget(props) {
   const [trackAdapter, setTrackAdapter] = useState({})
   const [assemblyName, setAssemblyName] = useState('')
 
-  const { classes, model } = props
-
-  const rootModel = getRoot(model)
+  const { classes, model, session } = props
 
   function getStepContent() {
     switch (activeStep) {
@@ -62,7 +59,7 @@ function AddTrackDrawerWidget(props) {
       case 1:
         return (
           <ConfirmTrack
-            rootModel={rootModel}
+            session={session}
             trackData={trackData}
             trackName={trackName}
             setTrackName={setTrackName}
@@ -82,7 +79,7 @@ function AddTrackDrawerWidget(props) {
   function handleNext() {
     if (activeStep === steps.length - 1) {
       trackAdapter.features = trackData.config
-      const trackConf = rootModel.configuration.assemblies
+      const trackConf = session.configuration.assemblies
         .find(
           assembly => readConfObject(assembly, 'assemblyName') === assemblyName,
         )
@@ -91,7 +88,7 @@ function AddTrackDrawerWidget(props) {
           adapter: trackAdapter,
         })
       model.view.showTrack(trackConf)
-      rootModel.hideDrawerWidget('addTrackDrawerWidget')
+      session.hideDrawerWidget('addTrackDrawerWidget')
       return
     }
     setActiveStep(activeStep + 1)
@@ -154,6 +151,7 @@ function AddTrackDrawerWidget(props) {
 AddTrackDrawerWidget.propTypes = {
   classes: propTypes.objectOf(propTypes.string).isRequired,
   model: MobxPropTypes.observableObject.isRequired,
+  model: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(AddTrackDrawerWidget))

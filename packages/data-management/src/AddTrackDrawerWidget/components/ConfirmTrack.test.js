@@ -17,7 +17,7 @@ describe('<ConfirmTrack />', () => {
     const mockFunction = () => {}
     const { container } = render(
       <ConfirmTrack
-        rootModel={rootModel}
+        session={rootModel}
         trackData={{ uri: 'test.bam' }}
         trackName=""
         setTrackName={mockFunction}
@@ -40,7 +40,7 @@ describe('<ConfirmTrack />', () => {
     const mockFunction = jest.fn(() => {})
     const { container } = render(
       <ConfirmTrack
-        rootModel={rootModel}
+        session={rootModel}
         trackData={{ uri: 'test.bam' }}
         trackName=""
         setTrackName={mockFunction}
@@ -64,7 +64,7 @@ describe('<ConfirmTrack />', () => {
     const mockFunction = jest.fn(() => {})
     const { container } = render(
       <ConfirmTrack
-        rootModel={rootModel}
+        session={rootModel}
         trackData={{ localPath: 'test.bam' }}
         trackName=""
         setTrackName={mockFunction}
@@ -88,7 +88,7 @@ describe('<ConfirmTrack />', () => {
     const mockFunction = jest.fn(() => {})
     const { container } = render(
       <ConfirmTrack
-        rootModel={rootModel}
+        session={rootModel}
         trackData={{ uri: 'test.bam', config: [] }}
         trackName=""
         setTrackName={mockFunction}

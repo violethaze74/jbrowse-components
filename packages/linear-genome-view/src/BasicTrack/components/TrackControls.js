@@ -1,6 +1,5 @@
 import React from 'react'
 import { PropTypes, observer } from 'mobx-react'
-import { getRoot } from 'mobx-state-tree'
 import ReactPropTypes from 'prop-types'
 
 import { withStyles, IconButton, Icon } from '@material-ui/core'
@@ -28,12 +27,11 @@ const styles = theme => ({
   ...buttonStyles(theme),
 })
 
-function TrackControls({ track, view, classes, onConfigureClick }) {
+function TrackControls({ track, view, classes, onConfigureClick, session }) {
   let trackName = getConf(track, 'name') || track.id
   if (getConf(track, 'type') === 'ReferenceSequenceTrack') {
-    trackName = 'Refence Sequence'
-    const rootModel = getRoot(view)
-    rootModel.configuration.assemblies.forEach(assembly => {
+    trackName = 'Reference Sequence'
+    session.configuration.assemblies.forEach(assembly => {
       if (assembly.sequence === track.configuration)
         trackName = `Reference Sequence (${readConfObject(
           assembly,
@@ -55,6 +53,7 @@ function TrackControls({ track, view, classes, onConfigureClick }) {
           onClick={onConfigureClick}
           title="configure track"
           model={track}
+          session={session}
         />
       ) : null}
       <Typography variant="body1" className={classes.trackName}>
@@ -74,6 +73,7 @@ function TrackControls({ track, view, classes, onConfigureClick }) {
 TrackControls.propTypes = {
   track: PropTypes.objectOrObservableObject.isRequired,
   view: PropTypes.objectOrObservableObject.isRequired,
+  session: PropTypes.objectOrObservableObject.isRequired,
   onConfigureClick: ReactPropTypes.func,
   classes: ReactPropTypes.shape({ trackName: ReactPropTypes.string.isRequired })
     .isRequired,

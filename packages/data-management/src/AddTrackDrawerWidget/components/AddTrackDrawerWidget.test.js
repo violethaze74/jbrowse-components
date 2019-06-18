@@ -101,13 +101,15 @@ describe('<AddTrackDrawerWidget />', () => {
   afterEach(cleanup)
 
   it('renders', () => {
-    const { container } = render(<AddTrackDrawerWidget model={model} />)
+    const { container } = render(
+      <AddTrackDrawerWidget model={model} session={rootModel} />,
+    )
     expect(container.firstChild).toMatchSnapshot()
   })
 
   it('adds a track', async () => {
     const { container, getByTestId, getByText, getAllByRole } = render(
-      <AddTrackDrawerWidget model={model} />,
+      <AddTrackDrawerWidget model={model} session={rootModel} />,
     )
     expect(rootModel.configuration.assemblies[0].tracks.length).toBe(1)
     fireEvent.click(getByTestId('addTrackFromConfigRadio'))

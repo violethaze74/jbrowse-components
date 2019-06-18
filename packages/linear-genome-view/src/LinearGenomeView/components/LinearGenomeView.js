@@ -167,6 +167,7 @@ function LinearGenomeView(props) {
                 key={track.id}
                 view={model}
                 onConfigureClick={track.activateConfigurationUI}
+                session={session}
               />
             </div>,
             <TrackRenderingContainer

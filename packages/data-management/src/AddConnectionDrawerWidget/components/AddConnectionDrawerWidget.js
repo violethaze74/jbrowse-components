@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { PropTypes as MobxPropTypes } from 'mobx-react'
 import { observer } from 'mobx-react-lite'
-import { getRoot } from 'mobx-state-tree'
 import propTypes from 'prop-types'
 import React, { useState } from 'react'
 import ConfigureConnection from './ConfigureConnection'
@@ -37,10 +36,9 @@ function AddConnectionDrawerWidget(props) {
 
   const [activeStep, setActiveStep] = useState(0)
 
-  const { classes, model } = props
-  const rootModel = getRoot(model)
+  const { classes, session } = props
 
-  const { pluginManager } = rootModel
+  const { pluginManager } = session
 
   function handleSetConnectionType(newConnectionType) {
     setConnectionType(newConnectionType)
@@ -82,8 +80,8 @@ function AddConnectionDrawerWidget(props) {
   }
 
   function handleFinish() {
-    rootModel.configuration.addConnection(configModel)
-    rootModel.hideDrawerWidget('addConnectionDrawerWidget')
+    session.configuration.addConnection(configModel)
+    session.hideDrawerWidget('addConnectionDrawerWidget')
   }
 
   function checkNextEnabled() {
@@ -136,7 +134,7 @@ function AddConnectionDrawerWidget(props) {
 
 AddConnectionDrawerWidget.propTypes = {
   classes: propTypes.objectOf(propTypes.string).isRequired,
-  model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(AddConnectionDrawerWidget))

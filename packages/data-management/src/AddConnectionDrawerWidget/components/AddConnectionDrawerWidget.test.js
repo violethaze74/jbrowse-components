@@ -30,7 +30,9 @@ describe('<AddConnectionDrawerWidget />', () => {
   afterEach(cleanup)
 
   it('renders', () => {
-    const { container } = render(<AddConnectionDrawerWidget model={model} />)
+    const { container } = render(
+      <AddConnectionDrawerWidget model={model} session={rootModel} />,
+    )
     expect(container.firstChild).toMatchSnapshot()
   })
 
@@ -67,7 +69,7 @@ type bigWig
       getAllByRole,
       getByText,
       getByValue,
-    } = render(<AddConnectionDrawerWidget model={model} />)
+    } = render(<AddConnectionDrawerWidget model={model} session={rootModel} />)
     expect(
       rootModel.connections.has('Test UCSC connection name'),
     ).not.toBeTruthy()
@@ -100,7 +102,7 @@ type bigWig
       getAllByRole,
       getByText,
       getByValue,
-    } = render(<AddConnectionDrawerWidget model={model} />)
+    } = render(<AddConnectionDrawerWidget model={model} session={rootModel} />)
     expect(
       rootModel.connections.has('Test JBrowse 1 connection name'),
     ).not.toBeTruthy()

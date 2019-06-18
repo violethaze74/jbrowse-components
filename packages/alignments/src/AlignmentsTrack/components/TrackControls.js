@@ -3,12 +3,13 @@ import { BaseTrackControls } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { observer } from 'mobx-react'
 import React from 'react'
 
-export default observer(({ track, view, onConfigureClick }) => (
+export default observer(({ track, view, onConfigureClick, session }) => (
   <>
     <BaseTrackControls
       track={track}
       view={view}
       onConfigureClick={onConfigureClick}
+      session={session}
     />
     <select
       onChange={evt => track.setRenderer(evt.target.value)}
