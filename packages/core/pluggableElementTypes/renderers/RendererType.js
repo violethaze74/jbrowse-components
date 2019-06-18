@@ -18,7 +18,8 @@ export default class RendererType extends PluggableElementType {
   }
 
   render(props) {
-    return { element: React.createElement(this.ReactComponent, props, null) }
+    const { ReactComponent } = this
+    return { element: <ReactComponent {...props} /> }
   }
 
   /**

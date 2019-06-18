@@ -147,7 +147,7 @@ export default types
     html: '',
     error: undefined,
     reactComponent: ServerSideRenderedBlockContent,
-    renderingComponent: undefined,
+    RenderingComponent: undefined,
     renderProps: undefined,
     renderInProgress: undefined,
   }))
@@ -174,7 +174,7 @@ export default types
       self.html = ''
       self.data = undefined
       self.error = undefined
-      self.renderingComponent = undefined
+      self.RenderingComponent = undefined
       self.renderProps = undefined
       self.renderInProgress = abortController
     },
@@ -187,17 +187,17 @@ export default types
       self.html = ''
       self.data = undefined
       self.error = undefined
-      self.renderingComponent = undefined
+      self.RenderingComponent = undefined
       self.renderProps = undefined
       self.renderInProgress = undefined
     },
-    setRendered(data, html, renderingComponent, renderProps) {
+    setRendered(data, html, RenderingComponent, renderProps) {
       self.filled = true
       self.message = undefined
       self.html = html
       self.data = data
       self.error = undefined
-      self.renderingComponent = renderingComponent
+      self.RenderingComponent = RenderingComponent
       self.renderProps = renderProps
       self.renderInProgress = undefined
     },
@@ -211,7 +211,7 @@ export default types
       self.html = undefined
       self.data = undefined
       self.error = error
-      self.renderingComponent = undefined
+      self.RenderingComponent = undefined
       self.renderProps = undefined
       self.renderInProgress = undefined
     },

@@ -12,7 +12,7 @@ function ServerSideRenderedContent(props) {
   const [hydrated, setHydrated] = useState(false)
 
   const { model, session } = props
-  const { data, region, html, renderProps, renderingComponent } = model
+  const { data, region, html, renderProps, RenderingComponent } = model
 
   useEffect(() => {
     let domNode
@@ -32,7 +32,7 @@ function ServerSideRenderedContent(props) {
               ? getSnapshot(region)
               : region
             const mainThreadRendering = React.createElement(
-              renderingComponent,
+              RenderingComponent,
               {
                 ...data,
                 region: serializedRegion,
