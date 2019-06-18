@@ -161,6 +161,7 @@ function App(props) {
                 key={`view-${view.id}`}
                 model={view}
                 session={session}
+                getTrackType={pluginManager.getTrackType}
               />
             )
           })}

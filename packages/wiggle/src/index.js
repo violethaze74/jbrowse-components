@@ -12,6 +12,7 @@ import DensityRenderer, {
 import {
   configSchemaFactory as wiggleTrackConfigSchemaFactory,
   modelFactory as wiggleTrackModelFactory,
+  ReactComponent as WiggleTrackReactComponent,
 } from './WiggleTrack'
 import XYPlotRenderer, {
   configSchema as xyPlotRendererConfigSchema,
@@ -30,6 +31,7 @@ export default class extends Plugin {
         name: 'WiggleTrack',
         configSchema,
         stateModel: wiggleTrackModelFactory(configSchema),
+        ReactComponent: WiggleTrackReactComponent,
       })
     })
 

@@ -21,7 +21,11 @@ describe('LinearGenomeView genome view component', () => {
     })
     const model = rootModel.views[0]
     const { container } = render(
-      <LinearGenomeView model={model} session={rootModel} />,
+      <LinearGenomeView
+        model={model}
+        session={rootModel}
+        getTrackType={rootModel.pluginManager.getTrackType}
+      />,
     )
     expect(container).toMatchSnapshot()
   })
@@ -76,7 +80,11 @@ describe('LinearGenomeView genome view component', () => {
     })
     const model = rootModel.views[0]
     const { container } = render(
-      <LinearGenomeView model={model} session={rootModel} />,
+      <LinearGenomeView
+        model={model}
+        session={rootModel}
+        getTrackType={rootModel.pluginManager.getTrackType}
+      />,
     )
     expect(container).toMatchSnapshot()
   })
@@ -152,7 +160,11 @@ describe('LinearGenomeView genome view component', () => {
     })
     const model = rootModel.views[0]
     const { container } = render(
-      <LinearGenomeView model={model} session={rootModel} />,
+      <LinearGenomeView
+        model={model}
+        session={rootModel}
+        getTrackType={rootModel.pluginManager.getTrackType}
+      />,
     )
     expect(container).toMatchSnapshot()
   })

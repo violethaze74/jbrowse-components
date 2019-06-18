@@ -11,6 +11,7 @@ import {
 import {
   configSchemaFactory as alignmentsTrackConfigSchemaFactory,
   modelFactory as alignmentsTrackModelFactory,
+  ControlsReactComponent as AlignmentsTrackControlsReactComponent,
 } from './AlignmentsTrack'
 import {
   AdapterClass as BamAdapterClass,
@@ -29,6 +30,7 @@ export default class extends Plugin {
         name: 'AlignmentsTrack',
         configSchema,
         stateModel: alignmentsTrackModelFactory(configSchema),
+        ControlsReactComponent: AlignmentsTrackControlsReactComponent,
       })
     })
 

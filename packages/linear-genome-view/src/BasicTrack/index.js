@@ -5,7 +5,6 @@ import {
 import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
 import { types } from 'mobx-state-tree'
 import { BaseTrackConfig } from './baseTrackModel'
-import BlockBasedTrackComponent from './components/BlockBasedTrack'
 import blockBasedTrack from './blockBasedTrackModel'
 
 export function configSchemaFactory(pluginManager) {
@@ -41,9 +40,6 @@ export function stateModelFactory(configSchema) {
         get rendererTypeName() {
           return self.configuration.renderer.type
         },
-      }))
-      .volatile(() => ({
-        reactComponent: BlockBasedTrackComponent,
       })),
   )
 }

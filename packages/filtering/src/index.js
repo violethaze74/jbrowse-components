@@ -3,6 +3,7 @@ import Plugin from '@gmod/jbrowse-core/Plugin'
 import {
   configSchemaFactory as filteringTrackConfigSchemaFactory,
   modelFactory as filteringTrackModelFactory,
+  ReactComponent as FilteringTrackReactComponent,
 } from './FilteringTrack'
 
 export default class extends Plugin {
@@ -13,6 +14,7 @@ export default class extends Plugin {
         name: 'FilteringTrack',
         configSchema,
         stateModel: filteringTrackModelFactory(configSchema),
+        ReactComponent: FilteringTrackReactComponent,
       })
     })
   }

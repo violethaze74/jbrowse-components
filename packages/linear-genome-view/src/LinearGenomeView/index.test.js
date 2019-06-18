@@ -12,7 +12,6 @@ stubManager.addTrackType(
     new TrackType({
       name: 'Base',
       stateModel: BaseTrack,
-      RenderingComponent: true,
     }),
 )
 stubManager.configure()

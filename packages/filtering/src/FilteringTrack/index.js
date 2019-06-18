@@ -1,6 +1,8 @@
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 import { basicTrackConfigSchemaFactory } from '@gmod/jbrowse-plugin-linear-genome-view'
 
+export { default as ReactComponent } from './components/FilteringTrack'
+
 export { default as modelFactory } from './model'
 
 export function configSchemaFactory(pluginManager) {

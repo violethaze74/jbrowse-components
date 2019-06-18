@@ -9,8 +9,6 @@ import {
   getParentRenderProps,
 } from '@gmod/jbrowse-core/util/tracks'
 import { getRoot, types } from 'mobx-state-tree'
-import React from 'react'
-import TrackControls from './components/TrackControls'
 
 export const BaseTrackConfig = ConfigurationSchema('BaseTrack', {
   viewType: 'LinearGenomeView',
@@ -52,20 +50,6 @@ export default types
   .views(self => ({
     get name() {
       return getConf(self, 'name')
-    },
-    get ControlsComponent() {
-      return TrackControls
-    },
-
-    get RenderingComponent() {
-      return (
-        self.reactComponent ||
-        (() => (
-          <div className="TrackRenderingNotImplemented">
-            Rendering not implemented for {self.type} tracks
-          </div>
-        ))
-      )
     },
 
     /**
