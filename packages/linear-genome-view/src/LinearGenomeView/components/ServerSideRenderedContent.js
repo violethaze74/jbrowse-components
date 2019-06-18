@@ -14,7 +14,7 @@ function ServerSideRenderedContent(props) {
   const [hydrated, setHydrated] = useState(false)
 
   const { model, session } = props
-  const { data, region, html, renderProps, renderingComponent } = model
+  const { data, region, html, renderProps, RenderingComponent } = model
 
   useEffect(() => {
     let domNode
@@ -32,15 +32,13 @@ function ServerSideRenderedContent(props) {
           const serializedRegion = isStateTreeNode(region)
             ? getSnapshot(region)
             : region
-          const mainThreadRendering = React.createElement(
-            renderingComponent,
-            {
-              ...data,
-              region: serializedRegion,
-              session,
-              ...renderProps,
-            },
-            null,
+          const mainThreadRendering = (
+            <RenderingComponent
+              {...data}
+              region={serializedRegion}
+              session={session}
+              {...renderProps}
+            />
           )
           requestIdleCallback(() => {
             if (!isAlive(model) || !isAlive(region)) return

@@ -98,10 +98,14 @@ export default class extends BoxRendererType {
 
   async render(renderProps) {
     const { height, width, imageData } = await this.makeImageData(renderProps)
-    const element = React.createElement(
-      this.ReactComponent,
-      { ...renderProps, height, width, imageData },
-      null,
+    const { ReactComponent } = this
+    const element = (
+      <ReactComponent
+        {...renderProps}
+        height={height}
+        width={width}
+        imageData={imageData}
+      />
     )
     return { element, imageData, height, width }
   }
