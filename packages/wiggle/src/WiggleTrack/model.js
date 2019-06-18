@@ -11,7 +11,6 @@ import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { autorun } from 'mobx'
 import { addDisposer, getRoot, getSnapshot, types } from 'mobx-state-tree'
 import { getNiceDomain } from '../DensityRenderer/util'
-import WiggleTrackComponent from './components/WiggleTrackComponent'
 
 // using a map because it preserves order
 const rendererTypes = new Map([
@@ -148,7 +147,6 @@ export default configSchema =>
         },
       }))
       .volatile(() => ({
-        reactComponent: WiggleTrackComponent,
         ready: false,
         stats: types
           .model('stats', { min: 0, max: 0, mean: 0 })

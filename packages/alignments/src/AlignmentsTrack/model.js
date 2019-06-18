@@ -4,12 +4,8 @@ import {
 } from '@gmod/jbrowse-core/configuration'
 import CompositeMap from '@gmod/jbrowse-core/util/compositeMap'
 import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
-import {
-  BlockBasedTrack,
-  blockBasedTrackModel,
-} from '@gmod/jbrowse-plugin-linear-genome-view'
+import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types } from 'mobx-state-tree'
-import TrackControls from './components/TrackControls'
 
 // using a map because it preserves order
 const rendererTypes = new Map([
@@ -29,10 +25,6 @@ export default configSchema =>
         // if they have not made any selection
         selectedRendering: types.optional(types.string, ''),
       })
-      .volatile(() => ({
-        reactComponent: BlockBasedTrack,
-        rendererTypeChoices: Array.from(rendererTypes.keys()),
-      }))
       // .actions(self => ({
       //   afterAttach() {
       //     onPatch(self, patch => {
@@ -46,6 +38,9 @@ export default configSchema =>
         },
       }))
       .views(self => ({
+        get rendererTypeChoices() {
+          return Array.from(rendererTypes.keys())
+        },
         /**
          * the renderer type name is based on the "view"
          * selected in the UI: pileup, coverage, etc
@@ -57,10 +52,6 @@ export default configSchema =>
           if (!rendererType)
             throw new Error(`unknown alignments view name ${viewName}`)
           return rendererType
-        },
-
-        get ControlsComponent() {
-          return TrackControls
         },
 
         /**

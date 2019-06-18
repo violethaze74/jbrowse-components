@@ -4,12 +4,12 @@ import classnames from 'classnames'
 import { observer, PropTypes } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
 import React from 'react'
-
-import ScaleBar from './ScaleBar'
+import BlockBasedTrack from '../../BasicTrack/components/BlockBasedTrack'
+import TrackControls from '../../BasicTrack/components/TrackControls'
 import Rubberband from './Rubberband'
+import ScaleBar from './ScaleBar'
 import TrackRenderingContainer from './TrackRenderingContainer'
 import TrackResizeHandle from './TrackResizeHandle'
-
 import ZoomControls from './ZoomControls'
 
 const dragHandleHeight = 3
@@ -50,7 +50,7 @@ const styles = theme => ({
 
 function LinearGenomeView(props) {
   const scaleBarHeight = 32
-  const { classes, model, session } = props
+  const { classes, model, getTrackType, session } = props
   const {
     id,
     staticBlocks,
@@ -149,40 +149,46 @@ function LinearGenomeView(props) {
         >
           <ZoomControls model={model} controlsHeight={scaleBarHeight} />
         </div>
-        {tracks.map(track => [
-          <div
-            className={classnames(classes.controls, classes.trackControls)}
-            key={`controls:${track.id}`}
-            style={{ gridRow: `track-${track.id}`, gridColumn: 'controls' }}
-          >
-            <track.ControlsComponent
-              track={track}
-              key={track.id}
-              view={model}
-              onConfigureClick={track.activateConfigurationUI}
-            />
-          </div>,
-          <TrackRenderingContainer
-            key={`track-rendering:${track.id}`}
-            trackId={track.id}
-            width={model.viewingRegionWidth}
-            height={track.height}
-          >
-            <track.RenderingComponent
-              model={track}
-              session={session}
-              offsetPx={offsetPx}
-              bpPerPx={bpPerPx}
-              blockState={{}}
-              onHorizontalScroll={model.horizontalScroll}
-            />
-          </TrackRenderingContainer>,
-          <TrackResizeHandle
-            key={`handle:${track.id}`}
-            trackId={track.id}
-            onVerticalDrag={model.resizeTrack}
-          />,
-        ])}
+        {tracks.map(track => {
+          const trackType = getTrackType(track.type)
+          const ControlsComponent =
+            trackType.ControlsReactComponent || TrackControls
+          const RenderingComponent = trackType.ReactComponent || BlockBasedTrack
+          return [
+            <div
+              className={classnames(classes.controls, classes.trackControls)}
+              key={`controls:${track.id}`}
+              style={{ gridRow: `track-${track.id}`, gridColumn: 'controls' }}
+            >
+              <ControlsComponent
+                track={track}
+                key={track.id}
+                view={model}
+                onConfigureClick={track.activateConfigurationUI}
+              />
+            </div>,
+            <TrackRenderingContainer
+              key={`track-rendering:${track.id}`}
+              trackId={track.id}
+              width={model.viewingRegionWidth}
+              height={track.height}
+            >
+              <RenderingComponent
+                model={track}
+                session={session}
+                offsetPx={offsetPx}
+                bpPerPx={bpPerPx}
+                blockState={{}}
+                onHorizontalScroll={model.horizontalScroll}
+              />
+            </TrackRenderingContainer>,
+            <TrackResizeHandle
+              key={`handle:${track.id}`}
+              trackId={track.id}
+              onVerticalDrag={model.resizeTrack}
+            />,
+          ]
+        })}
       </div>
     </div>
   )

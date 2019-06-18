@@ -3,10 +3,7 @@ import {
   getContainingView,
   getParentRenderProps,
 } from '@gmod/jbrowse-core/util/tracks'
-import {
-  BlockBasedTrack,
-  blockBasedTrackModel,
-} from '@gmod/jbrowse-plugin-linear-genome-view'
+import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types } from 'mobx-state-tree'
 
 export default (configSchema, trackType) =>
@@ -40,9 +37,9 @@ export default (configSchema, trackType) =>
           }
           return undefined
         },
-      }))
-      .volatile(() => ({
-        reactComponent: BlockBasedTrack,
-        rendererTypeName: 'DivSequenceRenderer',
+
+        get rendererTypeName() {
+          return 'DivSequenceRenderer'
+        },
       })),
   )

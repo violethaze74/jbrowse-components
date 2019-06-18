@@ -2,7 +2,6 @@ import { ConfigurationReference } from '@gmod/jbrowse-core/configuration'
 import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
 import { basicTrackStateModelFactory } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types } from 'mobx-state-tree'
-import FilteringTrackComponent from './components/FilteringTrack'
 
 function makeFilters(trackModel) {
   const filters = []
@@ -58,9 +57,6 @@ export default configSchema => {
           const values = self.filterOut.get(attrName)
           values.set(String(value), !checked)
         },
-      }))
-      .volatile(() => ({
-        reactComponent: FilteringTrackComponent,
       })),
   )
 }
