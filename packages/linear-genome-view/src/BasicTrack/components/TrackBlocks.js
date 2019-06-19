@@ -4,6 +4,7 @@ import ReactPropTypes from 'prop-types'
 import React from 'react'
 import { ContentBlock, ElidedBlock } from '../util/blockTypes'
 import Block from './Block'
+import ServerSideRenderedBlockContent from './ServerSideRenderedBlockContent'
 
 const styles = {
   trackBlocks: {
@@ -61,11 +62,7 @@ function TrackBlocks({
               offset={block.offsetPx - offsetPx}
               bpPerPx={bpPerPx}
             >
-              {state && state.ReactComponent ? (
-                <state.ReactComponent model={state} session={session} />
-              ) : (
-                ' '
-              )}
+              <ServerSideRenderedBlockContent model={state} session={session} />
             </Block>
           )
         }
