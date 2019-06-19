@@ -115,19 +115,12 @@ export default configSchema =>
           })
         },
         get renderProps() {
-          const config = self.rendererType.configSchema.create(
-            getConf(self, ['renderers', self.rendererTypeName]) || {},
-          )
-          const highResolutionScaling = getConf(
-            getRoot(self),
-            'highResolutionScaling',
-          )
           const { height, ready, domain } = self
           return {
             ...getParentRenderProps(self),
             trackModel: self,
             notReady: !ready,
-            config,
+            config: self.configuration.renderers[self.rendererTypeName],
             onFeatureClick(event, featureId) {
               // try to find the feature in our layout
               const feature = self.features.get(featureId)
@@ -142,7 +135,6 @@ export default configSchema =>
               inverted: getConf(self, 'inverted'),
             },
             height,
-            highResolutionScaling,
           }
         },
       }))
