@@ -63,6 +63,10 @@ export default ConfigurationSchema(
         'choose whether to use max/min/average or whiskers which combines all three into the same rendering',
       defaultValue: 'whiskers',
     },
+    highResolutionScaling: {
+      type: 'number',
+      defaultValue: 2,
+    },
   },
   { explicitlyTyped: true },
 )

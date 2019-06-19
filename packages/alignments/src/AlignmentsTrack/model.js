@@ -59,13 +59,9 @@ export default configSchema =>
          * is rendered in this track
          */
         get renderProps() {
-          // view -> [tracks] -> [blocks]
-          const config = self.rendererType.configSchema.create(
-            getConf(self, ['renderers', self.rendererTypeName]) || {},
-          )
           return {
             ...getParentRenderProps(self),
-            config,
+            config: self.configuration.renderers[self.rendererTypeName],
             getFeature: featureId => self.features.get(featureId),
             targetType: 'alignmentsFeature',
           }

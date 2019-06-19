@@ -4,11 +4,8 @@ import {
   getConf,
 } from '@gmod/jbrowse-core/configuration'
 import { ElementId } from '@gmod/jbrowse-core/mst-types'
-import {
-  getContainingView,
-  getParentRenderProps,
-} from '@gmod/jbrowse-core/util/tracks'
-import { getRoot, types } from 'mobx-state-tree'
+import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
+import { types } from 'mobx-state-tree'
 
 export const BaseTrackConfig = ConfigurationSchema('BaseTrack', {
   viewType: 'LinearGenomeView',
@@ -64,47 +61,6 @@ export default types
     },
 
     /**
-     * the pluggable element type object for this track's
-     * renderer
-     */
-    get rendererType() {
-      const track = getContainingView(self)
-      const rootModel = getRoot(self)
-      const RendererType = rootModel.pluginManager.getRendererType(
-        self.rendererTypeName,
-      )
-      if (!RendererType)
-        throw new Error(`renderer "${track.rendererTypeName}" not found`)
-      if (!RendererType.ReactComponent)
-        throw new Error(
-          `renderer ${
-            track.rendererTypeName
-          } has no ReactComponent, it may not be completely implemented yet`,
-        )
-      return RendererType
-    },
-
-    /**
-     * the PluggableElementType for the currently defined adapter
-     */
-    get adapterType() {
-      const adapterConfig = getConf(self, 'adapter')
-      const rootModel = getRoot(self)
-      if (!adapterConfig)
-        throw new Error(`no adapter configuration provided for ${self.type}`)
-      const adapterType = rootModel.pluginManager.getAdapterType(
-        adapterConfig.type,
-      )
-      if (!adapterType)
-        throw new Error(`unknown adapter type ${adapterConfig.type}`)
-      return adapterType
-    },
-
-    get showConfigurationButton() {
-      return !!getRoot(self).editConfiguration
-    },
-
-    /**
      * if a track-level message should be displayed instead of the blocks,
      * make this return a react component
      */
@@ -129,8 +85,5 @@ export default types
     setError(e) {
       self.ready = true
       self.error = e
-    },
-    activateConfigurationUI() {
-      getRoot(self).editConfiguration(self.configuration)
     },
   }))

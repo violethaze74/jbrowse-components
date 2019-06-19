@@ -81,6 +81,7 @@ function AddConnectionDrawerWidget(props) {
 
   function handleFinish() {
     session.configuration.addConnection(configModel)
+    session.addConnection(configModel)
     session.hideDrawerWidget('addConnectionDrawerWidget')
   }
 

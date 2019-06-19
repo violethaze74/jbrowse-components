@@ -14,8 +14,12 @@ describe('HierarchicalTrackSelector drawer widget', () => {
   it('renders with just the required model elements', async () => {
     const { rootModel } = await createTestEnv()
     const firstView = rootModel.addView('LinearGenomeView')
-    firstView.activateTrackSelector()
+    rootModel.addDrawerWidget(
+      'HierarchicalTrackSelectorDrawerWidget',
+      'hierarchicalTrackSelector',
+    )
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -62,8 +66,13 @@ describe('HierarchicalTrackSelector drawer widget', () => {
     const firstView = rootModel.addLinearGenomeViewOfAssembly('volvox', {})
     firstView.showTrack(rootModel.configuration.assemblies[0].tracks[0])
     firstView.showTrack(rootModel.configuration.assemblies[0].tracks[1])
-    firstView.activateTrackSelector()
+    rootModel.addDrawerWidget(
+      'HierarchicalTrackSelectorDrawerWidget',
+      'hierarchicalTrackSelector',
+      { view: firstView },
+    )
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -115,8 +124,13 @@ describe('HierarchicalTrackSelector drawer widget', () => {
       'Foo Category',
       'Bar Category',
     ])
-    firstView.activateTrackSelector()
+    rootModel.addDrawerWidget(
+      'HierarchicalTrackSelectorDrawerWidget',
+      'hierarchicalTrackSelector',
+      { view: firstView },
+    )
     const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>

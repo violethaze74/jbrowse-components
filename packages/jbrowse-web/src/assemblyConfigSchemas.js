@@ -2,27 +2,29 @@ import {
   ConfigurationSchema,
   readConfObject,
 } from '@gmod/jbrowse-core/configuration'
-import { getRoot, types } from 'mobx-state-tree'
+import { types } from 'mobx-state-tree'
 
-const actions = self => ({
-  addTrackConf(typeName, data, connectionName) {
-    const type = getRoot(self).pluginManager.getTrackType(typeName)
-    if (!type) throw new Error(`unknown track type ${typeName}`)
-    const schemaType = type.configSchema
-    const conf = schemaType.create(Object.assign({ type: typeName }, data))
-    if (connectionName) {
-      const connectionNames = self.connections.map(connection =>
-        readConfObject(connection, 'connectionName'),
-      )
-      if (!connectionNames.includes(connectionName))
-        throw new Error(
-          `Cannot add track to non-existent connection: ${connectionName}`,
+function actionsFactory(pluginManager) {
+  return self => ({
+    addTrackConf(typeName, data, connectionName) {
+      const type = pluginManager.getTrackType(typeName)
+      if (!type) throw new Error(`unknown track type ${typeName}`)
+      const schemaType = type.configSchema
+      const conf = schemaType.create(Object.assign({ type: typeName }, data))
+      if (connectionName) {
+        const connectionNames = self.connections.map(connection =>
+          readConfObject(connection, 'connectionName'),
         )
-      self.volatile.get(connectionName).tracks.push(conf)
-    } else self.tracks.push(conf)
-    return conf
-  },
-})
+        if (!connectionNames.includes(connectionName))
+          throw new Error(
+            `Cannot add track to non-existent connection: ${connectionName}`,
+          )
+        self.volatile.get(connectionName).tracks.push(conf)
+      } else self.tracks.push(conf)
+      return conf
+    },
+  })
+}
 
 export default function(pluginManager) {
   const baseConfigSchema = {
@@ -44,7 +46,7 @@ export default function(pluginManager) {
   const BaseAssemblyConfigSchema = ConfigurationSchema(
     'BaseAssembly',
     baseConfigSchema,
-    { actions },
+    { actions: actionsFactory(pluginManager) },
   )
 
   const SequenceAssemblyConfigSchema = ConfigurationSchema(
@@ -54,7 +56,7 @@ export default function(pluginManager) {
       sequence:
         pluginManager.elementTypes.track.ReferenceSequenceTrack.configSchema,
     },
-    { actions },
+    { actions: actionsFactory(pluginManager) },
   )
 
   const RefNameAliasesAssemblyConfigSchema = ConfigurationSchema(
@@ -65,7 +67,7 @@ export default function(pluginManager) {
         adapter: pluginManager.pluggableConfigSchemaType('adapter'),
       }),
     },
-    { actions },
+    { actions: actionsFactory(pluginManager) },
   )
 
   const AssemblyConfigSchema = ConfigurationSchema(
@@ -78,7 +80,7 @@ export default function(pluginManager) {
         adapter: pluginManager.pluggableConfigSchemaType('adapter'),
       }),
     },
-    { actions },
+    { actions: actionsFactory(pluginManager) },
   )
 
   function dispatcher(snapshot) {

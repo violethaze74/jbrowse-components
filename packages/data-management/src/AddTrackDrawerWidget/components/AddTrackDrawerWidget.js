@@ -151,7 +151,7 @@ function AddTrackDrawerWidget(props) {
 AddTrackDrawerWidget.propTypes = {
   classes: propTypes.objectOf(propTypes.string).isRequired,
   model: MobxPropTypes.observableObject.isRequired,
-  model: MobxPropTypes.objectOrObservableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default withStyles(styles)(observer(AddTrackDrawerWidget))

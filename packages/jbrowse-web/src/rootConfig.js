@@ -1,8 +1,5 @@
-import { detach, getType, types, getRoot } from 'mobx-state-tree'
-import {
-  ConfigurationSchema,
-  readConfObject,
-} from '@gmod/jbrowse-core/configuration'
+import { detach, getType, types } from 'mobx-state-tree'
+import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 import RpcManager from '@gmod/jbrowse-core/rpc/RpcManager'
 import AssemblyConfigsSchemasFactory from './assemblyConfigSchemas'
 
@@ -17,12 +14,6 @@ export default function(pluginManager) {
       assemblies: types.array(
         types.union({ dispatcher }, ...assemblyConfigSchemas),
       ),
-
-      // possibly consider this for global config editor
-      highResolutionScaling: {
-        type: 'number',
-        defaultValue: 2,
-      },
 
       connections: types.array(
         pluginManager.pluggableConfigSchemaType('connection'),
@@ -40,12 +31,10 @@ export default function(pluginManager) {
       actions: self => ({
         addConnection(connectionConf) {
           self.connections.push(connectionConf)
-          getRoot(self).addConnection(connectionConf)
         },
 
         removeConnection(connectionConf) {
           self.connections.remove(connectionConf)
-          getRoot(self).deleteConnection(readConfObject(connectionConf, 'name'))
         },
 
         addAssembly(
@@ -73,13 +62,11 @@ export default function(pluginManager) {
             sequence,
           })
           self.assemblies.set(assemblyName, assembly)
-          getRoot(self).updateAssemblies()
         },
 
         removeAssembly(assemblyName) {
           detach(self.assemblies.get(assemblyName))
           self.assemblies.delete(assemblyName)
-          getRoot(self).updateAssemblies()
         },
       }),
     },
