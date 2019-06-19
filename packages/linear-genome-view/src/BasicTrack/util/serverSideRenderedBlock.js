@@ -21,8 +21,6 @@ import {
   getContainingView,
 } from '@gmod/jbrowse-core/util/tracks'
 
-import ServerSideRenderedBlockContent from '../components/ServerSideRenderedBlockContent'
-
 function getRendererType(view, rootModel, rendererTypeName) {
   const RendererType = rootModel.pluginManager.getRendererType(rendererTypeName)
   if (!RendererType)
@@ -169,7 +167,6 @@ export default types
     data: undefined,
     html: '',
     error: undefined,
-    ReactComponent: ServerSideRenderedBlockContent,
     RenderingComponent: undefined,
     renderProps: undefined,
     renderInProgress: undefined,
