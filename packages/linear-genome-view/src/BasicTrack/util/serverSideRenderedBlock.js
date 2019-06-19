@@ -169,7 +169,7 @@ export default types
     data: undefined,
     html: '',
     error: undefined,
-    reactComponent: ServerSideRenderedBlockContent,
+    ReactComponent: ServerSideRenderedBlockContent,
     RenderingComponent: undefined,
     renderProps: undefined,
     renderInProgress: undefined,

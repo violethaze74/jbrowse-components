@@ -61,8 +61,8 @@ function TrackBlocks({
               offset={block.offsetPx - offsetPx}
               bpPerPx={bpPerPx}
             >
-              {state && state.reactComponent ? (
-                <state.reactComponent model={state} session={session} />
+              {state && state.ReactComponent ? (
+                <state.ReactComponent model={state} session={session} />
               ) : (
                 ' '
               )}
