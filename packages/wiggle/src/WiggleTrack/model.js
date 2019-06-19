@@ -9,7 +9,7 @@ import {
 } from '@gmod/jbrowse-core/util/tracks'
 import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { autorun } from 'mobx'
-import { addDisposer, getRoot, getSnapshot, types } from 'mobx-state-tree'
+import { addDisposer, getSnapshot, types } from 'mobx-state-tree'
 import { getNiceDomain } from '../DensityRenderer/util'
 
 // using a map because it preserves order
@@ -26,13 +26,15 @@ export default configSchema =>
         type: types.literal('WiggleTrack'),
         configuration: ConfigurationReference(configSchema),
         selectedRendering: types.optional(types.string, ''),
+        autorunStarted: false,
       })
       .actions(self => ({
-        afterAttach() {
-          const getYAxisScale = autorun(
-            async function getYAxisScaleAutorun() {
+        getYAxisScaleAutorun(rpcManager) {
+          if (self.autorunStarted) return
+          self.autorunStarted = true
+          const getYAxisScaleDisposer = autorun(
+            async () => {
               try {
-                const { rpcManager } = getRoot(self)
                 const autoscaleType = getConf(self, 'autoscale')
                 const aborter = new AbortController()
                 const { signal } = aborter
@@ -79,7 +81,7 @@ export default configSchema =>
             { delay: 1000 },
           )
 
-          addDisposer(self, getYAxisScale)
+          addDisposer(self, getYAxisScaleDisposer)
         },
         updateScale(stats) {
           self.stats.setStats(stats)

@@ -11,8 +11,11 @@ for (let i = -20; i < 20; i += 1) {
 }
 
 function WiggleTrackComponent(props) {
-  const { model } = props
+  const { model, session } = props
   const { domain, ready, height } = model
+
+  const { rpcManager } = session
+  model.getYAxisScaleAutorun(rpcManager)
 
   const getYScaleBar = () => {
     const scaleType = getConf(model, 'scaleType')
