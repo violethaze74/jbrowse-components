@@ -23,13 +23,34 @@ import {
 
 import ServerSideRenderedBlockContent from '../components/ServerSideRenderedBlockContent'
 
+function getRendererType(view, rootModel, rendererTypeName) {
+  const RendererType = rootModel.pluginManager.getRendererType(rendererTypeName)
+  if (!RendererType)
+    throw new Error(`renderer "${view.rendererTypeName}" not found`)
+  if (!RendererType.ReactComponent)
+    throw new Error(
+      `renderer ${rendererTypeName} has no ReactComponent, it may not be completely implemented yet`,
+    )
+  return RendererType
+}
+
+function getAdapterType(adapterConfig, rootModel, track) {
+  if (!adapterConfig)
+    throw new Error(`no adapter configuration provided for ${track.type}`)
+  const adapterType = rootModel.pluginManager.getAdapterType(adapterConfig.type)
+  if (!adapterType)
+    throw new Error(`unknown adapter type ${adapterConfig.type}`)
+  return adapterType
+}
+
 // calls the render worker to render the block content
 // not using a flow for this, because the flow doesn't
 // work with autorun
 function renderBlockData(self) {
   const track = getParent(self, 2)
   const view = getContainingView(track)
-  const { rpcManager, assemblyManager } = getRoot(view)
+  const rootModel = getRoot(view)
+  const { rpcManager, assemblyManager } = rootModel
   const trackConf = track.configuration
   let trackConfParent = getParent(trackConf)
   if (!trackConfParent.assemblyName)
@@ -48,11 +69,13 @@ function renderBlockData(self) {
     cannotBeRenderedReason = 'region assembly does not match track assembly'
   else cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
   const renderProps = { ...track.renderProps }
-  const { rendererType } = track
+  const rendererType = getRendererType(view, rootModel, track.rendererTypeName)
   const assemblyName = readConfObject(
     getContainingAssembly(track.configuration),
     'assemblyName',
   )
+  const adapterConfig = getConf(track, 'adapter')
+  const adapterType = getAdapterType(adapterConfig, rootModel, track).name
   return {
     rendererType,
     rpcManager,
@@ -62,8 +85,8 @@ function renderBlockData(self) {
     renderArgs: {
       assemblyName,
       region: self.region,
-      adapterType: track.adapterType.name,
-      adapterConfig: getConf(track, 'adapter'),
+      adapterType,
+      adapterConfig,
       rendererType: rendererType.name,
       renderProps,
       sessionId: track.id,

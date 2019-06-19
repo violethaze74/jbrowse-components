@@ -1,6 +1,5 @@
 import {
   types,
-  getRoot,
   getParent,
   isArrayType,
   isMapType,
@@ -43,7 +42,6 @@ function ConfigurationLayerSlot(
         if (self.isCallback) {
           // compile this as a function
           return stringToFunction(String(self.value), {
-            bind: [getRoot(self)],
             verifyFunctionSignature: inDevelopment
               ? self.parentSlot.functionSignature
               : undefined,
@@ -139,7 +137,7 @@ function ConfigurationLayer(parentSchemaType) {
         if (self.parentConfigId) {
           return resolveIdentifier(
             parentSchemaType,
-            getRoot(self),
+            getParent(self),
             self.parentConfigId,
           )
         }

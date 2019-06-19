@@ -37,8 +37,7 @@ test('inverted mode and horizontally flipped', async () => {
       scaleType: 'linear',
     },
     bpPerPx: 3,
-    highResolutionScaling: 1,
-    config: {},
+    config: configSchema.create(),
     horizontallyFlipped: true,
     height: 100,
   })

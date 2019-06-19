@@ -1,3 +1,4 @@
+import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { ImageBitmapType } from '@gmod/jbrowse-core/util/offscreenCanvasPonyfill'
 import ReactPropTypes from 'prop-types'
 import React, { Component } from 'react'
@@ -6,7 +7,6 @@ export default class PrerenderedCanvas extends Component {
   static propTypes = {
     height: ReactPropTypes.number.isRequired,
     width: ReactPropTypes.number.isRequired,
-    highResolutionScaling: ReactPropTypes.number.isRequired,
     imageData: ReactPropTypes.instanceOf(ImageBitmapType),
   }
 
@@ -42,7 +42,11 @@ export default class PrerenderedCanvas extends Component {
   }
 
   render() {
-    const { width, height, highResolutionScaling } = this.props
+    const { width, height, config } = this.props
+    const highResolutionScaling = readConfObject(
+      config,
+      'highResolutionScaling',
+    )
     return (
       <canvas
         ref={this.featureCanvas}

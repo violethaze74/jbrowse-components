@@ -63,7 +63,6 @@ exports[`LinearGenomeView genome view component renders one track, no blocks 1`]
         data_testid="track_select"
         disabled={false}
         onBlur={[Function]}
-        onClick={[Function]}
         onContextMenu={[Function]}
         onFocus={[Function]}
         onKeyDown={[Function]}
@@ -452,7 +451,6 @@ exports[`LinearGenomeView genome view component renders two tracks, two regions 
         data_testid="track_select"
         disabled={false}
         onBlur={[Function]}
-        onClick={[Function]}
         onContextMenu={[Function]}
         onFocus={[Function]}
         onKeyDown={[Function]}
@@ -1112,7 +1110,6 @@ exports[`LinearGenomeView genome view component renders with an empty model 1`] 
         data_testid="track_select"
         disabled={false}
         onBlur={[Function]}
-        onClick={[Function]}
         onContextMenu={[Function]}
         onFocus={[Function]}
         onKeyDown={[Function]}

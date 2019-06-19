@@ -43,7 +43,7 @@ function TrackControls({ track, view, classes, onConfigureClick, session }) {
       >
         <Icon fontSize="small">close</Icon>
       </IconButton>
-      {track.showConfigurationButton ? (
+      {session.editConfiguration ? (
         <ConfigureToggleButton
           onClick={onConfigureClick}
           title="configure track"
