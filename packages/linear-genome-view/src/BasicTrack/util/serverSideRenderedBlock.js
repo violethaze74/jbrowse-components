@@ -1,10 +1,4 @@
-import {
-  types,
-  getParent,
-  isAlive,
-  getRoot,
-  addDisposer,
-} from 'mobx-state-tree'
+import { types, getParent, isAlive, addDisposer } from 'mobx-state-tree'
 
 import { reaction } from 'mobx'
 import { getConf, readConfObject } from '@gmod/jbrowse-core/configuration'
@@ -19,6 +13,7 @@ import {
 import {
   getContainingAssembly,
   getContainingView,
+  getContainingSession,
 } from '@gmod/jbrowse-core/util/tracks'
 
 function getRendererType(view, rootModel, rendererTypeName) {
@@ -47,8 +42,8 @@ function getAdapterType(adapterConfig, rootModel, track) {
 function renderBlockData(self) {
   const track = getParent(self, 2)
   const view = getContainingView(track)
-  const rootModel = getRoot(view)
-  const { rpcManager, assemblyManager } = rootModel
+  const session = getContainingSession(self)
+  const { rpcManager, assemblyManager } = session
   const trackConf = track.configuration
   let trackConfParent = getParent(trackConf)
   if (!trackConfParent.assemblyName)
@@ -67,13 +62,13 @@ function renderBlockData(self) {
     cannotBeRenderedReason = 'region assembly does not match track assembly'
   else cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
   const renderProps = { ...track.renderProps }
-  const rendererType = getRendererType(view, rootModel, track.rendererTypeName)
+  const rendererType = getRendererType(view, session, track.rendererTypeName)
   const assemblyName = readConfObject(
     getContainingAssembly(track.configuration),
     'assemblyName',
   )
   const adapterConfig = getConf(track, 'adapter')
-  const adapterType = getAdapterType(adapterConfig, rootModel, track).name
+  const adapterType = getAdapterType(adapterConfig, session, track).name
   return {
     rendererType,
     rpcManager,
