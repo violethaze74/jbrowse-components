@@ -66,7 +66,7 @@ test('no features', () => {
   expect(result).toMatchSnapshot()
 })
 
-test('one feature with no seq, zoomed way out', () => {
+test('one feature, zoomed way out', () => {
   const renderer = TestRenderer.create(
     <Rendering
       width={500}
@@ -74,7 +74,15 @@ test('one feature with no seq, zoomed way out', () => {
       region={{ refName: 'zonk', start: 0, end: 1000 }}
       features={
         new Map([
-          ['one', new SimpleFeature({ uniqueId: 'one', start: 1, end: 3 })],
+          [
+            'one',
+            new SimpleFeature({
+              uniqueId: 'one',
+              start: 1,
+              end: 3,
+              seq: 'AB',
+            }),
+          ],
         ])
       }
       config={DivRenderingConfigSchema.create({})}
