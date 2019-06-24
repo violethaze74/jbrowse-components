@@ -82,18 +82,14 @@ SequenceDivs.defaultProps = {
 }
 
 function DivSequenceRendering(props) {
-  const { bpPerPx, config } = props
+  const { config } = props
   const height = readConfObject(config, 'height')
   return (
     <div
       className="DivSequenceRendering"
       style={{ height: `${height}px`, fontSize: `${height * 0.8}px` }}
     >
-      {bpPerPx >= 1 ? (
-        <div className="blur">Zoom in to see sequence</div>
-      ) : (
-        <SequenceDivs {...props} />
-      )}
+      <SequenceDivs {...props} />)
     </div>
   )
 }

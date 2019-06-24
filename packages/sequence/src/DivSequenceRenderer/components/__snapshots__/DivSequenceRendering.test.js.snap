@@ -10,11 +10,7 @@ exports[`no features 1`] = `
     }
   }
 >
-  <div
-    className="blur"
-  >
-    Zoom in to see sequence
-  </div>
+  )
 </div>
 `;
 
@@ -118,6 +114,7 @@ exports[`one feature with a correct seq, zoomed in, should render nicely 1`] = `
   >
     I
   </div>
+  )
 </div>
 `;
 
@@ -137,7 +134,7 @@ exports[`one feature with no seq, zoomed in, should throw 1`] = `
 </h1>
 `;
 
-exports[`one feature with no seq, zoomed way out 1`] = `
+exports[`one feature, zoomed way out 1`] = `
 <div
   className="DivSequenceRendering"
   style={
@@ -148,9 +145,25 @@ exports[`one feature with no seq, zoomed way out 1`] = `
   }
 >
   <div
-    className="blur"
+    className="base base-a"
+    style={
+      Object {
+        "width": "0.3333333333333333px",
+      }
+    }
   >
-    Zoom in to see sequence
+    
   </div>
+  <div
+    className="base base-b"
+    style={
+      Object {
+        "width": "0.3333333333333333px",
+      }
+    }
+  >
+    
+  </div>
+  )
 </div>
 `;
