@@ -71,6 +71,7 @@ function WiggleTrackComponent(props) {
 
 WiggleTrackComponent.propTypes = {
   model: MobxPropTypes.observableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
 }
 
 export default observer(WiggleTrackComponent)

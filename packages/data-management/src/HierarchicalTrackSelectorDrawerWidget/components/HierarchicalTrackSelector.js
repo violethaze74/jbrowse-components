@@ -103,16 +103,20 @@ function HierarchicalTrackSelector(props) {
   function addConnection() {
     handleFabClose()
     session.showDrawerWidget(
-      'addConnectionDrawerWidget',
+      `addConnectionDrawerWidget-${session.name}`,
       'AddConnectionDrawerWidget',
     )
   }
 
   function addTrack() {
     handleFabClose()
-    session.showDrawerWidget('addTrackDrawerWidget', 'AddTrackDrawerWidget', {
-      view: model.view.id,
-    })
+    session.showDrawerWidget(
+      `addTrackDrawerWidget-${model.view.id}`,
+      'AddTrackDrawerWidget',
+      {
+        view: model.view.id,
+      },
+    )
   }
 
   function filter(trackConfig) {

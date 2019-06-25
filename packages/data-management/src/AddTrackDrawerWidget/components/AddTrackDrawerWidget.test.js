@@ -5,17 +5,17 @@ import {
   fireEvent,
   waitForElement,
 } from 'react-testing-library'
-import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
+import { createTestSession } from '@gmod/jbrowse-web/src/jbrowseModel'
 import AddTrackDrawerWidget from './AddTrackDrawerWidget'
 
 jest.mock('shortid', () => ({ generate: () => 'testid' }))
 
 describe('<AddTrackDrawerWidget />', () => {
-  let rootModel
+  let session
   let model
 
-  beforeAll(async () => {
-    ;({ rootModel } = await createTestEnv({
+  beforeAll(() => {
+    session = createTestSession({
       assemblies: [
         {
           assemblyName: 'volvox',
@@ -90,28 +90,28 @@ describe('<AddTrackDrawerWidget />', () => {
           ],
         },
       ],
-    }))
-    const view = rootModel.addLinearGenomeViewOfAssembly('volvox', {})
-    rootModel.addDrawerWidget('AddTrackDrawerWidget', 'addTrackDrawerWidget', {
+    })
+    const view = session.addLinearGenomeViewOfAssembly('volvox', {})
+    session.addDrawerWidget('AddTrackDrawerWidget', 'addTrackDrawerWidget', {
       view: view.id,
     })
-    model = rootModel.drawerWidgets.get('addTrackDrawerWidget')
+    model = session.drawerWidgets.get('addTrackDrawerWidget')
   })
 
   afterEach(cleanup)
 
   it('renders', () => {
     const { container } = render(
-      <AddTrackDrawerWidget model={model} session={rootModel} />,
+      <AddTrackDrawerWidget model={model} session={session} />,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
 
   it('adds a track', async () => {
     const { container, getByTestId, getByText, getAllByRole } = render(
-      <AddTrackDrawerWidget model={model} session={rootModel} />,
+      <AddTrackDrawerWidget model={model} session={session} />,
     )
-    expect(rootModel.configuration.assemblies[0].tracks.length).toBe(1)
+    expect(session.configuration.assemblies[0].tracks.length).toBe(1)
     fireEvent.click(getByTestId('addTrackFromConfigRadio'))
     fireEvent.click(getByTestId('addTrackNextButton'))
     fireEvent.change(getByTestId('trackNameInput'), {
@@ -124,6 +124,6 @@ describe('<AddTrackDrawerWidget />', () => {
     await waitForElement(() => getByText('volvox'), { container })
     fireEvent.click(getByText('volvox'))
     fireEvent.click(getByTestId('addTrackNextButton'))
-    expect(rootModel.configuration.assemblies[0].tracks.length).toBe(2)
+    expect(session.configuration.assemblies[0].tracks.length).toBe(2)
   })
 })

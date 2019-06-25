@@ -2,7 +2,7 @@ import { getSnapshot } from 'mobx-state-tree'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
-import { createTestEnv } from '../JBrowse'
+import { createTestSession } from '../jbrowseModel'
 
 describe('jbrowse-web app', () => {
   const div = document.createElement('div')
@@ -10,7 +10,7 @@ describe('jbrowse-web app', () => {
   function render(model, pluginManager) {
     ReactDOM.render(
       <App
-        rootModel={model}
+        session={model}
         getViewType={pluginManager.getViewType}
         getDrawerWidgetType={pluginManager.getDrawerWidgetType}
         getMenuBarType={pluginManager.getMenuBarType}
@@ -20,44 +20,43 @@ describe('jbrowse-web app', () => {
     ReactDOM.unmountComponentAtNode(div)
   }
 
-  it('renders an empty model without crashing', async () => {
-    const { rootModel, pluginManager } = await createTestEnv({
-      defaultSession: {},
-    })
-    expect(getSnapshot(rootModel)).toMatchSnapshot({
-      configuration: {
-        configId: expect.any(String),
-        rpc: { configId: expect.any(String) },
-      },
+  it('renders an empty model without crashing', () => {
+    const session = createTestSession()
+    const { pluginManager } = session
+    expect(getSnapshot(session)).toMatchSnapshot({
+      configuration: { configId: expect.any(String) },
       menuBars: [{ id: expect.any(String) }],
+      name: expect.any(String),
     })
-    render(rootModel, pluginManager)
+    render(session, pluginManager)
   })
 
-  it('accepts a custom drawer width', async () => {
-    const { rootModel, pluginManager } = await createTestEnv({
+  it('accepts a custom drawer width', () => {
+    const session = createTestSession({
       defaultSession: { drawerWidth: 256 },
     })
-    expect(rootModel.drawerWidth).toBe(256)
-    expect(rootModel.viewsWidth).toBe(512)
-    render(rootModel, pluginManager)
+    const { pluginManager } = session
+    expect(session.drawerWidth).toBe(256)
+    expect(session.viewsWidth).toBe(512)
+    render(session, pluginManager)
   })
 
-  it('throws if drawer width is too small', async () => {
-    await expect(
-      createTestEnv({
-        defaultSession: { drawerWidth: 50 },
-      }),
-    ).rejects.toThrow()
+  it('records error if drawer width is too small', () => {
+    const root = createTestSession(
+      { defaultSession: { drawerWidth: 50 } },
+      true,
+    )
+    expect(root.errorMessage).toBeTruthy()
   })
 
   it('shrinks a drawer width that is too big', async () => {
-    const { rootModel, pluginManager } = await createTestEnv({
+    const session = createTestSession({
       defaultSession: { width: 1024, drawerWidth: 256 },
     })
-    rootModel.updateWidth(512)
-    expect(rootModel.drawerWidth).toBe(256)
-    render(rootModel, pluginManager)
+    const { pluginManager } = session
+    session.updateWidth(512)
+    expect(session.drawerWidth).toBe(256)
+    render(session, pluginManager)
   })
 
   // describe('restoring and rendering from snapshots', () => {

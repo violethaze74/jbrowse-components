@@ -170,11 +170,8 @@
       ]
     }
   ],
-  "rpc": {
-    "defaultDriver": "MainThreadRpcDriver"
-  },
   "defaultSession": {
-    "sessionName": "Integration test example",
+    "name": "Integration test example",
     "menuBars": [
       {
         "type": "MainMenuBar",
@@ -207,15 +204,15 @@
       }
     ],
     "drawerWidgets": {
-      "hierarchicalTrackSelector": {
-        "id": "hierarchicalTrackSelector",
+      "hierarchicalTrackSelector-AhLw7v7Qrs": {
+        "id": "hierarchicalTrackSelector-AhLw7v7Qrs",
         "type": "HierarchicalTrackSelectorDrawerWidget",
         "filterText": "",
         "view": "integration_test"
       }
     },
     "activeDrawerWidgets": {
-      "hierarchicalTrackSelector": "hierarchicalTrackSelector"
+      "hierarchicalTrackSelector-AhLw7v7Qrs": "hierarchicalTrackSelector-AhLw7v7Qrs"
     }
   }
 }

@@ -2,7 +2,7 @@ import { createMuiTheme } from '@material-ui/core/styles'
 import { ThemeProvider } from '@material-ui/styles'
 import React from 'react'
 import { render } from 'react-testing-library'
-import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
+import { createTestSession } from '@gmod/jbrowse-web/src/jbrowseModel'
 import HierarchicalTrackSelector from './HierarchicalTrackSelector'
 
 window.requestIdleCallback = cb => cb()
@@ -11,26 +11,26 @@ window.cancelIdleCallback = () => {}
 const theme = createMuiTheme()
 
 describe('HierarchicalTrackSelector drawer widget', () => {
-  it('renders with just the required model elements', async () => {
-    const { rootModel } = await createTestEnv()
-    const firstView = rootModel.addView('LinearGenomeView')
-    rootModel.addDrawerWidget(
+  it('renders with just the required model elements', () => {
+    const session = createTestSession()
+    const firstView = session.addView('LinearGenomeView')
+    session.addDrawerWidget(
       'HierarchicalTrackSelectorDrawerWidget',
       'hierarchicalTrackSelector',
     )
-    const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    const model = session.drawerWidgets.get('hierarchicalTrackSelector')
     model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <HierarchicalTrackSelector model={model} session={rootModel} />
+        <HierarchicalTrackSelector model={model} session={session} />
       </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
 
-  it('renders with a couple of uncategorized tracks', async () => {
-    const { rootModel } = await createTestEnv({
+  it('renders with a couple of uncategorized tracks', () => {
+    const session = createTestSession({
       assemblies: [
         {
           assemblyName: 'volvox',
@@ -63,27 +63,27 @@ describe('HierarchicalTrackSelector drawer widget', () => {
         },
       ],
     })
-    const firstView = rootModel.addLinearGenomeViewOfAssembly('volvox', {})
-    firstView.showTrack(rootModel.configuration.assemblies[0].tracks[0])
-    firstView.showTrack(rootModel.configuration.assemblies[0].tracks[1])
-    rootModel.addDrawerWidget(
+    const firstView = session.addLinearGenomeViewOfAssembly('volvox', {})
+    firstView.showTrack(session.configuration.assemblies[0].tracks[0])
+    firstView.showTrack(session.configuration.assemblies[0].tracks[1])
+    session.addDrawerWidget(
       'HierarchicalTrackSelectorDrawerWidget',
       'hierarchicalTrackSelector',
       { view: firstView },
     )
-    const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    const model = session.drawerWidgets.get('hierarchicalTrackSelector')
     model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <HierarchicalTrackSelector model={model} session={rootModel} />
+        <HierarchicalTrackSelector model={model} session={session} />
       </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
 
-  it('renders with a couple of categorized tracks', async () => {
-    const { rootModel } = await createTestEnv({
+  it('renders with a couple of categorized tracks', () => {
+    const session = createTestSession({
       assemblies: [
         {
           assemblyName: 'volvox',
@@ -116,25 +116,25 @@ describe('HierarchicalTrackSelector drawer widget', () => {
         },
       ],
     })
-    const firstView = rootModel.addLinearGenomeViewOfAssembly('volvox', {})
-    firstView.showTrack(rootModel.configuration.assemblies[0].tracks[0])
-    firstView.showTrack(rootModel.configuration.assemblies[0].tracks[1])
+    const firstView = session.addLinearGenomeViewOfAssembly('volvox', {})
+    firstView.showTrack(session.configuration.assemblies[0].tracks[0])
+    firstView.showTrack(session.configuration.assemblies[0].tracks[1])
     firstView.tracks[0].configuration.category.set(['Foo Category'])
     firstView.tracks[1].configuration.category.set([
       'Foo Category',
       'Bar Category',
     ])
-    rootModel.addDrawerWidget(
+    session.addDrawerWidget(
       'HierarchicalTrackSelectorDrawerWidget',
       'hierarchicalTrackSelector',
       { view: firstView },
     )
-    const model = rootModel.drawerWidgets.get('hierarchicalTrackSelector')
+    const model = session.drawerWidgets.get('hierarchicalTrackSelector')
     model.setView(firstView)
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <HierarchicalTrackSelector model={model} session={rootModel} />
+        <HierarchicalTrackSelector model={model} session={session} />
       </ThemeProvider>,
     )
     expect(container.firstChild).toMatchSnapshot()

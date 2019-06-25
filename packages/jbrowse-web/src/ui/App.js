@@ -60,9 +60,8 @@ function App(props) {
     classes,
     session,
     sessionNames,
-    activeSession,
     setActiveSession,
-    addSessions,
+    addSession,
     size,
   } = props
 
@@ -119,7 +118,7 @@ function App(props) {
             <LazyReactComponent
               model={activeDrawerWidget}
               session={session}
-              addSessions={addSessions}
+              addSession={addSession}
               setActiveSession={setActiveSession}
             />
           </React.Suspense>
@@ -175,7 +174,7 @@ function App(props) {
             </button>
             <select
               onChange={event => setActiveSession(event.target.value)}
-              value={activeSession}
+              value={session.name}
             >
               {sessionNames.map(sessionName => (
                 <option key={sessionName} value={sessionName}>
@@ -187,7 +186,7 @@ function App(props) {
         </Scrollbars>
       </div>
       <Drawer
-        rootModel={session}
+        session={session}
         open={Boolean(session.activeDrawerWidgets.size)}
       >
         {drawerComponent}
@@ -201,9 +200,8 @@ App.propTypes = {
   session: PropTypes.observableObject.isRequired,
   size: ReactPropTypes.objectOf(ReactPropTypes.number).isRequired,
   sessionNames: ReactPropTypes.arrayOf(ReactPropTypes.string).isRequired,
-  activeSession: ReactPropTypes.string.isRequired,
   setActiveSession: ReactPropTypes.func.isRequired,
-  addSessions: ReactPropTypes.func.isRequired,
+  addSession: ReactPropTypes.func.isRequired,
 }
 
 export default withSize()(withStyles(styles)(observer(App)))

@@ -3,21 +3,17 @@ import { flow, types, getType, addDisposer } from 'mobx-state-tree'
 
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { isConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
-import RpcManager from '@gmod/jbrowse-core/rpc/RpcManager'
 import { openLocation } from '@gmod/jbrowse-core/util/io'
 
-import RenderWorker from './rpc.worker'
-import AssemblyManager from './managers/AssemblyManager'
-import rootConfig from './rootConfig'
+import AssemblyManager from './AssemblyManager'
+import sessionConfigFactory from './sessionConfigFactory'
 
-import * as rpcFuncs from './rpcMethods'
-
-export default pluginManager => {
+export default (pluginManager, rpcManager) => {
   const minWidth = 384
   const minDrawerWidth = 128
   return types
-    .model('JBrowseWebRootModel', {
-      sessionName: types.optional(types.string, 'UnnamedSession'),
+    .model('Session', {
+      name: types.identifier,
       width: types.optional(
         types.refinement(types.integer, width => width >= minWidth),
         512,
@@ -38,41 +34,28 @@ export default pluginManager => {
       menuBars: types.array(
         pluginManager.pluggableMstType('menu bar', 'stateModel'),
       ),
-      configuration: rootConfig(pluginManager),
+      configuration: sessionConfigFactory(pluginManager),
       connections: types.map(
         pluginManager.pluggableMstType('connection', 'stateModel'),
       ),
     })
-    .volatile(self => {
-      const rpcManager = new RpcManager(pluginManager, self.configuration.rpc, {
-        WebWorkerRpcDriver: {
-          WorkerClass: RenderWorker,
-        },
-        MainThreadRpcDriver: {
-          rpcFuncs,
-        },
-      })
-      const assemblyManager = new AssemblyManager(rpcManager, self)
+    .volatile(self => ({
+      pluginManager,
+      rpcManager,
+      assemblyManager: new AssemblyManager(rpcManager, self),
       /**
        * this is the globally "selected" object. can be anything.
        * code that wants to deal with this should examine it to see what
        * kind of thing it is.
        */
-      const selection = undefined
+      selection: undefined,
       /**
        * this is the current "task" that is being performed in the UI.
        * this is usually an object of the form
        * { taskName: "configure", target: thing_being_configured }
        */
-      const task = undefined
-      return {
-        pluginManager,
-        rpcManager,
-        assemblyManager,
-        selection,
-        task,
-      }
-    })
+      task: undefined,
+    }))
     .views(self => ({
       get viewsWidth() {
         // TODO: when drawer is permanent, subtract its width
@@ -216,11 +199,6 @@ export default pluginManager => {
             drawerWidget.target.configId === view.configuration.configId
           )
             self.hideDrawerWidget(drawerWidget.id)
-          else if (
-            id === 'hierarchicalTrackSelector' &&
-            drawerWidget.view.id === view.id
-          )
-            self.hideDrawerWidget(drawerWidget.id)
         }
         self.views.remove(view)
       },
@@ -331,15 +309,16 @@ export default pluginManager => {
             'must pass a configuration model to editConfiguration',
           )
         }
-        if (!self.drawerWidgets.get('configEditor'))
+        const drawerWidgetId = `configEditor-${configuration.configId}`
+        if (!self.drawerWidgets.get(drawerWidgetId))
           self.addDrawerWidget(
             'ConfigurationEditorDrawerWidget',
-            'configEditor',
+            drawerWidgetId,
             { target: configuration },
           )
-        const editor = self.drawerWidgets.get('configEditor')
+        const editor = self.drawerWidgets.get(drawerWidgetId)
         editor.setTarget(configuration)
-        self.showDrawerWidget(editor.id)
+        self.showDrawerWidget(drawerWidgetId)
       },
 
       clearConnections() {

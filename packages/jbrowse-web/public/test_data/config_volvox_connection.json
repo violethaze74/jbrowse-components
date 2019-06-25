@@ -25,7 +25,7 @@
     }
   ],
   "defaultSession": {
-    "sessionName": "Volvox Example w/Connection",
+    "name": "Volvox Example w/Connection",
     "menuBars": [
       {
         "type": "MainMenuBar",
@@ -60,15 +60,15 @@
       }
     ],
     "drawerWidgets": {
-      "hierarchicalTrackSelector": {
-        "id": "hierarchicalTrackSelector",
+      "hierarchicalTrackSelector-DCot9WS0o": {
+        "id": "hierarchicalTrackSelector-DCot9WS0o",
         "type": "HierarchicalTrackSelectorDrawerWidget",
         "filterText": "",
         "view": "DCot9WS0o"
       }
     },
     "activeDrawerWidgets": {
-      "hierarchicalTrackSelector": "hierarchicalTrackSelector"
+      "hierarchicalTrackSelector-DCot9WS0o": "hierarchicalTrackSelector-DCot9WS0o"
     }
   }
 }

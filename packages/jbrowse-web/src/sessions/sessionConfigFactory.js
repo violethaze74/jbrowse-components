@@ -1,6 +1,5 @@
 import { detach, getType, types } from 'mobx-state-tree'
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
-import RpcManager from '@gmod/jbrowse-core/rpc/RpcManager'
 import AssemblyConfigsSchemasFactory from './assemblyConfigSchemas'
 
 export default function(pluginManager) {
@@ -8,7 +7,7 @@ export default function(pluginManager) {
     pluginManager,
   )
   return ConfigurationSchema(
-    'JBrowseWebRoot',
+    'Session',
     {
       // A map of assembly name -> assembly details
       assemblies: types.array(
@@ -18,8 +17,6 @@ export default function(pluginManager) {
       connections: types.array(
         pluginManager.pluggableConfigSchemaType('connection'),
       ),
-
-      rpc: RpcManager.configSchema,
 
       defaultSession: {
         type: 'frozen',

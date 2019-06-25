@@ -9,6 +9,9 @@ import React from 'react'
 import fetchMock from 'fetch-mock'
 import { LocalFile } from 'generic-filehandle'
 import rangeParser from 'range-parser'
+import { renderRegion, freeResources } from './workers/rpcMethods'
+
+import model, { createTestSession } from './jbrowseModel'
 import JBrowse from './JBrowse'
 import config from '../test_data/config_integration_test.json'
 
@@ -65,8 +68,15 @@ afterAll(() => {
 })
 
 describe('valid file tests', () => {
+  let jbrowseState
+  beforeEach(() => {
+    jbrowseState = model.create()
+    jbrowseState.configuration.rpc.defaultDriver.set('MainThreadRpcDriver')
+    jbrowseState.addSession(config)
+  })
+
   it('access about menu', async () => {
-    const { getByText } = render(<JBrowse configs={[config]} />)
+    const { getByText } = render(<JBrowse state={jbrowseState} />)
     await waitForElement(() => getByText('JBrowse'))
     fireEvent.click(getByText('Help'))
     fireEvent.click(getByText('About'))
@@ -76,7 +86,7 @@ describe('valid file tests', () => {
   })
 
   it('click and drag to move sideways', async () => {
-    const { getByTestId, getByText } = render(<JBrowse configs={[config]} />)
+    const { getByTestId, getByText } = render(<JBrowse state={jbrowseState} />)
     await waitForElement(() => getByText('ctgA'))
     fireEvent.click(
       await waitForElement(() => getByTestId('volvox_alignments')),
@@ -93,7 +103,7 @@ describe('valid file tests', () => {
   })
 
   it('opens track selector', async () => {
-    const { getByTestId } = render(<JBrowse configs={[config]} />)
+    const { getByTestId } = render(<JBrowse state={jbrowseState} />)
 
     await waitForElement(() => getByTestId('volvox_alignments'))
     expect(window.MODEL.views[0].tracks.length).toBe(0)
@@ -104,7 +114,7 @@ describe('valid file tests', () => {
   })
 
   it('opens reference sequence track and expects zoom in message', async () => {
-    const { getByTestId, getByText } = render(<JBrowse configs={[config]} />)
+    const { getByTestId, getByText } = render(<JBrowse state={jbrowseState} />)
     fireEvent.click(await waitForElement(() => getByTestId('volvox_refseq')))
     window.MODEL.views[0].setNewView(20, 0)
     await waitForElement(() => getByTestId('track-volvox_refseq'))
@@ -113,8 +123,15 @@ describe('valid file tests', () => {
 })
 
 describe('some error state', () => {
+  let jbrowseState
+  beforeEach(() => {
+    jbrowseState = model.create()
+    jbrowseState.configuration.rpc.defaultDriver.set('MainThreadRpcDriver')
+    jbrowseState.addSession(config)
+  })
+
   it('test that track with 404 file displays error', async () => {
-    const { getByTestId, getByText } = render(<JBrowse configs={[config]} />)
+    const { getByTestId, getByText } = render(<JBrowse state={jbrowseState} />)
     fireEvent.click(
       await waitForElement(() => getByTestId('volvox_alignments_nonexist')),
     )
@@ -179,5 +196,112 @@ describe('bigwig', () => {
       await waitForElement(() => byId('volvox_microarray_density')),
     )
     await waitForElement(() => byId('prerendered_canvas'))
+  })
+})
+
+const baseprops = {
+  region: { refName: 'ctgA', start: 0, end: 800 },
+  sessionId: 'knickers the cow',
+  adapterType: 'BamAdapter',
+  adapterConfig: {
+    configId: '7Hc9NkuD4x',
+    type: 'BamAdapter',
+    bamLocation: {
+      localPath: require.resolve('../public/test_data/volvox-sorted.bam'),
+    },
+    index: {
+      configId: 'sGW8va26pr',
+      location: {
+        localPath: require.resolve('../public/test_data/volvox-sorted.bam.bai'),
+      },
+    },
+  },
+  rootConfig: {},
+  renderProps: { bpPerPx: 1 },
+}
+
+describe('render tests', () => {
+  let pluginManager
+  beforeEach(() => {
+    ;({ pluginManager } = createTestSession())
+  })
+
+  it('can render a single region with Pileup + BamAdapter', async () => {
+    const testprops = { ...baseprops, rendererType: 'PileupRenderer' }
+
+    const result = await renderRegion(pluginManager, testprops)
+    expect(new Set(Object.keys(result))).toEqual(
+      new Set(['features', 'html', 'layout', 'height', 'width', 'imageData']),
+    )
+    expect(result.features.length).toBe(93)
+    expect(result.html).toMatchSnapshot()
+    expect(result.layout).toMatchSnapshot()
+    expect(result.imageData.width).toBe(800)
+    expect(result.imageData.height).toBe(result.layout.totalHeight)
+    expect(result.width).toBe(800)
+    expect(result.height).toBe(result.layout.totalHeight)
+
+    expect(
+      freeResources(pluginManager, {
+        sessionId: 'knickers the cow',
+      }),
+    ).toBe(2)
+
+    expect(
+      freeResources(pluginManager, {
+        sessionId: 'fozzy bear',
+      }),
+    ).toBe(0)
+  })
+
+  it('can render a single region with SvgFeatures + BamAdapter', async () => {
+    const testprops = {
+      ...baseprops,
+      rendererType: 'SvgFeatureRenderer',
+      region: { refName: 'ctgA', start: 0, end: 300 },
+    }
+
+    const result = await renderRegion(pluginManager, testprops)
+    expect(new Set(Object.keys(result))).toEqual(
+      new Set(['html', 'features', 'layout']),
+    )
+    expect(result.features.length).toBe(25)
+    expect(result.html).toMatchSnapshot()
+    expect(result.layout).toMatchSnapshot()
+
+    expect(
+      freeResources(pluginManager, {
+        sessionId: 'knickers the cow',
+      }),
+    ).toBe(2)
+
+    expect(
+      freeResources(pluginManager, {
+        sessionId: 'fozzy bear',
+      }),
+    ).toBe(0)
+  })
+
+  it('throws if no session ID', async () => {
+    const testprops = {
+      ...baseprops,
+      rendererType: 'PileupRenderer',
+      sessionId: undefined,
+    }
+
+    await expect(renderRegion(pluginManager, testprops)).rejects.toThrow(
+      /must pass a unique session id/,
+    )
+  })
+
+  it('throws on unrecoginze worker', async () => {
+    const testprops = {
+      ...baseprops,
+      rendererType: 'NonexistentRenderer',
+    }
+
+    await expect(renderRegion(pluginManager, testprops)).rejects.toThrow(
+      /renderer "NonexistentRenderer" not found/,
+    )
   })
 })

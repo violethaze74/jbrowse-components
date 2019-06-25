@@ -1,4 +1,4 @@
-import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
+import { createTestSession } from '@gmod/jbrowse-web/src/jbrowseModel'
 import { getSnapshot, types } from 'mobx-state-tree'
 
 const createMockTrackStateModel = track =>
@@ -34,7 +34,7 @@ const createMockTrack = track =>
   })
 
 test('create bam adapter config', async () => {
-  const { pluginManager } = await createTestEnv()
+  const { pluginManager } = await createTestSession()
 
   const BamAdapter = pluginManager.getAdapterType('BamAdapter')
   const config = BamAdapter.configSchema.create({ type: 'BamAdapter' })
@@ -44,7 +44,7 @@ test('create bam adapter config', async () => {
   })
 })
 test('create track config', async () => {
-  const { pluginManager } = await createTestEnv()
+  const { pluginManager } = await createTestSession()
 
   const AlignmentsTrack = pluginManager.getTrackType('AlignmentsTrack')
   const config2 = AlignmentsTrack.configSchema.create({
@@ -74,7 +74,7 @@ test('create track config', async () => {
 })
 
 test('test selection in alignments track model with mock root', async () => {
-  const { pluginManager } = await createTestEnv()
+  const { pluginManager } = await createTestSession()
 
   const rootModel = createMockTrack(
     pluginManager.getTrackType('AlignmentsTrack'),

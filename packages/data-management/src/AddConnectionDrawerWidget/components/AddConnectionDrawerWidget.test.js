@@ -5,33 +5,33 @@ import {
   waitForElement,
 } from 'react-testing-library'
 import React from 'react'
-import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
+import { createTestSession } from '@gmod/jbrowse-web/src/jbrowseModel'
 import AddConnectionDrawerWidget from './AddConnectionDrawerWidget'
 
 window.fetch = jest.fn(url => new Promise(resolve => resolve()))
 
 describe('<AddConnectionDrawerWidget />', () => {
   let model
-  let rootModel
+  let session
 
-  beforeAll(async () => {
-    ;({ rootModel } = await createTestEnv({
+  beforeAll(() => {
+    session = createTestSession({
       configId: 'testing',
       defaultSession: {},
       rpc: { configId: 'testingRpc' },
-    }))
-    rootModel.addDrawerWidget(
+    })
+    session.addDrawerWidget(
       'AddConnectionDrawerWidget',
       'addConnectionDrawerWidget',
     )
-    model = rootModel.drawerWidgets.get('addConnectionDrawerWidget')
+    model = session.drawerWidgets.get('addConnectionDrawerWidget')
   })
 
   afterEach(cleanup)
 
   it('renders', () => {
     const { container } = render(
-      <AddConnectionDrawerWidget model={model} session={rootModel} />,
+      <AddConnectionDrawerWidget model={model} session={session} />,
     )
     expect(container.firstChild).toMatchSnapshot()
   })
@@ -69,9 +69,9 @@ type bigWig
       getAllByRole,
       getByText,
       getByValue,
-    } = render(<AddConnectionDrawerWidget model={model} session={rootModel} />)
+    } = render(<AddConnectionDrawerWidget model={model} session={session} />)
     expect(
-      rootModel.connections.has('Test UCSC connection name'),
+      session.connections.has('Test UCSC connection name'),
     ).not.toBeTruthy()
     fireEvent.click(getAllByRole('button')[0])
     await waitForElement(() => getByText('UCSC Track Hub'), { container })
@@ -84,7 +84,7 @@ type bigWig
       target: { value: 'http://test.com/hub.txt' },
     })
     fireEvent.click(getByTestId('addConnectionNext'))
-    expect(rootModel.connections.has('Test UCSC connection name')).toBeTruthy()
+    expect(session.connections.has('Test UCSC connection name')).toBeTruthy()
   })
 
   it('can handle a custom JBrowse 1 data directory URL', async () => {
@@ -102,9 +102,9 @@ type bigWig
       getAllByRole,
       getByText,
       getByValue,
-    } = render(<AddConnectionDrawerWidget model={model} session={rootModel} />)
+    } = render(<AddConnectionDrawerWidget model={model} session={session} />)
     expect(
-      rootModel.connections.has('Test JBrowse 1 connection name'),
+      session.connections.has('Test JBrowse 1 connection name'),
     ).not.toBeTruthy()
     fireEvent.click(getAllByRole('button')[0])
     await waitForElement(() => getByText('JBrowse 1 Data'), { container })
@@ -118,7 +118,7 @@ type bigWig
     })
     fireEvent.click(getByTestId('addConnectionNext'))
     expect(
-      rootModel.connections.has('Test JBrowse 1 connection name'),
+      session.connections.has('Test JBrowse 1 connection name'),
     ).toBeTruthy()
   })
 })
