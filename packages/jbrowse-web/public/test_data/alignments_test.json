@@ -97,11 +97,8 @@
       ]
     }
   ],
-  "rpc": {
-    "defaultDriver": "MainThreadRpcDriver"
-  },
   "defaultSession": {
-    "sessionName": "Integration test example",
+    "name": "Integration test example",
     "menuBars": [
       {
         "type": "MainMenuBar",
@@ -126,7 +123,7 @@
     ],
     "views": [
       {
-        "id": "BhLw7v7Not",
+        "id": "AhLw7v7Qrs",
         "type": "LinearGenomeView",
         "offsetPx": 2000,
         "bpPerPx": 0.05,
@@ -134,15 +131,15 @@
       }
     ],
     "drawerWidgets": {
-      "hierarchicalTrackSelector": {
-        "id": "hierarchicalTrackSelector",
+      "hierarchicalTrackSelector-AhLw7v7Qrs": {
+        "id": "hierarchicalTrackSelector-AhLw7v7Qrs",
         "type": "HierarchicalTrackSelectorDrawerWidget",
         "filterText": "",
-        "view": "BhLw7v7Not"
+        "view": "AhLw7v7Qrs"
       }
     },
     "activeDrawerWidgets": {
-      "hierarchicalTrackSelector": "hierarchicalTrackSelector"
+      "hierarchicalTrackSelector-AhLw7v7Qrs": "hierarchicalTrackSelector-AhLw7v7Qrs"
     }
   }
 }

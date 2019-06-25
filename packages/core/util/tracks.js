@@ -4,8 +4,7 @@ import { getParent, isRoot } from 'mobx-state-tree'
 
 export function getContainingSession(node) {
   let currentNode = node
-  while (currentNode.sessionName === undefined)
-    currentNode = getParent(currentNode)
+  while (currentNode.views === undefined) currentNode = getParent(currentNode)
   return currentNode
 }
 

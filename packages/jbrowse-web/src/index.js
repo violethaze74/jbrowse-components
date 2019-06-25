@@ -2,7 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './bootstrap'
 import JBrowse from './JBrowse'
-import * as serviceWorker from './serviceWorker'
+import model from './jbrowseModel'
+import * as serviceWorker from './workers/serviceWorker'
 
 // this is the main process, so start and register our service worker and web workers
 serviceWorker.register()
@@ -12,7 +13,13 @@ const configs = [
   { uri: 'test_data/alignments_test.json' },
   { uri: 'test_data/config_human.json' },
   { uri: 'test_data/config_volvox_connection.json' },
-  { uri: 'test_data/config_volvox_mainthread.json' },
 ]
 
-ReactDOM.render(<JBrowse configs={configs} />, document.getElementById('root'))
+const jbrowseState = model.create()
+
+configs.forEach(config => jbrowseState.addSession(config))
+
+ReactDOM.render(
+  <JBrowse state={jbrowseState} />,
+  document.getElementById('root'),
+)

@@ -71,12 +71,13 @@ export default class extends Plugin {
           session.clearSelection()
           return
         }
-        if (!session.drawerWidgets.get('alignmentsFeature'))
+        const drawerWidgetId = `alignmentsFeature-${feature.id()}`
+        if (!session.drawerWidgets.get(drawerWidgetId))
           session.addDrawerWidget(
             'AlignmentsFeatureDrawerWidget',
-            'alignmentsFeature',
+            drawerWidgetId,
           )
-        const featureWidget = session.drawerWidgets.get('alignmentsFeature')
+        const featureWidget = session.drawerWidgets.get(drawerWidgetId)
         featureWidget.setFeatureData(feature.data)
         session.showDrawerWidget(featureWidget.id)
         session.setSelection(feature)

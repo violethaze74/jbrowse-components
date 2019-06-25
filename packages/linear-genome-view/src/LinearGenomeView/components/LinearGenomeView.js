@@ -82,6 +82,23 @@ function LinearGenomeView(props) {
     gridTemplateColumns: `[controls] ${controlsWidth}px [blocks] auto`,
   }
   // console.log(style)
+  function activateTrackSelector() {
+    if (model.trackSelectorType === 'hierarchical') {
+      const drawerWidgetId = `hierarchicalTrackSelector-${model.id}`
+      if (!session.drawerWidgets.get(drawerWidgetId))
+        session.addDrawerWidget(
+          'HierarchicalTrackSelectorDrawerWidget',
+          drawerWidgetId,
+          { view: model },
+        )
+      const selector = session.drawerWidgets.get(drawerWidgetId)
+      selector.setView(model)
+      session.showDrawerWidget(drawerWidgetId)
+    } else {
+      throw new Error(`invalid track selector type ${model.trackSelectorType}`)
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div
@@ -103,7 +120,7 @@ function LinearGenomeView(props) {
                 <Icon fontSize="small">close</Icon>
               </IconButton>
               <ToggleButton
-                onClick={model.activateTrackSelector}
+                onClick={activateTrackSelector}
                 title="select tracks"
                 selected={
                   session.visibleDrawerWidget &&

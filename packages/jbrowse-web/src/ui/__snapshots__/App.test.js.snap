@@ -5,17 +5,6 @@ Object {
   "activeDrawerWidgets": Object {},
   "configuration": Object {
     "configId": Any<String>,
-    "defaultSession": Object {
-      "menuBars": Array [
-        Object {
-          "type": "MainMenuBar",
-        },
-      ],
-    },
-    "rpc": Object {
-      "configId": Any<String>,
-      "defaultDriver": "MainThreadRpcDriver",
-    },
   },
   "connections": Object {},
   "drawerWidgets": Object {},
@@ -25,7 +14,7 @@ Object {
       "id": Any<String>,
     },
   ],
-  "sessionName": "UnnamedSession",
+  "name": Any<String>,
   "views": Array [],
   "width": 512,
 }

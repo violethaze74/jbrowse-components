@@ -16,8 +16,8 @@ import {
   getContainingSession,
 } from '@gmod/jbrowse-core/util/tracks'
 
-function getRendererType(view, rootModel, rendererTypeName) {
-  const RendererType = rootModel.pluginManager.getRendererType(rendererTypeName)
+function getRendererType(view, session, rendererTypeName) {
+  const RendererType = session.pluginManager.getRendererType(rendererTypeName)
   if (!RendererType)
     throw new Error(`renderer "${view.rendererTypeName}" not found`)
   if (!RendererType.ReactComponent)
@@ -27,10 +27,10 @@ function getRendererType(view, rootModel, rendererTypeName) {
   return RendererType
 }
 
-function getAdapterType(adapterConfig, rootModel, track) {
+function getAdapterType(adapterConfig, session, track) {
   if (!adapterConfig)
     throw new Error(`no adapter configuration provided for ${track.type}`)
-  const adapterType = rootModel.pluginManager.getAdapterType(adapterConfig.type)
+  const adapterType = session.pluginManager.getAdapterType(adapterConfig.type)
   if (!adapterType)
     throw new Error(`unknown adapter type ${adapterConfig.type}`)
   return adapterType

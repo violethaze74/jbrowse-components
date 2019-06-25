@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can load configuration from a config object 1`] = `
+Object {
+  "assemblies": Array [
+    Object {
+      "aliases": Array [
+        "vvx",
+      ],
+      "assemblyName": "volvox",
+      "configId": "testid",
+      "sequence": Object {
+        "adapter": Object {
+          "configId": "Zd0NLmtxPZ3",
+          "type": "FromConfigAdapter",
+        },
+        "configId": "testid",
+        "rendering": Object {
+          "configId": "testid",
+          "type": "DivSequenceRenderer",
+        },
+        "type": "ReferenceSequenceTrack",
+      },
+    },
+  ],
+  "configId": "testid",
+}
+`;
+
+exports[`can load configuration with the configure() action and resolve references to view configurations 1`] = `
+Object {
+  "configId": "fogbat",
+}
+`;

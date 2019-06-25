@@ -6,7 +6,7 @@ import { useStaticRendering } from 'mobx-react'
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import { remoteAbortRpcHandler } from '@gmod/jbrowse-core/rpc/remoteAbortSignals'
 import { isAbortException } from '@gmod/jbrowse-core/util'
-import corePlugins from './corePlugins'
+import corePlugins from '../corePlugins'
 
 import * as renderFuncs from './rpcMethods'
 

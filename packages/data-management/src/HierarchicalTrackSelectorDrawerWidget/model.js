@@ -8,12 +8,8 @@ export default pluginManager =>
       type: types.literal('HierarchicalTrackSelectorDrawerWidget'),
       collapsed: types.map(types.boolean), // map of category path -> boolean of whether it is collapsed
       filterText: '',
-      view: types.maybe(
-        types.reference(pluginManager.pluggableMstType('view', 'stateModel'), {
-          onInvalidated(evt) {
-            evt.removeRef()
-          },
-        }),
+      view: types.safeReference(
+        pluginManager.pluggableMstType('view', 'stateModel'),
       ),
     })
     .actions(self => ({

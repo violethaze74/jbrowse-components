@@ -47,10 +47,6 @@ exports[`<MainMenuBar /> renders 1`] = `
                 },
               ],
             },
-            "rpc": Object {
-              "configId": "testid",
-              "defaultDriver": "MainThreadRpcDriver",
-            },
           },
           "connections": Object {},
           "drawerWidgets": Object {},
@@ -78,7 +74,7 @@ exports[`<MainMenuBar /> renders 1`] = `
               "type": "MainMenuBar",
             },
           ],
-          "sessionName": "UnnamedSession",
+          "name": "Unnamed Session testid",
           "views": Array [],
           "width": 512,
         }

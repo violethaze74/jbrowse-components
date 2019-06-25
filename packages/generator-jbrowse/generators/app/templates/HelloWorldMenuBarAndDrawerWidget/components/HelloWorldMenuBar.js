@@ -16,8 +16,8 @@ const styles = {
   },
 }
 
-function onClick(rootModel) {
-  rootModel.showDrawerWidget(
+function onClick(session) {
+  session.showDrawerWidget(
     'id-helloworlddrawerwidget',
     'HelloWorldDrawerWidget',
   )
@@ -29,7 +29,7 @@ function HelloWorld(props) {
   return (
     <AppBar className={classes.root} position="static">
       <Toolbar variant="dense">
-        <Button onClick={() => onClick(rootModel)} color="inherit">
+        <Button onClick={() => onClick(session)} color="inherit">
           Click Me!
         </Button>
         <Typography variant="h6" color="inherit">

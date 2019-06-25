@@ -2,7 +2,7 @@ import React from 'react'
 import renderer from 'react-test-renderer'
 
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
-import { createTestEnv } from '@gmod/jbrowse-web/src/JBrowse'
+import { createTestSession } from '@gmod/jbrowse-web/src/jbrowseModel'
 import AlignmentsTrackSchemaFactory from '@gmod/jbrowse-plugin-alignments/src/AlignmentsTrack/configSchema'
 import ConfigurationEditor from './ConfigurationEditor'
 
@@ -81,8 +81,8 @@ describe('ConfigurationEditor drawer widget', () => {
     expect(tree).toMatchSnapshot()
   })
 
-  it('renders with defaults of the AlignmentsTrack schema', async () => {
-    const { pluginManager } = await createTestEnv()
+  it('renders with defaults of the AlignmentsTrack schema', () => {
+    const { pluginManager } = createTestSession()
     const AlignmentsTrackSchema = AlignmentsTrackSchemaFactory(pluginManager)
     const component = renderer.create(
       <ConfigurationEditor

@@ -24,14 +24,20 @@ export const MenuItemModel = types
       return this[action]
     },
     openAbout(session) {
-      session.showDrawerWidget('aboutDrawerWidget', 'AboutDrawerWidget')
+      session.showDrawerWidget(
+        `aboutDrawerWidget-${session.name}`,
+        'AboutDrawerWidget',
+      )
     },
     openHelp(session) {
-      session.showDrawerWidget('helpDrawerWidget', 'HelpDrawerWidget')
+      session.showDrawerWidget(
+        `helpDrawerWidget-${session.name}`,
+        'HelpDrawerWidget',
+      )
     },
     openConfigurationImport(session) {
       session.showDrawerWidget(
-        'importConfigurationDrawerWidget',
+        `importConfigurationDrawerWidget-${session.name}`,
         'ImportConfigurationDrawerWidget',
       )
     },
