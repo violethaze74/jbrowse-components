@@ -59,12 +59,12 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
     <div
       aria-disabled="false"
       aria-expanded="true"
-      class="MuiButtonBase-root MuiExpansionPanelSummary-root Category-root-204 Mui-expanded Category-expanded-205"
+      class="MuiButtonBase-root MuiExpansionPanelSummary-root Category-root-180 Mui-expanded Category-expanded-181"
       role="button"
       tabindex="0"
     >
       <div
-        class="MuiExpansionPanelSummary-content Category-content-203 Mui-expanded Category-expanded-205"
+        class="MuiExpansionPanelSummary-content Category-content-179 Mui-expanded Category-expanded-181"
       >
         <span
           class="MuiTypography-root MuiTypography-button"
@@ -75,7 +75,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
       <div
         aria-disabled="false"
         aria-hidden="true"
-        class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded Category-expanded-205 MuiIconButton-edgeEnd"
+        class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded Category-expanded-181 MuiIconButton-edgeEnd"
         role="button"
         tabindex="-1"
       >
@@ -108,22 +108,22 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
             role="region"
           >
             <div
-              class="MuiExpansionPanelDetails-root Category-expansionPanelDetails-202"
+              class="MuiExpansionPanelDetails-root Category-expansionPanelDetails-178"
             >
               <div
                 class="MuiFormGroup-root"
               >
                 <div
-                  class="TrackEntry-track-125"
+                  class="TrackEntry-track-113"
                   style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
                 >
                   <label
-                    class="MuiFormControlLabel-root TrackEntry-formControlLabel-123"
+                    class="MuiFormControlLabel-root TrackEntry-formControlLabel-111"
                     title=""
                   >
                     <span
                       aria-disabled="false"
-                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-147 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-124 PrivateSwitchBase-checked-148 Mui-checked MuiIconButton-colorSecondary"
+                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-135 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-112 PrivateSwitchBase-checked-136 Mui-checked MuiIconButton-colorSecondary"
                     >
                       <span
                         class="MuiIconButton-label"
@@ -141,7 +141,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                         </svg>
                         <input
                           checked=""
-                          class="PrivateSwitchBase-input-150"
+                          class="PrivateSwitchBase-input-138"
                           data-indeterminate="false"
                           data-testid="fooC"
                           type="checkbox"
@@ -159,7 +159,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                     </span>
                   </label>
                   <button
-                    class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-126"
+                    class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-114"
                     tabindex="0"
                     type="button"
                   >
@@ -186,12 +186,12 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                 <div
                   aria-disabled="false"
                   aria-expanded="true"
-                  class="MuiButtonBase-root MuiExpansionPanelSummary-root Category-root-204 Mui-expanded Category-expanded-205"
+                  class="MuiButtonBase-root MuiExpansionPanelSummary-root Category-root-180 Mui-expanded Category-expanded-181"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiExpansionPanelSummary-content Category-content-203 Mui-expanded Category-expanded-205"
+                    class="MuiExpansionPanelSummary-content Category-content-179 Mui-expanded Category-expanded-181"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-button"
@@ -202,7 +202,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                   <div
                     aria-disabled="false"
                     aria-hidden="true"
-                    class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded Category-expanded-205 MuiIconButton-edgeEnd"
+                    class="MuiButtonBase-root MuiIconButton-root MuiExpansionPanelSummary-expandIcon Mui-expanded Category-expanded-181 MuiIconButton-edgeEnd"
                     role="button"
                     tabindex="-1"
                   >
@@ -235,22 +235,22 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                         role="region"
                       >
                         <div
-                          class="MuiExpansionPanelDetails-root Category-expansionPanelDetails-202"
+                          class="MuiExpansionPanelDetails-root Category-expansionPanelDetails-178"
                         >
                           <div
                             class="MuiFormGroup-root"
                           >
                             <div
-                              class="TrackEntry-track-125"
+                              class="TrackEntry-track-113"
                               style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
                             >
                               <label
-                                class="MuiFormControlLabel-root TrackEntry-formControlLabel-123"
+                                class="MuiFormControlLabel-root TrackEntry-formControlLabel-111"
                                 title=""
                               >
                                 <span
                                   aria-disabled="false"
-                                  class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-147 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-124 PrivateSwitchBase-checked-148 Mui-checked MuiIconButton-colorSecondary"
+                                  class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-135 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-112 PrivateSwitchBase-checked-136 Mui-checked MuiIconButton-colorSecondary"
                                 >
                                   <span
                                     class="MuiIconButton-label"
@@ -268,7 +268,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                                     </svg>
                                     <input
                                       checked=""
-                                      class="PrivateSwitchBase-input-150"
+                                      class="PrivateSwitchBase-input-138"
                                       data-indeterminate="false"
                                       data-testid="barC"
                                       type="checkbox"
@@ -286,7 +286,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
                                 </span>
                               </label>
                               <button
-                                class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-126"
+                                class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-114"
                                 tabindex="0"
                                 type="button"
                               >
@@ -393,16 +393,16 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
     class="MuiFormGroup-root"
   >
     <div
-      class="TrackEntry-track-125"
+      class="TrackEntry-track-113"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     >
       <label
-        class="MuiFormControlLabel-root TrackEntry-formControlLabel-123"
+        class="MuiFormControlLabel-root TrackEntry-formControlLabel-111"
         title=""
       >
         <span
           aria-disabled="false"
-          class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-147 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-124 PrivateSwitchBase-checked-148 Mui-checked MuiIconButton-colorSecondary"
+          class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-135 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-112 PrivateSwitchBase-checked-136 Mui-checked MuiIconButton-colorSecondary"
         >
           <span
             class="MuiIconButton-label"
@@ -420,7 +420,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
             </svg>
             <input
               checked=""
-              class="PrivateSwitchBase-input-150"
+              class="PrivateSwitchBase-input-138"
               data-indeterminate="false"
               data-testid="fooC"
               type="checkbox"
@@ -438,7 +438,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
         </span>
       </label>
       <button
-        class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-126"
+        class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-114"
         tabindex="0"
         type="button"
       >
@@ -458,16 +458,16 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
       </button>
     </div>
     <div
-      class="TrackEntry-track-125"
+      class="TrackEntry-track-113"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     >
       <label
-        class="MuiFormControlLabel-root TrackEntry-formControlLabel-123"
+        class="MuiFormControlLabel-root TrackEntry-formControlLabel-111"
         title=""
       >
         <span
           aria-disabled="false"
-          class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-147 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-124 PrivateSwitchBase-checked-148 Mui-checked MuiIconButton-colorSecondary"
+          class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-135 MuiCheckbox-root MuiCheckbox-colorSecondary TrackEntry-checkbox-112 PrivateSwitchBase-checked-136 Mui-checked MuiIconButton-colorSecondary"
         >
           <span
             class="MuiIconButton-label"
@@ -485,7 +485,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
             </svg>
             <input
               checked=""
-              class="PrivateSwitchBase-input-150"
+              class="PrivateSwitchBase-input-138"
               data-indeterminate="false"
               data-testid="barC"
               type="checkbox"
@@ -503,7 +503,7 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
         </span>
       </label>
       <button
-        class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-126"
+        class="MuiButtonBase-root MuiIconButton-root TrackEntry-configureButton-114"
         tabindex="0"
         type="button"
       >

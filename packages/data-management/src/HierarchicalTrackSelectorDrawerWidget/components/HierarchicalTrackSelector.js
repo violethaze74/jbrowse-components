@@ -48,6 +48,7 @@ function HierarchicalTrackSelector(props) {
   const [assemblyIdx, setAssemblyIdx] = useState(0)
   const [hierarchy, setHierarchy] = useState(new Map())
   const [connectionHierarchies, setConnectionHierarchies] = useState(new Map())
+  const [count, setCount] = useState(0)
 
   const { model, session, classes } = props
 
@@ -79,6 +80,7 @@ function HierarchicalTrackSelector(props) {
       })
       setHierarchy(newHierarchy)
       setConnectionHierarchies(newConnectionHierarchies)
+      setCount(c => c + 1)
     }
 
     generateHierarchy(trackConfigs)
@@ -173,6 +175,8 @@ function HierarchicalTrackSelector(props) {
         }}
       />
       <Contents
+        // TODO: figure out why we need to force a re-render with key
+        key={`contents-${model.view.id}-${count}`}
         model={model}
         session={session}
         hierarchy={hierarchy}
