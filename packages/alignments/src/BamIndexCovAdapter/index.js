@@ -1,11 +1,22 @@
-import BamAdapter from './BamAdapter'
+import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 import { ObservableCreate } from '@gmod/jbrowse-core/util/rxjs'
 import SimpleFeature from '@gmod/jbrowse-core/util/simpleFeature'
+import {
+  AdapterClass as BamAdapter,
+  configSchema as bamAdapterConfigSchema,
+} from '../BamAdapter'
 
-export default class BamIndexCovAdapter extends BamAdapter {
+export const configSchema = ConfigurationSchema(
+  'BamIndexCovAdapter',
+  {},
+  { baseConfiguration: bamAdapterConfigSchema,explicitlyTyped: true},
+)
+
+export class AdapterClass extends BamAdapter {
   static capabilities = ['getFeatures', 'getRefNames', 'getGlobalStats']
+
   async getGlobalStats() {
-    return {scoreMax: 5000,scoreMin:0}
+    return { scoreMax: 5000, scoreMin: 0 }
   }
 
   /**

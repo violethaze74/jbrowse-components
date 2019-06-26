@@ -72,6 +72,25 @@
           }
         },
         {
+          "type": "WiggleTrack",
+          "configId": "hg00096_highcov_indexcov",
+          "category": [
+            "1000 genomes"
+          ],
+          "name": "HG00096 Illumina high coverage (indexcov)",
+          "adapter": {
+            "type": "BamIndexCovAdapter",
+            "bamLocation": {
+              "uri": "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/high_coverage_alignment/HG00096.wgs.ILLUMINA.bwa.GBR.high_cov_pcr_free.20140203.bam"
+            },
+            "index": {
+              "location": {
+                "uri": "https://s3.amazonaws.com/1000genomes/phase3/data/HG00096/high_coverage_alignment/HG00096.wgs.ILLUMINA.bwa.GBR.high_cov_pcr_free.20140203.bam.bai"
+              }
+            }
+          }
+        },
+        {
           "type": "AlignmentsTrack",
           "configId": "hg00096_highcov",
           "category": [

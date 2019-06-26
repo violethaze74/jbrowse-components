@@ -16,6 +16,10 @@ import {
   AdapterClass as BamAdapterClass,
   configSchema as bamAdapterConfigSchema,
 } from './BamAdapter'
+import {
+  AdapterClass as BamIndexCovAdapterClass,
+  configSchema as bamIndexCovAdapterConfigSchema,
+} from './BamIndexCovAdapter'
 import PileupRenderer, {
   configSchema as pileupRendererConfigSchema,
   ReactComponent as PileupRendererReactComponent,
@@ -49,6 +53,14 @@ export default class extends Plugin {
           name: 'BamAdapter',
           configSchema: bamAdapterConfigSchema,
           AdapterClass: BamAdapterClass,
+        }),
+    )
+    pluginManager.addAdapterType(
+      () =>
+        new AdapterType({
+          name: 'BamIndexCovAdapter',
+          configSchema: bamIndexCovAdapterConfigSchema,
+          AdapterClass: BamIndexCovAdapterClass,
         }),
     )
 
