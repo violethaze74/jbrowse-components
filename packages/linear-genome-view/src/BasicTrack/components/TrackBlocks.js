@@ -50,6 +50,7 @@ function TrackBlocks({
       {model.blockDefinitions.map(block => {
         if (block instanceof ContentBlock) {
           const state = blockState.get(block.key)
+          if (!state) return null
           return (
             <Block
               leftBorder={block.isLeftEndOfDisplayedRegion}

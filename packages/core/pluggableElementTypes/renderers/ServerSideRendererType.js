@@ -6,31 +6,6 @@ import RendererType from './RendererType'
 import SerializableFilterChain from './util/serializableFilterChain'
 
 export default class ServerSideRenderer extends RendererType {
-  /**
-   * directly modifies the render arguments to prepare
-   * them to be serialized and sent to the worker.
-   *
-   * the base class replaces the `renderProps.trackModel` param
-   * (which on the client is a MST model) with a stub
-   * that only contains the `selectedFeature`, since
-   * this is the only part of the track model that most
-   * renderers read.
-   *
-   * @param {object} args the arguments passed to render
-   * @returns {object} the same object
-   */
-  serializeArgsInClient(args) {
-    if (args.renderProps.trackModel) {
-      args.renderProps = {
-        ...args.renderProps,
-        trackModel: {
-          selectedFeatureId: args.renderProps.trackModel.selectedFeatureId,
-        },
-      }
-    }
-    return args
-  }
-
   deserializeResultsInClient(result /* , args */) {
     // deserialize some of the results that came back from the worker
     const featuresMap = new Map()
@@ -70,14 +45,8 @@ export default class ServerSideRenderer extends RendererType {
    * calls `renderRegion` with the RPC manager.
    */
   async renderInClient(rpcManager, args) {
-    const serializedArgs = this.serializeArgsInClient(args)
-
     const stateGroupName = args.sessionId
-    const result = await rpcManager.call(
-      stateGroupName,
-      'renderRegion',
-      serializedArgs,
-    )
+    const result = await rpcManager.call(stateGroupName, 'renderRegion', args)
     // const result = await renderRegionWithWorker(session, serializedArgs)
 
     this.deserializeResultsInClient(result, args)
