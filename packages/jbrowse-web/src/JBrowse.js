@@ -8,23 +8,6 @@ import 'typeface-roboto'
 import App from './ui/App'
 import Theme from './ui/theme'
 
-export async function createTestSession() {
-  return null
-}
-
-// export async function createTestSession(configSnapshot = {}) {
-//   const { modelType, pluginManager } = createModelType([])
-//   const config = {
-//     ...configSnapshot,
-//     rpc: { defaultDriver: 'MainThreadRpcDriver' },
-//   }
-//   return {
-//     ...(await createsession(modelType, config)),
-//     pluginManager,
-//   }
-// }
-
-// the main JBrowse component
 export default observer(({ state }) => {
   let DisplayComponent = (
     <CircularProgress

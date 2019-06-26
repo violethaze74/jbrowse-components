@@ -6,7 +6,8 @@ import Track from './Track'
 import TrackBlocks from './TrackBlocks'
 
 function BlockBasedTrack(props) {
-  const { model, children } = props
+  const { model, session, children } = props
+  model.start(session)
   return (
     <Track {...props} trackId={getConf(model, 'configId')}>
       {model.trackMessageComponent ? (

@@ -2,12 +2,6 @@ import { getParent, isRoot } from 'mobx-state-tree'
 
 /* utility functions for use by track models and so forth */
 
-export function getContainingSession(node) {
-  let currentNode = node
-  while (currentNode.views === undefined) currentNode = getParent(currentNode)
-  return currentNode
-}
-
 /**
  * get the closest view object that contains this state tree node
  * @param {MSTNode} node

@@ -11,6 +11,7 @@ export default types.compose(
   types
     .model({
       blockState: types.map(BlockState),
+      started: false,
     })
     .views(self => ({
       get blockType() {
@@ -43,7 +44,9 @@ export default types.compose(
       },
     }))
     .actions(self => ({
-      afterAttach() {
+      start(session) {
+        if (self.started) return
+        self.started = true
         // watch the parent's blocks to update our block state when they change
         const blockWatchDisposer = autorun(() => {
           // create any blocks that we need to create
@@ -51,7 +54,7 @@ export default types.compose(
           self.blockDefinitions.forEach(block => {
             blocksPresent[block.key] = true
             if (!self.blockState.has(block.key)) {
-              self.addBlock(block.key, block)
+              self.addBlock(block.key, block, session)
             }
           })
           // delete any blocks we need to delete
@@ -63,14 +66,9 @@ export default types.compose(
         addDisposer(self, blockWatchDisposer)
       },
 
-      addBlock(key, block) {
-        self.blockState.set(
-          key,
-          BlockState.create({
-            key,
-            region: block.toRegion(),
-          }),
-        )
+      addBlock(key, block, session) {
+        self.blockState.set(key, { key, region: block.toRegion() })
+        self.blockState.get(key).start(session)
       },
 
       deleteBlock(key) {

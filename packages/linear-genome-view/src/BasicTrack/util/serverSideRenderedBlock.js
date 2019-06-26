@@ -13,7 +13,6 @@ import {
 import {
   getContainingAssembly,
   getContainingView,
-  getContainingSession,
 } from '@gmod/jbrowse-core/util/tracks'
 
 function getRendererType(view, session, rendererTypeName) {
@@ -39,10 +38,9 @@ function getAdapterType(adapterConfig, session, track) {
 // calls the render worker to render the block content
 // not using a flow for this, because the flow doesn't
 // work with autorun
-function renderBlockData(self) {
+function renderBlockData(self, session) {
   const track = getParent(self, 2)
   const view = getContainingView(track)
-  const session = getContainingSession(self)
   const { rpcManager, assemblyManager } = session
   const trackConf = track.configuration
   let trackConfParent = getParent(trackConf)
@@ -167,10 +165,10 @@ export default types
     renderInProgress: undefined,
   }))
   .actions(self => ({
-    afterAttach() {
+    start(session) {
       const track = getParent(self, 2)
       const renderDisposer = reaction(
-        () => renderBlockData(self),
+        () => renderBlockData(self, session),
         data => renderBlockEffect(self, data),
         {
           name: `${track.id}/${assembleLocString(self.region)} rendering`,
