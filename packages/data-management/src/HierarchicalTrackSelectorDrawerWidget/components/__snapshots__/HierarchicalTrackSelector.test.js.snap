@@ -53,23 +53,256 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of catego
     class="MuiFormGroup-root-82"
   />
   <div
-    class="MuiCircularProgress-root-105 MuiCircularProgress-colorPrimary-108 MuiCircularProgress-indeterminate-107"
-    role="progressbar"
-    style="width: 40px; height: 40px;"
+    class="MuiPaper-root-186 MuiPaper-elevation1-189 MuiPaper-rounded-187 MuiExpansionPanel-root-182 MuiExpansionPanel-expanded-184 MuiExpansionPanel-rounded-183"
+    style="margin-top: 4px;"
   >
-    <svg
-      class="MuiCircularProgress-svg-110"
-      viewBox="22 22 44 44"
+    <div
+      aria-expanded="true"
+      class="MuiButtonBase-root-69 MuiExpansionPanelSummary-root-213 Category-root-180 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+      role="button"
+      tabindex="0"
     >
-      <circle
-        class="MuiCircularProgress-circle-111 MuiCircularProgress-circleIndeterminate-113"
-        cx="44"
-        cy="44"
-        fill="none"
-        r="20.2"
-        stroke-width="3.6"
-      />
-    </svg>
+      <div
+        class="MuiExpansionPanelSummary-content-217 Category-content-179 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+      >
+        <span
+          class="MuiTypography-root-142 MuiTypography-button-153"
+        >
+          Foo Category (2)
+        </span>
+      </div>
+      <div
+        aria-hidden="true"
+        class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiExpansionPanelSummary-expandIcon-218 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+        role="button"
+        tabindex="-1"
+      >
+        <span
+          class="MuiIconButton-label-68"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons MuiIcon-root-72"
+          >
+            expand_more
+          </span>
+        </span>
+        <span
+          class="MuiTouchRipple-root-98"
+        />
+      </div>
+    </div>
+    <div
+      class="MuiCollapse-container-219 MuiCollapse-entered-220"
+      style="min-height: 0px;"
+    >
+      <div
+        class="MuiCollapse-wrapper-221"
+      >
+        <div
+          class="MuiCollapse-wrapperInner-222"
+        >
+          <div
+            class="MuiExpansionPanelDetails-root-223 Category-expansionPanelDetails-178"
+          >
+            <div
+              class="MuiFormGroup-root-82"
+            >
+              <div
+                class="TrackEntry-track-107"
+                style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+              >
+                <label
+                  class="MuiFormControlLabel-root-117 TrackEntry-formControlLabel-105"
+                  title=""
+                >
+                  <span
+                    class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiPrivateSwitchBase-root-129 MuiCheckbox-root-123 MuiCheckbox-colorSecondary-128 MuiPrivateSwitchBase-checked-130 MuiCheckbox-checked-124 TrackEntry-checkbox-106"
+                  >
+                    <span
+                      class="MuiIconButton-label-68"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root-133"
+                        focusable="false"
+                        role="presentation"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                        />
+                      </svg>
+                      <input
+                        checked=""
+                        class="MuiPrivateSwitchBase-input-132"
+                        data-indeterminate="false"
+                        data-testid="fooC"
+                        type="checkbox"
+                        value=""
+                      />
+                    </span>
+                    <span
+                      class="MuiTouchRipple-root-98"
+                    />
+                  </span>
+                  <span
+                    class="MuiTypography-root-142 MuiTypography-body1-151 MuiFormControlLabel-label-122"
+                  >
+                    Track
+                  </span>
+                </label>
+                <button
+                  class="MuiButtonBase-root-69 MuiIconButton-root-63 TrackEntry-configureButton-108"
+                  tabindex="0"
+                  type="button"
+                >
+                  <span
+                    class="MuiIconButton-label-68"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="material-icons MuiIcon-root-72 MuiIcon-fontSizeSmall-79"
+                    >
+                      settings
+                    </span>
+                  </span>
+                  <span
+                    class="MuiTouchRipple-root-98"
+                  />
+                </button>
+              </div>
+            </div>
+            <div
+              class="MuiPaper-root-186 MuiPaper-elevation1-189 MuiPaper-rounded-187 MuiExpansionPanel-root-182 MuiExpansionPanel-expanded-184 MuiExpansionPanel-rounded-183"
+              style="margin-top: 4px;"
+            >
+              <div
+                aria-expanded="true"
+                class="MuiButtonBase-root-69 MuiExpansionPanelSummary-root-213 Category-root-180 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+                role="button"
+                tabindex="0"
+              >
+                <div
+                  class="MuiExpansionPanelSummary-content-217 Category-content-179 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+                >
+                  <span
+                    class="MuiTypography-root-142 MuiTypography-button-153"
+                  >
+                    Bar Category (1)
+                  </span>
+                </div>
+                <div
+                  aria-hidden="true"
+                  class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiExpansionPanelSummary-expandIcon-218 MuiExpansionPanelSummary-expanded-214 Category-expanded-181"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <span
+                    class="MuiIconButton-label-68"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="material-icons MuiIcon-root-72"
+                    >
+                      expand_more
+                    </span>
+                  </span>
+                  <span
+                    class="MuiTouchRipple-root-98"
+                  />
+                </div>
+              </div>
+              <div
+                class="MuiCollapse-container-219 MuiCollapse-entered-220"
+                style="min-height: 0px;"
+              >
+                <div
+                  class="MuiCollapse-wrapper-221"
+                >
+                  <div
+                    class="MuiCollapse-wrapperInner-222"
+                  >
+                    <div
+                      class="MuiExpansionPanelDetails-root-223 Category-expansionPanelDetails-178"
+                    >
+                      <div
+                        class="MuiFormGroup-root-82"
+                      >
+                        <div
+                          class="TrackEntry-track-107"
+                          style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+                        >
+                          <label
+                            class="MuiFormControlLabel-root-117 TrackEntry-formControlLabel-105"
+                            title=""
+                          >
+                            <span
+                              class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiPrivateSwitchBase-root-129 MuiCheckbox-root-123 MuiCheckbox-colorSecondary-128 MuiPrivateSwitchBase-checked-130 MuiCheckbox-checked-124 TrackEntry-checkbox-106"
+                            >
+                              <span
+                                class="MuiIconButton-label-68"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root-133"
+                                  focusable="false"
+                                  role="presentation"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                                  />
+                                </svg>
+                                <input
+                                  checked=""
+                                  class="MuiPrivateSwitchBase-input-132"
+                                  data-indeterminate="false"
+                                  data-testid="barC"
+                                  type="checkbox"
+                                  value=""
+                                />
+                              </span>
+                              <span
+                                class="MuiTouchRipple-root-98"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root-142 MuiTypography-body1-151 MuiFormControlLabel-label-122"
+                            >
+                              Track
+                            </span>
+                          </label>
+                          <button
+                            class="MuiButtonBase-root-69 MuiIconButton-root-63 TrackEntry-configureButton-108"
+                            tabindex="0"
+                            type="button"
+                          >
+                            <span
+                              class="MuiIconButton-label-68"
+                            >
+                              <span
+                                aria-hidden="true"
+                                class="material-icons MuiIcon-root-72 MuiIcon-fontSizeSmall-79"
+                              >
+                                settings
+                              </span>
+                            </span>
+                            <span
+                              class="MuiTouchRipple-root-98"
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <button
     class="MuiButtonBase-root-69 MuiFab-root-84 MuiFab-secondary-87 HierarchicalTrackSelector-fab-3"
@@ -144,25 +377,135 @@ exports[`HierarchicalTrackSelector drawer widget renders with a couple of uncate
   </div>
   <div
     class="MuiFormGroup-root-82"
-  />
-  <div
-    class="MuiCircularProgress-root-105 MuiCircularProgress-colorPrimary-108 MuiCircularProgress-indeterminate-107"
-    role="progressbar"
-    style="width: 40px; height: 40px;"
   >
-    <svg
-      class="MuiCircularProgress-svg-110"
-      viewBox="22 22 44 44"
+    <div
+      class="TrackEntry-track-107"
+      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     >
-      <circle
-        class="MuiCircularProgress-circle-111 MuiCircularProgress-circleIndeterminate-113"
-        cx="44"
-        cy="44"
-        fill="none"
-        r="20.2"
-        stroke-width="3.6"
-      />
-    </svg>
+      <label
+        class="MuiFormControlLabel-root-117 TrackEntry-formControlLabel-105"
+        title=""
+      >
+        <span
+          class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiPrivateSwitchBase-root-129 MuiCheckbox-root-123 MuiCheckbox-colorSecondary-128 MuiPrivateSwitchBase-checked-130 MuiCheckbox-checked-124 TrackEntry-checkbox-106"
+        >
+          <span
+            class="MuiIconButton-label-68"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root-133"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <input
+              checked=""
+              class="MuiPrivateSwitchBase-input-132"
+              data-indeterminate="false"
+              data-testid="fooC"
+              type="checkbox"
+              value=""
+            />
+          </span>
+          <span
+            class="MuiTouchRipple-root-98"
+          />
+        </span>
+        <span
+          class="MuiTypography-root-142 MuiTypography-body1-151 MuiFormControlLabel-label-122"
+        >
+          Track
+        </span>
+      </label>
+      <button
+        class="MuiButtonBase-root-69 MuiIconButton-root-63 TrackEntry-configureButton-108"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiIconButton-label-68"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons MuiIcon-root-72 MuiIcon-fontSizeSmall-79"
+          >
+            settings
+          </span>
+        </span>
+        <span
+          class="MuiTouchRipple-root-98"
+        />
+      </button>
+    </div>
+    <div
+      class="TrackEntry-track-107"
+      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+    >
+      <label
+        class="MuiFormControlLabel-root-117 TrackEntry-formControlLabel-105"
+        title=""
+      >
+        <span
+          class="MuiButtonBase-root-69 MuiIconButton-root-63 MuiPrivateSwitchBase-root-129 MuiCheckbox-root-123 MuiCheckbox-colorSecondary-128 MuiPrivateSwitchBase-checked-130 MuiCheckbox-checked-124 TrackEntry-checkbox-106"
+        >
+          <span
+            class="MuiIconButton-label-68"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root-133"
+              focusable="false"
+              role="presentation"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <input
+              checked=""
+              class="MuiPrivateSwitchBase-input-132"
+              data-indeterminate="false"
+              data-testid="barC"
+              type="checkbox"
+              value=""
+            />
+          </span>
+          <span
+            class="MuiTouchRipple-root-98"
+          />
+        </span>
+        <span
+          class="MuiTypography-root-142 MuiTypography-body1-151 MuiFormControlLabel-label-122"
+        >
+          Track
+        </span>
+      </label>
+      <button
+        class="MuiButtonBase-root-69 MuiIconButton-root-63 TrackEntry-configureButton-108"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiIconButton-label-68"
+        >
+          <span
+            aria-hidden="true"
+            class="material-icons MuiIcon-root-72 MuiIcon-fontSizeSmall-79"
+          >
+            settings
+          </span>
+        </span>
+        <span
+          class="MuiTouchRipple-root-98"
+        />
+      </button>
+    </div>
   </div>
   <button
     class="MuiButtonBase-root-69 MuiFab-root-84 MuiFab-secondary-87 HierarchicalTrackSelector-fab-3"
