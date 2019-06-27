@@ -1,4 +1,8 @@
-import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
+import {
+  ConfigurationSchema,
+  readConfObject,
+} from '@gmod/jbrowse-core/configuration'
+
 import { ObservableCreate } from '@gmod/jbrowse-core/util/rxjs'
 import SimpleFeature from '@gmod/jbrowse-core/util/simpleFeature'
 import {
@@ -22,15 +26,14 @@ export const configSchema = ConfigurationSchema(
 export class AdapterClass extends BamAdapter {
   static capabilities = ['getFeatures', 'getRefNames', 'getGlobalStats']
 
-  private averageFeatureLength = 150
-
   constructor(opts) {
     super(opts)
-    this.averageFeatureLength = opts.averageFeatureLength
+    const ret = configSchema.create(opts)
+    this.averageFeatureLength = readConfObject(ret, 'averageFeatureLength')
   }
 
   async getGlobalStats() {
-    return { scoreMax: 5000, scoreMin: 0 }
+    return { scoreMax: 500, scoreMin: 0 }
   }
 
   /**
@@ -47,9 +50,8 @@ export class AdapterClass extends BamAdapter {
       const records = await this.bam.indexCov(refName, start, end, {
         signal,
       })
-      console.log(this.averageFeatureLength)
       records.forEach(record => {
-        record.score = record.score * this.averageFeatureLength / 16384
+        record.score = (record.score * this.averageFeatureLength) / 16384
         observer.next(new SimpleFeature({ id: record.start + 1, data: record }))
       })
       observer.complete()
