@@ -5,10 +5,6 @@ import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
 import React, { useEffect, useRef, useState } from 'react'
 
-const layoutPropType = ReactPropTypes.shape({
-  getRectangles: ReactPropTypes.func.isRequired,
-})
-
 function PileupRendering(props) {
   const highlightOverlayCanvas = useRef()
   const [featureIdUnderMouse, setFeatureIdUnderMouse] = useState()
@@ -44,7 +40,7 @@ function PileupRendering(props) {
   }
 
   useEffect(() => {
-    function updateSelectionHighlight() {
+    function updateHighlights() {
       const canvas = highlightOverlayCanvas.current
       if (!canvas) return
       const ctx = canvas.getContext('2d')
@@ -75,66 +71,116 @@ function PileupRendering(props) {
               highlightHeight + 4,
             )
             ctx.clearRect(leftPx, top, rightPx - leftPx, highlightHeight)
-            return
+            break
+          }
+        }
+      }
+      if (featureIdUnderMouse) {
+        for (const [
+          id,
+          [leftBp, topPx, rightBp, bottomPx],
+        ] of layout.getRectangles()) {
+          if (String(id) === String(featureIdUnderMouse)) {
+            const leftPx = Math.round(
+              bpToPx(leftBp, region, bpPerPx, horizontallyFlipped),
+            )
+            const rightPx = Math.round(
+              bpToPx(rightBp, region, bpPerPx, horizontallyFlipped),
+            )
+            const top = Math.round(topPx)
+            const highlightHeight = Math.round(bottomPx - topPx)
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'
+            ctx.fillRect(leftPx, top, rightPx - leftPx, highlightHeight)
+            break
           }
         }
       }
     }
 
-    updateSelectionHighlight()
-  }, [bpPerPx, horizontallyFlipped, layout, region, selectedFeatureId])
+    updateHighlights()
+  }, [
+    bpPerPx,
+    horizontallyFlipped,
+    layout,
+    region,
+    selectedFeatureId,
+    featureIdUnderMouse,
+  ])
 
   function onMouseDown(event) {
     setMouseIsDown(true)
     setMovedDuringLastMouseDown(false)
-    callMouseHandler('MouseDown', event)
+    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    props.onMouseDown(event)
   }
 
   function onMouseEnter(event) {
-    callMouseHandler('MouseEnter', event)
+    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    props.onMouseEnter(event)
   }
 
   function onMouseOut(event) {
-    callMouseHandler('MouseOut', event)
-    callMouseHandler('MouseLeave', event)
     setFeatureIdUnderMouse(undefined)
+    session.event(event, undefined, targetType)
+    props.onMouseOut(event)
+    props.onMouseLeave(event)
   }
 
   function onMouseOver(event) {
-    callMouseHandler('MouseOver', event)
+    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    props.onMouseOver(event)
   }
 
   function onMouseUp(event) {
     setMouseIsDown(false)
-    callMouseHandler('MouseUp', event)
+    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    props.onMouseUp(event)
   }
 
   function onClick(event) {
     if (!movedDuringLastMouseDown) {
       session.event(event, getFeature(featureIdUnderMouse), targetType)
-      callMouseHandler('Click', event)
+      props.onClick(event)
     }
   }
 
   function onMouseLeave(event) {
-    callMouseHandler('MouseOut', event)
-    callMouseHandler('MouseLeave', event)
     setFeatureIdUnderMouse(undefined)
+    session.event(event, undefined, targetType)
+    props.onMouseOut(event)
+    props.onMouseLeave(event)
+  }
+
+  function onContextMenu(event) {
+    event.preventDefault()
+    session.event(
+      { type: 'contextmenu', ...event },
+      getFeature(featureIdUnderMouse),
+      targetType,
+    )
   }
 
   function onMouseMove(event) {
     if (mouseIsDown) setMovedDuringLastMouseDown(true)
     const featureIdCurrentlyUnderMouse = findFeatureIdUnderMouse(event)
-    if (featureIdUnderMouse === featureIdCurrentlyUnderMouse) {
-      callMouseHandler('MouseMove', event)
-    } else {
+    if (featureIdUnderMouse !== featureIdCurrentlyUnderMouse) {
       if (featureIdUnderMouse) {
-        callMouseHandler('MouseOut', event)
-        callMouseHandler('MouseLeave', event)
+        session.event(
+          { ...event, type: 'mouseout' },
+          getFeature(featureIdUnderMouse),
+          targetType,
+        )
+        props.onMouseOut(event)
+        props.onMouseLeave(event)
       }
       setFeatureIdUnderMouse(featureIdCurrentlyUnderMouse)
-      callMouseHandler('MouseOver', event)
-      callMouseHandler('MouseEnter', event)
+      session.event(
+        { ...event, type: 'mouseover' },
+        getFeature(featureIdCurrentlyUnderMouse),
+        targetType,
+      )
+      props.onMouseOver(event)
+      props.onMouseEnter(event)
     }
   }
 
@@ -167,23 +213,6 @@ function PileupRendering(props) {
     return undefined
   }
 
-  /**
-   * @param {string} handlerName
-   * @param {*} event - the actual mouse event
-   * @param {bool} always - call this handler even if there is no feature
-   */
-  function callMouseHandler(handlerName, event, always = false) {
-    // eslint-disable-next-line react/destructuring-assignment
-    const featureHandler = props[`onFeature${handlerName}`]
-    // eslint-disable-next-line react/destructuring-assignment
-    const canvasHandler = props[`on${handlerName}`]
-    if (featureHandler && (always || featureIdUnderMouse)) {
-      featureHandler(event, featureIdUnderMouse)
-    } else if (canvasHandler) {
-      canvasHandler(event, featureIdUnderMouse)
-    }
-  }
-
   const canvasWidth = Math.ceil(width)
   return (
     <div className="PileupRendering" style={{ position: 'relative' }}>
@@ -197,6 +226,7 @@ function PileupRendering(props) {
         style={{ position: 'absolute', left: 0, top: 0 }}
         className="highlightOverlayCanvas"
         ref={highlightOverlayCanvas}
+        onContextMenu={onContextMenu}
         onMouseDown={onMouseDown}
         onMouseEnter={onMouseEnter}
         onMouseOut={onMouseOut}
@@ -213,7 +243,9 @@ function PileupRendering(props) {
 }
 
 PileupRendering.propTypes = {
-  layout: layoutPropType.isRequired,
+  layout: ReactPropTypes.shape({
+    getRectangles: ReactPropTypes.func.isRequired,
+  }).isRequired,
   height: ReactPropTypes.number.isRequired,
   width: ReactPropTypes.number.isRequired,
   region: CommonPropTypes.Region.isRequired,
@@ -224,17 +256,6 @@ PileupRendering.propTypes = {
   getFeature: ReactPropTypes.func.isRequired,
 
   targetType: ReactPropTypes.string,
-
-  onFeatureMouseDown: ReactPropTypes.func,
-  onFeatureMouseEnter: ReactPropTypes.func,
-  onFeatureMouseOut: ReactPropTypes.func,
-  onFeatureMouseOver: ReactPropTypes.func,
-  onFeatureMouseUp: ReactPropTypes.func,
-  onFeatureMouseLeave: ReactPropTypes.func,
-  onFeatureMouseMove: ReactPropTypes.func,
-
-  // synthesized from mouseup and mousedown
-  onFeatureClick: ReactPropTypes.func,
 
   onMouseDown: ReactPropTypes.func,
   onMouseUp: ReactPropTypes.func,
@@ -251,24 +272,14 @@ PileupRendering.defaultProps = {
 
   targetType: 'feature',
 
-  onFeatureMouseDown: undefined,
-  onFeatureMouseEnter: undefined,
-  onFeatureMouseOut: undefined,
-  onFeatureMouseOver: undefined,
-  onFeatureMouseUp: undefined,
-  onFeatureMouseLeave: undefined,
-  onFeatureMouseMove: undefined,
+  onMouseDown: () => {},
+  onMouseUp: () => {},
+  onMouseEnter: () => {},
+  onMouseLeave: () => {},
+  onMouseOver: () => {},
+  onMouseOut: () => {},
 
-  onFeatureClick: undefined,
-
-  onMouseDown: undefined,
-  onMouseUp: undefined,
-  onMouseEnter: undefined,
-  onMouseLeave: undefined,
-  onMouseOver: undefined,
-  onMouseOut: undefined,
-
-  onClick: undefined,
+  onClick: () => {},
 }
 
 export default observer(PileupRendering)

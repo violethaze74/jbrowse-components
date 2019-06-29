@@ -20,6 +20,13 @@ exports[`one 1`] = `
         "totalHeight": 20,
       }
     }
+    onClick={[Function]}
+    onMouseDown={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onMouseOver={[Function]}
+    onMouseUp={[Function]}
     region={
       Object {
         "end": 3,
@@ -42,6 +49,7 @@ exports[`one 1`] = `
     height={500}
     onBlur={[Function]}
     onClick={[Function]}
+    onContextMenu={[Function]}
     onFocus={[Function]}
     onMouseDown={[Function]}
     onMouseEnter={[Function]}
