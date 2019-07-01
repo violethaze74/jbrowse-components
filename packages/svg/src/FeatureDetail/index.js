@@ -2,12 +2,12 @@ import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 import { ElementId } from '@gmod/jbrowse-core/mst-types'
 import { types } from 'mobx-state-tree'
 
-const configSchema = ConfigurationSchema('AlignmentsFeatureDrawerWidget', {})
+const configSchema = ConfigurationSchema('FeatureDrawerWidget', {})
 
 const stateModel = types
-  .model('AlignmentsFeatureDrawerWidget', {
+  .model('FeatureDrawerWidget', {
     id: ElementId,
-    type: types.literal('AlignmentsFeatureDrawerWidget'),
+    type: types.literal('FeatureDrawerWidget'),
     featureData: types.frozen({}),
   })
   .actions(self => ({
@@ -20,4 +20,4 @@ const stateModel = types
   }))
 
 export { configSchema, stateModel }
-export const ReactComponent = import('./AlignmentsFeatureDetail')
+export const ReactComponent = import('./FeatureDetail')
