@@ -22,6 +22,7 @@ function BlockBasedTrack(props) {
 
 BlockBasedTrack.propTypes = {
   model: MobxPropTypes.objectOrObservableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject.isRequired,
   children: PropTypes.node,
 }
 

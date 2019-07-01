@@ -144,7 +144,7 @@ describe('some error state', () => {
     ).toBeTruthy()
   })
   it('test that bam with contigA instead of ctgA displays', async () => {
-    const { getByTestId, getByText } = render(<JBrowse configs={[config]} />)
+    const { getByTestId, getByText } = render(<JBrowse state={jbrowseState} />)
     fireEvent.click(
       await waitForElement(() => getByTestId('volvox_bam_altname')),
     )
@@ -154,10 +154,17 @@ describe('some error state', () => {
   })
 })
 
-describe.only('variant', () => {
+describe('variant', () => {
+  let jbrowseState
+  beforeEach(() => {
+    jbrowseState = model.create()
+    jbrowseState.configuration.rpc.defaultDriver.set('MainThreadRpcDriver')
+    jbrowseState.addSession(config)
+  })
+
   it('click on a vcf feature', async () => {
     const { getByTestId: byId, getByText } = render(
-      <JBrowse configs={[config]} />,
+      <JBrowse state={jbrowseState} />,
     )
     await waitForElement(() => getByText('JBrowse'))
     window.MODEL.views[0].setNewView(0.05, 5000)
@@ -168,9 +175,16 @@ describe.only('variant', () => {
 })
 
 describe('bigwig', () => {
+  let jbrowseState
+  beforeEach(() => {
+    jbrowseState = model.create()
+    jbrowseState.configuration.rpc.defaultDriver.set('MainThreadRpcDriver')
+    jbrowseState.addSession(config)
+  })
+
   it('open a bigwig track', async () => {
     const { getByTestId: byId, getByText } = render(
-      <JBrowse configs={[config]} />,
+      <JBrowse state={jbrowseState} />,
     )
     await waitForElement(() => getByText('JBrowse'))
     window.MODEL.views[0].setNewView(0.05, 5000)
@@ -179,7 +193,7 @@ describe('bigwig', () => {
   })
   it('open a bigwig line track', async () => {
     const { getByTestId: byId, getByText } = render(
-      <JBrowse configs={[config]} />,
+      <JBrowse state={jbrowseState} />,
     )
     await waitForElement(() => getByText('JBrowse'))
     window.MODEL.views[0].setNewView(0.05, 5000)
@@ -188,7 +202,7 @@ describe('bigwig', () => {
   })
   it('open a bigwig density track', async () => {
     const { getByTestId: byId, getByText } = render(
-      <JBrowse configs={[config]} />,
+      <JBrowse state={jbrowseState} />,
     )
     await waitForElement(() => getByText('JBrowse'))
     window.MODEL.views[0].setNewView(0.05, 5000)

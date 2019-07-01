@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`render tests can render a single region with Pileup + BamAdapter 1`] = `"<div class=\\"PileupRendering\\" style=\\"position:relative\\"><canvas width=\\"800\\" height=\\"216\\" style=\\"width:800px;height:216px;position:absolute;left:0;top:0\\"></canvas><canvas width=\\"800\\" height=\\"216\\" style=\\"position:absolute;left:0;top:0\\" class=\\"highlightOverlayCanvas\\"></canvas></div>"`;
+
 exports[`render tests can render a single region with Pileup + BamAdapter 2`] = `
 Object {
   "rectangles": Object {

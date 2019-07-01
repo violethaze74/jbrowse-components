@@ -38,10 +38,11 @@ function getAdapterType(adapterConfig, session, track) {
 // calls the render worker to render the block content
 // not using a flow for this, because the flow doesn't
 // work with autorun
-function renderBlockData(self, session) {
+function renderBlockData(self, session, setRpcManager) {
   const track = getParent(self, 2)
   const view = getContainingView(track)
   const { rpcManager, assemblyManager } = session
+  setRpcManager(rpcManager)
   const trackConf = track.configuration
   let trackConfParent = getParent(trackConf)
   if (!trackConfParent.assemblyName)
@@ -163,12 +164,13 @@ export default types
     RenderingComponent: undefined,
     renderProps: undefined,
     renderInProgress: undefined,
+    rpcManager: undefined,
   }))
   .actions(self => ({
     start(session) {
       const track = getParent(self, 2)
       const renderDisposer = reaction(
-        () => renderBlockData(self, session),
+        () => renderBlockData(self, session, self.setRpcManager),
         data => renderBlockEffect(self, data),
         {
           name: `${track.id}/${assembleLocString(self.region)} rendering`,
@@ -177,6 +179,9 @@ export default types
         },
       )
       addDisposer(self, renderDisposer)
+    },
+    setRpcManager(rpcManager) {
+      self.rpcManager = rpcManager
     },
     setLoading(abortController) {
       if (self.renderInProgress && !self.renderInProgress.signal.aborted) {
@@ -232,14 +237,14 @@ export default types
       if (self.renderInProgress && !self.renderInProgress.signal.aborted) {
         self.renderInProgress.abort()
       }
-      const track = getParent(self, 2)
-      const session = getContainingSession(self)
-      const { rpcManager } = session
-      const { rendererType } = track
-      const { renderArgs } = renderBlockData(self)
-      rendererType.freeResourcesInClient(
-        rpcManager,
-        JSON.parse(JSON.stringify(renderArgs)),
-      )
+      if (self.rpcManager) {
+        const track = getParent(self, 2)
+        const { rendererType } = track
+        const { renderArgs } = renderBlockData(self)
+        rendererType.freeResourcesInClient(
+          self.rpcManager,
+          JSON.parse(JSON.stringify(renderArgs)),
+        )
+      }
     },
   }))
