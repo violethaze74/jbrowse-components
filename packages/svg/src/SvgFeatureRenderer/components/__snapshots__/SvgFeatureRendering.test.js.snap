@@ -68,7 +68,9 @@ exports[`one feature 1`] = `
       width={1}
       x={0}
       y={0}
-    />
+    >
+      <title />
+    </rect>
     <text
       dominantBaseline="hanging"
       style={

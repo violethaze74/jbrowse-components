@@ -48,5 +48,21 @@ export default class extends Plugin {
       session.showDrawerWidget(featureWidget.id)
       session.setSelection(feature)
     })
+
+    pluginManager.registerAction(
+      'feature',
+      'mouseenter',
+      (session, feature) => {
+        if (!feature) {
+          session.clearHover()
+          return
+        }
+        session.setHover(feature)
+      },
+    )
+
+    pluginManager.registerAction('feature', 'mouseleave', session => {
+      session.clearHover()
+    })
   }
 }

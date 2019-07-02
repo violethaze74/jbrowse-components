@@ -1,6 +1,7 @@
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { PropTypes as CommonPropTypes } from '@gmod/jbrowse-core/mst-types'
 import { featureSpanPx } from '@gmod/jbrowse-core/util'
+import { emphasize } from '@gmod/jbrowse-core/util/color'
 import SceneGraph from '@gmod/jbrowse-core/util/layouts/SceneGraph'
 import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
@@ -41,63 +42,6 @@ function Box(props) {
     false,
   )
 
-  function onFeatureMouseDown(event) {
-    setMouseIsDown(true)
-    setMovedDuringLastMouseDown(false)
-    const { onFeatureMouseDown: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseEnter(event) {
-    const { onFeatureMouseEnter: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseOut(event) {
-    const { onFeatureMouseOut: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseOver(event) {
-    const { onFeatureMouseOver: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseUp(event) {
-    setMouseIsDown(false)
-    const { onFeatureMouseUp: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseLeave(event) {
-    const { onFeatureMouseLeave: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureMouseMove(event) {
-    if (mouseIsDown) setMovedDuringLastMouseDown(true)
-    const { onFeatureMouseMove: handler, feature } = props
-    if (!handler) return undefined
-    return handler(event, feature.id())
-  }
-
-  function onFeatureClick(event) {
-    event.stopPropagation()
-    if (!movedDuringLastMouseDown) {
-      const { onFeatureClick: handler, feature, session, targetType } = props
-      session.event(event, feature, targetType)
-      if (!handler) return undefined
-      return handler(event, feature.id())
-    }
-    return undefined
-  }
-
   const {
     feature,
     config,
@@ -110,13 +54,80 @@ function Box(props) {
       fontHeight,
     },
     selectedFeatureId,
+    hoveredFeatureId,
+    targetType,
+    session,
     labelWidth,
   } = props
 
-  const style = { fill: readConfObject(config, 'color1', [feature]) }
-  if (String(selectedFeatureId) === String(feature.id())) {
-    style.fill = 'red'
+  function onFeatureMouseDown(event) {
+    setMouseIsDown(true)
+    setMovedDuringLastMouseDown(false)
+    session.event(event, feature, targetType)
+    const { onFeatureMouseDown: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
   }
+
+  function onFeatureMouseEnter(event) {
+    session.event(event, feature, targetType)
+    const { onFeatureMouseEnter: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureMouseOut(event) {
+    session.event(event, feature, targetType)
+    const { onFeatureMouseOut: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureMouseOver(event) {
+    session.event(event, feature, targetType)
+    const { onFeatureMouseOver: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureMouseUp(event) {
+    session.event(event, feature, targetType)
+    setMouseIsDown(false)
+    const { onFeatureMouseUp: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureMouseLeave(event) {
+    session.event(event, feature, targetType)
+    const { onFeatureMouseLeave: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureMouseMove(event) {
+    session.event(event, feature, targetType)
+    if (mouseIsDown) setMovedDuringLastMouseDown(true)
+    const { onFeatureMouseMove: handler } = props
+    if (!handler) return undefined
+    return handler(event, feature.id())
+  }
+
+  function onFeatureClick(event) {
+    event.stopPropagation()
+    if (!movedDuringLastMouseDown) {
+      const { onFeatureClick: handler } = props
+      session.event(event, feature, targetType)
+      if (!handler) return undefined
+      return handler(event, feature.id())
+    }
+    return undefined
+  }
+
+  const style = { fill: readConfObject(config, 'color1', [feature]) }
+  if (String(selectedFeatureId) === String(feature.id())) style.stroke = 'black'
+  if (String(hoveredFeatureId) === String(feature.id()))
+    style.fill = emphasize(style.fill, 0.4)
 
   const featureLayout = rootLayout.getSubRecord('feature')
 
@@ -139,7 +150,9 @@ function Box(props) {
         onClick={onFeatureClick}
         onFocus={onFeatureMouseOver}
         onBlur={onFeatureMouseOut}
-      />
+      >
+        <title>{feature.get('name')}</title>
+      </rect>
       {!shouldShowName ? null : (
         <Label
           layoutRecord={rootLayout.getSubRecord('nameLabel')}
@@ -189,6 +202,7 @@ Box.propTypes = {
   targetType: ReactPropTypes.string,
   session: MobxPropTypes.objectOrObservableObject.isRequired,
   selectedFeatureId: ReactPropTypes.string,
+  hoveredFeatureId: ReactPropTypes.string,
   labelWidth: ReactPropTypes.number.isRequired,
 
   config: CommonPropTypes.ConfigSchema.isRequired,
@@ -210,6 +224,7 @@ Box.defaultProps = {
 
   targetType: 'feature',
   selectedFeatureId: undefined,
+  hoveredFeatureId: undefined,
 
   onFeatureMouseDown: undefined,
   onFeatureMouseEnter: undefined,

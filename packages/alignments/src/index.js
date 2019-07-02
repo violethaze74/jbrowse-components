@@ -62,5 +62,21 @@ export default class extends Plugin {
         session.setSelection(feature)
       },
     )
+
+    pluginManager.registerAction(
+      'alignmentsFeature',
+      'mouseenter',
+      (session, feature) => {
+        if (!feature) {
+          session.clearHover()
+          return
+        }
+        session.setHover(feature)
+      },
+    )
+
+    pluginManager.registerAction('alignmentsFeature', 'mouseleave', session => {
+      session.clearHover()
+    })
   }
 }
