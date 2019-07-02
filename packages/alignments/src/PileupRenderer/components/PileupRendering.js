@@ -8,7 +8,6 @@ import PrerenderedCanvas from './PrerenderedCanvas'
 
 function PileupRendering(props) {
   const highlightOverlayCanvas = useRef()
-  const [featureIdUnderMouse, setFeatureIdUnderMouse] = useState()
   const [mouseIsDown, setMouseIsDown] = useState(false)
   const [movedDuringLastMouseDown, setMovedDuringLastMouseDown] = useState(
     false,
@@ -40,13 +39,27 @@ function PileupRendering(props) {
       selectedFeatureId = selection.id()
   }
 
+  // is the globally-selected thing probably a feature?
+  let hoveredFeatureId
+  if (session) {
+    const { hover } = session
+    // does it quack like a feature?
+    if (
+      hover &&
+      typeof hover.get === 'function' &&
+      typeof hover.id === 'function'
+    )
+      // probably is a feature
+      hoveredFeatureId = hover.id()
+  }
+
   useEffect(() => {
     function updateHighlights() {
       const canvas = highlightOverlayCanvas.current
       if (!canvas) return
       const ctx = canvas.getContext('2d')
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      if (selectedFeatureId) {
+      if (hoveredFeatureId) {
         for (const [
           id,
           [leftBp, topPx, rightBp, bottomPx],
@@ -76,12 +89,12 @@ function PileupRendering(props) {
           }
         }
       }
-      if (featureIdUnderMouse) {
+      if (hoveredFeatureId) {
         for (const [
           id,
           [leftBp, topPx, rightBp, bottomPx],
         ] of layout.getRectangles()) {
-          if (String(id) === String(featureIdUnderMouse)) {
+          if (String(id) === String(hoveredFeatureId)) {
             const leftPx = Math.round(
               bpToPx(leftBp, region, bpPerPx, horizontallyFlipped),
             )
@@ -105,48 +118,46 @@ function PileupRendering(props) {
     layout,
     region,
     selectedFeatureId,
-    featureIdUnderMouse,
+    hoveredFeatureId,
   ])
 
   function onMouseDown(event) {
     setMouseIsDown(true)
     setMovedDuringLastMouseDown(false)
-    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    session.event(event, getFeature(hoveredFeatureId), targetType)
     props.onMouseDown(event)
   }
 
   function onMouseEnter(event) {
-    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    session.event(event, getFeature(hoveredFeatureId), targetType)
     props.onMouseEnter(event)
   }
 
   function onMouseOut(event) {
-    setFeatureIdUnderMouse(undefined)
     session.event(event, undefined, targetType)
     props.onMouseOut(event)
     props.onMouseLeave(event)
   }
 
   function onMouseOver(event) {
-    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    session.event(event, getFeature(hoveredFeatureId), targetType)
     props.onMouseOver(event)
   }
 
   function onMouseUp(event) {
     setMouseIsDown(false)
-    session.event(event, getFeature(featureIdUnderMouse), targetType)
+    session.event(event, getFeature(hoveredFeatureId), targetType)
     props.onMouseUp(event)
   }
 
   function onClick(event) {
     if (!movedDuringLastMouseDown) {
-      session.event(event, getFeature(featureIdUnderMouse), targetType)
+      session.event(event, getFeature(hoveredFeatureId), targetType)
       props.onClick(event)
     }
   }
 
   function onMouseLeave(event) {
-    setFeatureIdUnderMouse(undefined)
     session.event(event, undefined, targetType)
     props.onMouseOut(event)
     props.onMouseLeave(event)
@@ -156,7 +167,7 @@ function PileupRendering(props) {
     event.preventDefault()
     session.event(
       { type: 'contextmenu', ...event },
-      getFeature(featureIdUnderMouse),
+      getFeature(hoveredFeatureId),
       targetType,
     )
   }
@@ -164,19 +175,28 @@ function PileupRendering(props) {
   function onMouseMove(event) {
     if (mouseIsDown) setMovedDuringLastMouseDown(true)
     const featureIdCurrentlyUnderMouse = findFeatureIdUnderMouse(event)
-    if (featureIdUnderMouse !== featureIdCurrentlyUnderMouse) {
-      if (featureIdUnderMouse) {
+    if (hoveredFeatureId !== featureIdCurrentlyUnderMouse) {
+      if (hoveredFeatureId) {
         session.event(
           { ...event, type: 'mouseout' },
-          getFeature(featureIdUnderMouse),
+          getFeature(hoveredFeatureId),
+          targetType,
+        )
+        session.event(
+          { ...event, type: 'mouseleave' },
+          getFeature(hoveredFeatureId),
           targetType,
         )
         props.onMouseOut(event)
         props.onMouseLeave(event)
       }
-      setFeatureIdUnderMouse(featureIdCurrentlyUnderMouse)
       session.event(
         { ...event, type: 'mouseover' },
+        getFeature(featureIdCurrentlyUnderMouse),
+        targetType,
+      )
+      session.event(
+        { ...event, type: 'mouseenter' },
         getFeature(featureIdCurrentlyUnderMouse),
         targetType,
       )

@@ -50,6 +50,12 @@ export default (pluginManager, rpcManager) => {
        */
       selection: undefined,
       /**
+       * similar to above "selection", but is reserved for the thing the cursor
+       * is currently above. Used for changing feature color when under the
+       * cursor, etc.
+       */
+      hover: undefined,
+      /**
        * this is the current "task" that is being performed in the UI.
        * this is usually an object of the form
        * { taskName: "configure", target: thing_being_configured }
@@ -296,6 +302,21 @@ export default (pluginManager, rpcManager) => {
       clearSelection() {
         self.selection = undefined
         // console.log('selection cleared')
+      },
+
+      /**
+       * set the global hover
+       * @param {object} thing
+       */
+      setHover(thing) {
+        self.hover = thing
+      },
+
+      /**
+       * clears the global hover
+       */
+      clearHover() {
+        self.hover = undefined
       },
 
       /**

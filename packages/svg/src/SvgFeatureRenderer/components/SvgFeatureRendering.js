@@ -93,6 +93,19 @@ function SvgFeatureRendering(props) {
       selectedFeatureId = selection.id()
   }
 
+  let hoveredFeatureId
+  if (session) {
+    const { hover } = session
+    // does it quack like a feature?
+    if (
+      hover &&
+      typeof hover.get === 'function' &&
+      typeof hover.id === 'function'
+    )
+      // probably is a feature
+      hoveredFeatureId = hover.id()
+  }
+
   const featuresRendered = []
   for (const feature of features.values()) {
     try {
@@ -112,6 +125,8 @@ function SvgFeatureRendering(props) {
           feature={feature}
           key={feature.id()}
           selectedFeatureId={selectedFeatureId}
+          hoveredFeatureId={hoveredFeatureId}
+          session={session}
         />,
       )
     } catch (e) {

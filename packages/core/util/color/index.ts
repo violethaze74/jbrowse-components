@@ -1,3 +1,8 @@
+import { emphasize as muiEmphasize } from '@material-ui/core/styles/colorManipulator'
+import { namedColorToHex, isNamedColor } from './cssColorsLevel4'
+
+export { namedColorToHex, isNamedColor }
+
 /**
  * Algorithmically pick a contrasting text color that will
  * be visible on top of the given background color. Either
@@ -30,4 +35,19 @@ export function contrastingTextColor(rgb: string): string {
     (Math.round(r * 299) + Math.round(g * 587) + Math.round(b * 114)) / 1000
 
   return luminance >= 128 ? 'black' : 'white'
+}
+
+/**
+ * Darken or lighten a color, depending on its luminance.
+ * Light colors are darkened, dark colors are lightened.
+ * Uses MUI's emphasize, but adds support for named colors
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} coefficient=0.15 - multiplier in the range 0 - 1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+export function emphasize(color: string, coefficient = 0.15): string {
+  const convertedColor = namedColorToHex(color)
+  if (convertedColor) return muiEmphasize(convertedColor, coefficient)
+  return muiEmphasize(color, coefficient)
 }
