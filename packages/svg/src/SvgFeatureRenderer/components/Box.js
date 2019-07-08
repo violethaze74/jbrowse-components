@@ -52,12 +52,12 @@ function Box(props) {
       shouldShowDescription,
       shouldShowName,
       fontHeight,
+      labelWidth,
     },
     selectedFeatureId,
     hoveredFeatureId,
     targetType,
     session,
-    labelWidth,
   } = props
 
   function onFeatureMouseDown(event) {
@@ -200,10 +200,9 @@ Box.propTypes = {
   }).isRequired,
 
   targetType: ReactPropTypes.string,
-  session: MobxPropTypes.objectOrObservableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject,
   selectedFeatureId: ReactPropTypes.string,
   hoveredFeatureId: ReactPropTypes.string,
-  labelWidth: ReactPropTypes.number.isRequired,
 
   config: CommonPropTypes.ConfigSchema.isRequired,
 
@@ -223,6 +222,7 @@ Box.defaultProps = {
   // horizontallyFlipped: false,
 
   targetType: 'feature',
+  session: { event: () => {} },
   selectedFeatureId: undefined,
   hoveredFeatureId: undefined,
 

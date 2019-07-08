@@ -58,7 +58,7 @@ function PileupRendering(props) {
       if (!canvas) return
       const ctx = canvas.getContext('2d')
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      if (hoveredFeatureId) {
+      if (selectedFeatureId) {
         for (const [
           id,
           [leftBp, topPx, rightBp, bottomPx],
@@ -272,8 +272,8 @@ PileupRendering.propTypes = {
   bpPerPx: ReactPropTypes.number.isRequired,
   horizontallyFlipped: ReactPropTypes.bool,
 
-  session: MobxPropTypes.objectOrObservableObject.isRequired,
-  getFeature: ReactPropTypes.func.isRequired,
+  session: MobxPropTypes.objectOrObservableObject,
+  getFeature: ReactPropTypes.func,
 
   targetType: ReactPropTypes.string,
 
@@ -290,6 +290,8 @@ PileupRendering.propTypes = {
 PileupRendering.defaultProps = {
   horizontallyFlipped: false,
 
+  session: undefined,
+  getFeature: () => {},
   targetType: 'feature',
 
   onMouseDown: () => {},

@@ -173,7 +173,7 @@ SvgFeatureRendering.propTypes = {
   features: ReactPropTypes.instanceOf(Map),
   config: CommonPropTypes.ConfigSchema.isRequired,
   targetType: ReactPropTypes.string,
-  session: MobxPropTypes.objectOrObservableObject.isRequired,
+  session: MobxPropTypes.objectOrObservableObject,
 
   onMouseDown: ReactPropTypes.func,
   onMouseUp: ReactPropTypes.func,
@@ -187,6 +187,7 @@ SvgFeatureRendering.propTypes = {
 SvgFeatureRendering.defaultProps = {
   horizontallyFlipped: false,
   targetType: 'feature',
+  session: undefined,
 
   features: new Map(),
 
