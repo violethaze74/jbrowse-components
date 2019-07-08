@@ -1,6 +1,13 @@
 import AdapterType from '@gmod/jbrowse-core/pluggableElementTypes/AdapterType'
+import DrawerWidgetType from '@gmod/jbrowse-core/pluggableElementTypes/DrawerWidgetType'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
+import { lazy } from 'react'
+import {
+  configSchema as alignmentsFeatureDetailConfigSchema,
+  ReactComponent as AlignmentsFeatureDetailReactComponent,
+  stateModel as alignmentsFeatureDetailStateModel,
+} from './AlignmentsFeatureDetail'
 import {
   configSchemaFactory as alignmentsTrackConfigSchemaFactory,
   modelFactory as alignmentsTrackModelFactory,
@@ -26,6 +33,17 @@ export default class extends Plugin {
         ControlsReactComponent: AlignmentsTrackControlsReactComponent,
       })
     })
+
+    pluginManager.addDrawerWidgetType(
+      () =>
+        new DrawerWidgetType({
+          name: 'AlignmentsFeatureDrawerWidget',
+          heading: 'Feature Details',
+          configSchema: alignmentsFeatureDetailConfigSchema,
+          stateModel: alignmentsFeatureDetailStateModel,
+          LazyReactComponent: lazy(() => AlignmentsFeatureDetailReactComponent),
+        }),
+    )
 
     pluginManager.addAdapterType(
       () =>
@@ -55,7 +73,10 @@ export default class extends Plugin {
         }
         const drawerWidgetId = `alignmentsFeature-${feature.id()}`
         if (!session.drawerWidgets.get(drawerWidgetId))
-          session.addDrawerWidget('FeatureDrawerWidget', drawerWidgetId)
+          session.addDrawerWidget(
+            'AlignmentsFeatureDrawerWidget',
+            drawerWidgetId,
+          )
         const featureWidget = session.drawerWidgets.get(drawerWidgetId)
         featureWidget.setFeatureData(feature.data)
         session.showDrawerWidget(featureWidget.id)
