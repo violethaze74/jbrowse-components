@@ -33,7 +33,7 @@ const FeatureTable = withStyles({
   },
 })(({ classes, data, header }) => {
   return (
-    <Table className={classes.table}>
+    <Table className={classes.table} size="small">
       {header ? (
         <TableHead>
           <TableRow>
@@ -45,7 +45,7 @@ const FeatureTable = withStyles({
       <TableBody>
         {Object.keys(data).map(key => (
           <TableRow key={key}>
-            <TableCell component="th" scope="row" padding="dense">
+            <TableCell component="th" scope="row">
               {key}
             </TableCell>
             <DataCell value={data[key]} />
@@ -58,8 +58,8 @@ const FeatureTable = withStyles({
 
 const FeatureDetails = withStyles(theme => ({
   root: {
-    margin: theme.spacing.unit,
-    marginTop: theme.spacing.unit * 3,
+    margin: theme.spacing(),
+    marginTop: theme.spacing(3),
   },
 }))(({ model, classes }) => {
   return (
