@@ -59,7 +59,6 @@ function makeRenderArgs(track, region, session) {
 // not using a flow for this, because the flow doesn't
 // work with autorun
 function renderBlockData(self, session) {
-  if (!session) console.error(session)
   const track = getParent(self, 2)
   const view = getContainingView(track)
   const { rpcManager, assemblyManager } = session
