@@ -35,14 +35,34 @@ function getAdapterType(adapterConfig, session, track) {
   return adapterType
 }
 
+function makeRenderArgs(track, region, session) {
+  const assemblyName = readConfObject(
+    getContainingAssembly(track.configuration),
+    'assemblyName',
+  )
+  const adapterConfig = getConf(track, 'adapter')
+  const adapterType = getAdapterType(adapterConfig, session, track).name
+  const renderProps = { ...track.renderProps }
+  return {
+    assemblyName,
+    region,
+    adapterType,
+    adapterConfig,
+    rendererType: track.rendererTypeName,
+    renderProps,
+    sessionId: track.id,
+    timeout: 1000000, // 10000,
+  }
+}
+
 // calls the render worker to render the block content
 // not using a flow for this, because the flow doesn't
 // work with autorun
-function renderBlockData(self, session, setRpcManager) {
+function renderBlockData(self, session) {
+  if (!session) console.error(session)
   const track = getParent(self, 2)
   const view = getContainingView(track)
   const { rpcManager, assemblyManager } = session
-  setRpcManager(rpcManager)
   const trackConf = track.configuration
   let trackConfParent = getParent(trackConf)
   if (!trackConfParent.assemblyName)
@@ -62,28 +82,13 @@ function renderBlockData(self, session, setRpcManager) {
   else cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
   const renderProps = { ...track.renderProps }
   const rendererType = getRendererType(view, session, track.rendererTypeName)
-  const assemblyName = readConfObject(
-    getContainingAssembly(track.configuration),
-    'assemblyName',
-  )
-  const adapterConfig = getConf(track, 'adapter')
-  const adapterType = getAdapterType(adapterConfig, session, track).name
   return {
     rendererType,
     rpcManager,
     renderProps,
     cannotBeRenderedReason,
     trackError: track.error,
-    renderArgs: {
-      assemblyName,
-      region: self.region,
-      adapterType,
-      adapterConfig,
-      rendererType: rendererType.name,
-      renderProps,
-      sessionId: track.id,
-      timeout: 1000000, // 10000,
-    },
+    renderArgs: makeRenderArgs(track, self.region, session),
   }
 }
 
@@ -164,13 +169,14 @@ export default types
     RenderingComponent: undefined,
     renderProps: undefined,
     renderInProgress: undefined,
-    rpcManager: undefined,
+    session: undefined,
   }))
   .actions(self => ({
     start(session) {
+      self.setSession(session)
       const track = getParent(self, 2)
       const renderDisposer = reaction(
-        () => renderBlockData(self, session, self.setRpcManager),
+        () => renderBlockData(self, session),
         data => renderBlockEffect(self, data),
         {
           name: `${track.id}/${assembleLocString(self.region)} rendering`,
@@ -180,8 +186,8 @@ export default types
       )
       addDisposer(self, renderDisposer)
     },
-    setRpcManager(rpcManager) {
-      self.rpcManager = rpcManager
+    setSession(session) {
+      self.session = session
     },
     setLoading(abortController) {
       if (self.renderInProgress && !self.renderInProgress.signal.aborted) {
@@ -237,12 +243,18 @@ export default types
       if (self.renderInProgress && !self.renderInProgress.signal.aborted) {
         self.renderInProgress.abort()
       }
-      if (self.rpcManager) {
+      if (self.session) {
         const track = getParent(self, 2)
-        const { rendererType } = track
-        const { renderArgs } = renderBlockData(self)
+        const view = getContainingView(track)
+        const rendererType = getRendererType(
+          view,
+          self.session,
+          track.rendererTypeName,
+        )
+        const { rpcManager } = self.session
+        const renderArgs = makeRenderArgs(track, self.region, self.session)
         rendererType.freeResourcesInClient(
-          self.rpcManager,
+          rpcManager,
           JSON.parse(JSON.stringify(renderArgs)),
         )
       }
