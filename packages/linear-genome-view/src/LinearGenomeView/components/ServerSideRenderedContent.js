@@ -44,7 +44,7 @@ function ServerSideRenderedContent(props) {
             hydrate(mainThreadRendering, domNode.firstChild)
             setHydrated(true)
           },
-          { timeout: 10 },
+          { timeout: 50 },
         )
       }
     }
