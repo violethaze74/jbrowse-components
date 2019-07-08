@@ -53,6 +53,7 @@ function Box(props) {
       shouldShowName,
       fontHeight,
       labelWidth,
+      descriptionWidth,
     },
     selectedFeatureId,
     hoveredFeatureId,
@@ -172,7 +173,7 @@ function Box(props) {
             ['labels', 'descriptionColor'],
             [feature],
           )}
-          labelWidth={labelWidth}
+          labelWidth={descriptionWidth}
         >
           {description}
         </Label>
