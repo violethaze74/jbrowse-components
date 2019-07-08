@@ -96,7 +96,7 @@
         },
         {
           "type": "VariantTrack",
-          "configId": "volvox_filtered_vcf",
+          "configId": "volvox_filtered_vcf_integration",
           "defaultRendering": "svg",
           "name": "volvox filtered vcf",
           "category": [
@@ -144,7 +144,7 @@
           }
         },
         {
-          "configId": "volvox_microarray_line",
+          "configId": "volvox_microarray_line_integration",
           "defaultRendering": "line",
           "type": "WiggleTrack",
           "name": "wiggle_track lineplot",
@@ -156,7 +156,7 @@
           }
         },
         {
-          "configId": "volvox_microarray_density",
+          "configId": "volvox_microarray_density_integration",
           "type": "WiggleTrack",
           "defaultRendering": "density",
           "name": "wiggle_track density",
