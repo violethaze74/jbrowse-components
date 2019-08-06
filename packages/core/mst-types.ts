@@ -54,7 +54,8 @@ export const LocalPathLocation = types.model('LocalPathLocation', {
 })
 
 export const UriLocation = types.model('UriLocation', {
-  uri: types.string, // TODO: refine
+  uri: types.string,
+  base: types.union(types.frozen(), types.string),
 })
 
 export const FileLocation = types.union(LocalPathLocation, UriLocation)
