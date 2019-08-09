@@ -42,7 +42,7 @@ function wrapForRpc(func) {
         if (isAbortException(error)) {
           // logBuffer.push(['rpc-abort', myId, func.name, ...args])
         } else {
-          logBuffer.push(['rpc-error', myId, func.name, error])
+          //          logBuffer.push(['rpc-error', myId, func.name, error])
           flushLog()
         }
         throw error

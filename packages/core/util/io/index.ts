@@ -7,8 +7,9 @@ export function openLocation(location: any): GenericFilehandle {
   if (!location) throw new Error('must provide a location to openLocation')
   if (location.uri) {
     const { base, uri } = location
-    if (!base) throw new TypeError('base URL required')
-    console.log(uri, base, new URL(uri, base))
+    if (!base) {
+      throw new TypeError('base URL required')
+    }
     return openUrl(new URL(uri, base).href)
   }
   if (location.localPath) {

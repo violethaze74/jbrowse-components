@@ -53,10 +53,16 @@ export const LocalPathLocation = types.model('LocalPathLocation', {
   localPath: types.string, // TODO: refine
 })
 
-export const UriLocation = types.model('UriLocation', {
-  uri: types.string,
-  base: types.union(types.frozen(), types.string),
-})
+export const UriLocation = types
+  .model('UriLocation', {
+    uri: types.string,
+  })
+  .postProcessSnapshot(snapshot => {
+    const p = window.location.origin + window.location.pathname
+    const s = p.substring(0, p.lastIndexOf('/'))
+    const url = new URL(snapshot.uri, s)
+    return { ...snapshot, base: url.href }
+  })
 
 export const FileLocation = types.union(LocalPathLocation, UriLocation)
 
