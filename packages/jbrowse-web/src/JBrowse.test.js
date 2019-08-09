@@ -27,7 +27,8 @@ Storage.prototype.setItem = jest.fn()
 Storage.prototype.removeItem = jest.fn()
 Storage.prototype.clear = jest.fn()
 
-const getFile = url => new LocalFile(require.resolve(`../${url}`))
+const getFile = url =>
+  new LocalFile(require.resolve(`../${url.replace('http://localhost/', '')}`))
 // fakes server responses from local file object with fetchMock
 const readBuffer = async (url, args) => {
   let file
