@@ -17,9 +17,17 @@ Object {
 exports[`Root MST model adds track and connection configs to a dataset 2`] = `
 Object {
   "adapter": Object {
+    "bamLocation": Object {
+      "base": "http://localhost/path/to/my.bam",
+      "uri": "/path/to/my.bam",
+    },
     "configId": Any<String>,
     "index": Object {
       "configId": Any<String>,
+      "location": Object {
+        "base": "http://localhost/path/to/my.bam.bai",
+        "uri": "/path/to/my.bam.bai",
+      },
     },
     "type": "BamAdapter",
   },
@@ -35,6 +43,10 @@ Object {
 exports[`Root MST model adds track and connection configs to a dataset 3`] = `
 Object {
   "configId": Any<String>,
+  "dataDirLocation": Object {
+    "base": "http://mysite.com/jbrowse/data/",
+    "uri": "http://mysite.com/jbrowse/data/",
+  },
   "type": "JBrowse1Connection",
 }
 `;

@@ -2,9 +2,17 @@
 
 exports[`create bam adapter config 1`] = `
 Object {
+  "bamLocation": Object {
+    "base": "http://localhost/path/to/my.bam",
+    "uri": "/path/to/my.bam",
+  },
   "configId": Any<String>,
   "index": Object {
     "configId": Any<String>,
+    "location": Object {
+      "base": "http://localhost/path/to/my.bam.bai",
+      "uri": "/path/to/my.bam.bai",
+    },
   },
   "type": "BamAdapter",
 }
@@ -13,9 +21,17 @@ Object {
 exports[`create track config 1`] = `
 Object {
   "adapter": Object {
+    "bamLocation": Object {
+      "base": "http://localhost/path/to/my.bam",
+      "uri": "/path/to/my.bam",
+    },
     "configId": Any<String>,
     "index": Object {
       "configId": Any<String>,
+      "location": Object {
+        "base": "http://localhost/path/to/my.bam.bai",
+        "uri": "/path/to/my.bam.bai",
+      },
     },
     "type": "BamAdapter",
   },

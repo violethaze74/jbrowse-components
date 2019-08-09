@@ -3,6 +3,10 @@
 exports[`plugin in a stock JBrowse 1`] = `
 Object {
   "configId": Any<String>,
+  "twoBitLocation": Object {
+    "base": "http://localhost/path/to/my.2bit",
+    "uri": "/path/to/my.2bit",
+  },
   "type": "TwoBitAdapter",
 }
 `;
@@ -10,6 +14,14 @@ Object {
 exports[`plugin in a stock JBrowse 2`] = `
 Object {
   "configId": Any<String>,
+  "faiLocation": Object {
+    "base": "http://localhost/path/to/seq.fa.fai",
+    "uri": "/path/to/seq.fa.fai",
+  },
+  "fastaLocation": Object {
+    "base": "http://localhost/path/to/seq.fa",
+    "uri": "/path/to/seq.fa",
+  },
   "type": "IndexedFastaAdapter",
 }
 `;

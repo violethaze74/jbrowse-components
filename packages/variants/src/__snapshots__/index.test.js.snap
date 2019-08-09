@@ -5,8 +5,16 @@ Object {
   "configId": Any<String>,
   "index": Object {
     "configId": Any<String>,
+    "location": Object {
+      "base": "http://localhost/path/to/my.vcf.gz.tbi",
+      "uri": "/path/to/my.vcf.gz.tbi",
+    },
   },
   "type": "VcfTabixAdapter",
+  "vcfGzLocation": Object {
+    "base": "http://localhost/path/to/my.vcf.gz",
+    "uri": "/path/to/my.vcf.gz",
+  },
 }
 `;
 
@@ -16,8 +24,16 @@ Object {
     "configId": Any<String>,
     "index": Object {
       "configId": Any<String>,
+      "location": Object {
+        "base": "http://localhost/path/to/my.vcf.gz.tbi",
+        "uri": "/path/to/my.vcf.gz.tbi",
+      },
     },
     "type": "VcfTabixAdapter",
+    "vcfGzLocation": Object {
+      "base": "http://localhost/path/to/my.vcf.gz",
+      "uri": "/path/to/my.vcf.gz",
+    },
   },
   "configId": Any<String>,
   "renderers": Object {
