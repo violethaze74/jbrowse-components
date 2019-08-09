@@ -6,6 +6,7 @@ const RootModel = types
   .model('Root', {
     jbrowse: JBrowseWeb,
     session: types.maybe(Session),
+    baseUrl: types.frozen(),
   })
   .actions(self => ({
     setSession(sessionSnapshot) {

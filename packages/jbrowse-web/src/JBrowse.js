@@ -39,11 +39,21 @@ export default observer(({ config, initialState }) => {
           const localStorageConfig = localStorage.getItem('jbrowse-web-data')
           if (localStorageConfig)
             configSnapshot = JSON.parse(localStorageConfig)
+          let configBase = new URL(window.location)
+
           if (configSnapshot.uri || configSnapshot.localPath) {
+            // TODO: handle configBase for a file system path
+            configBase = new URL(
+              config.uri.substring(0, config.uri.lastIndexOf('/')),
+              configBase,
+            )
+            console.log(configBase)
+
+            config.base = configBase
             const configText = await openLocation(config).readFile('utf8')
             configSnapshot = JSON.parse(configText)
           }
-          r = rootModel.create({ jbrowse: configSnapshot })
+          r = rootModel.create({ jbrowse: configSnapshot, baseUrl: configBase })
         }
         const params = new URL(document.location).searchParams
         const urlSession = params.get('session')

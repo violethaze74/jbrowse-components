@@ -31,10 +31,9 @@ export default self => ({
           })
         })
       }
-      for (const assemblyName of getParent(self).session.connections.keys()) {
-        const connectionConfs = getParent(self).session.connections.get(
-          assemblyName,
-        )
+      const { connections } = getParent(self).session
+      for (const assemblyName of connections.keys()) {
+        const connectionConfs = connections.get(assemblyName)
         // eslint-disable-next-line no-loop-func
         connectionConfs.forEach(connectionConf => {
           if (!assemblyData.has(assemblyName)) {
