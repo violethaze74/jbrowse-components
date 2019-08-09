@@ -43,12 +43,11 @@ export default observer(({ config, initialState }) => {
 
           if (configSnapshot.uri || configSnapshot.localPath) {
             // TODO: handle configBase for a file system path
+            const ret = configSnapshot.uri || configSnapshot.localPath
             configBase = new URL(
-              config.uri.substring(0, config.uri.lastIndexOf('/')),
+              ret.substring(0, ret.lastIndexOf('/')),
               configBase,
             )
-            console.log(configBase)
-
             config.base = configBase
             const configText = await openLocation(config).readFile('utf8')
             configSnapshot = JSON.parse(configText)

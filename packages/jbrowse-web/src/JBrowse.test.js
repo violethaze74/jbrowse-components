@@ -202,11 +202,7 @@ describe('some error state', () => {
       ),
     )
     await expect(
-      waitForElement(() =>
-        getAllByText(
-          'HTTP 404 fetching /test_data/volvox-sorted.bam.bai.nonexist',
-        ),
-      ),
+      waitForElement(() => getAllByText('HTTP 404 fetching')),
     ).resolves.toBeTruthy()
   })
   it('test that bam with contigA instead of ctgA displays', async () => {
