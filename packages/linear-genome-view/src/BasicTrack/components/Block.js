@@ -7,7 +7,6 @@ import React from 'react'
 const useStyles = makeStyles((/* theme */) => ({
   block: {
     position: 'absolute',
-    minHeight: '100%',
     background: 'white',
     // background: theme.palette.background.default,
     boxSizing: 'border-box',
@@ -23,12 +22,13 @@ const useStyles = makeStyles((/* theme */) => ({
   },
 }))
 
-function Block({ block, model, children }) {
+function Block({ block, offsetPx, height, children }) {
   const classes = useStyles()
   return (
     <div
       style={{
-        left: `${block.offsetPx - model.offsetPx}px`,
+        transform: `translate(${offsetPx}px, 0)`,
+        minHeight: `${height}px`,
         width: `${block.widthPx}px`,
       }}
       className={clsx(classes.block, {
@@ -45,7 +45,8 @@ Block.defaultProps = {
   children: undefined,
 }
 Block.propTypes = {
-  model: PropTypes.shape().isRequired,
+  height: PropTypes.number.isRequired,
+  offsetPx: PropTypes.number.isRequired,
   block: PropTypes.shape().isRequired,
   children: PropTypes.oneOfType([
     PropTypes.node,
@@ -53,4 +54,5 @@ Block.propTypes = {
   ]),
 }
 
-export default observer(Block)
+const BlockObserver = observer(Block)
+export default BlockObserver

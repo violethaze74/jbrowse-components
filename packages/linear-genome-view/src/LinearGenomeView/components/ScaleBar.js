@@ -7,14 +7,10 @@ import Ruler from './Ruler'
 
 const useStyles = makeStyles((/* theme */) => ({
   scaleBar: {
-    whiteSpace: 'nowrap',
-    textAlign: 'left',
-    width: '100%',
-    position: 'relative',
     background: '#555',
-    // background: theme.palette.background.default,
-    overflow: 'hidden',
     height: 32,
+    overflow: 'hidden',
+    boxSizing: 'border-box',
   },
   refLabel: {
     fontSize: '16px',
@@ -44,31 +40,45 @@ function ScaleBar({ model, height }) {
     model.staticBlocks,
   )
 
+  const blockDefinitions = model.staticBlocks
+  const blockOffsetPx = (blockDefinitions.getBlocks()[0] || {}).offsetPx
+
   return (
     <div className={classes.scaleBar}>
-      {model.staticBlocks.map(block => {
-        return (
-          <Block key={block.offsetPx} block={block} model={model}>
-            <svg height={height} width={block.widthPx}>
-              <Ruler
-                region={block}
-                showRefNameLabel={
-                  !!block.isLeftEndOfDisplayedRegion &&
-                  block !== blockContainingLeftEndOfView
-                }
-                bpPerPx={model.bpPerPx}
-                flipped={model.horizontallyFlipped}
-              />
-            </svg>
-          </Block>
-        )
-      })}
-      {// put in a floating ref label
-      blockContainingLeftEndOfView ? (
-        <div className={classes.refLabel}>
-          {blockContainingLeftEndOfView.refName}
-        </div>
-      ) : null}
+      <div
+        style={{
+          transform: `translate(${blockOffsetPx - model.offsetPx}px, 0)`,
+        }}
+      >
+        {blockDefinitions.map(block => {
+          return (
+            <Block
+              key={block.offsetPx}
+              offsetPx={block.offsetPx - blockOffsetPx}
+              block={block}
+              height={height - 1}
+            >
+              <svg height={height - 1} width={block.widthPx}>
+                <Ruler
+                  region={block}
+                  showRefNameLabel={
+                    !!block.isLeftEndOfDisplayedRegion &&
+                    block !== blockContainingLeftEndOfView
+                  }
+                  bpPerPx={model.bpPerPx}
+                  flipped={model.horizontallyFlipped}
+                />
+              </svg>
+            </Block>
+          )
+        })}
+        {// put in a floating ref label
+        blockContainingLeftEndOfView ? (
+          <div className={classes.refLabel}>
+            {blockContainingLeftEndOfView.refName}
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -80,4 +90,5 @@ ScaleBar.propTypes = {
   height: PropTypes.number.isRequired,
 }
 
-export default observer(ScaleBar)
+const ScaleBarObserver = observer(ScaleBar)
+export default ScaleBarObserver

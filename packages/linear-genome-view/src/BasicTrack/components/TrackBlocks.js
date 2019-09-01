@@ -41,7 +41,11 @@ const ElidedBlockMarker = ({ width, offset }) => {
   return (
     <div
       className={classes.elidedBlock}
-      style={{ left: `${offset}px`, width: `${width}px` }}
+      style={{
+        left: `${offset}px`,
+        width: `${width}px`,
+        transform: `translate(-${offset}px, 0)`,
+      }}
     />
   )
 }
@@ -50,16 +54,32 @@ ElidedBlockMarker.propTypes = {
   offset: ReactPropTypes.number.isRequired,
 }
 
+// const BlockSet = observer(function BlockSet({}) {
+
+// })
+
 function TrackBlocks({ model, viewModel, blockState }) {
   const classes = useStyles()
   const { blockDefinitions } = model
+  const blockOffsetPx = (blockDefinitions.getBlocks()[0] || {}).offsetPx
   return (
-    <div data-testid="Block" className={classes.trackBlocks}>
+    <div
+      data-testid="Block"
+      className={classes.trackBlocks}
+      style={{
+        transform: `translate(${blockOffsetPx - viewModel.offsetPx}px, 0)`,
+      }}
+    >
       {blockDefinitions.map(block => {
         if (block instanceof ContentBlock) {
           const state = blockState.get(block.key)
           return (
-            <Block key={block.offsetPx} block={block} model={viewModel}>
+            <Block
+              key={block.offsetPx}
+              offsetPx={block.offsetPx - blockOffsetPx}
+              block={block}
+              height={model.height}
+            >
               {state && state.reactComponent ? (
                 <state.reactComponent model={state} />
               ) : null}
@@ -82,7 +102,7 @@ function TrackBlocks({ model, viewModel, blockState }) {
             <ElidedBlockMarker
               key={block.key}
               width={block.widthPx}
-              offset={block.offsetPx - viewModel.offsetPx}
+              offset={block.offsetPx}
             />
           )
         }

@@ -62,6 +62,15 @@ function renderBlockData(self) {
   }
 }
 
+// makes a promise that resolves after a timeout,
+// which will bump the rest of the computation into the next
+// browser task, which keeps the framerate up
+function nextTask() {
+  return new Promise(resolve => {
+    setTimeout(resolve, 0)
+  })
+}
+
 async function renderBlockEffect(self, props, allowRefetch = true) {
   const {
     trackError,
@@ -100,7 +109,13 @@ async function renderBlockEffect(self, props, allowRefetch = true) {
     } = await rendererType.renderInClient(rpcManager, renderArgs)
     // if (aborter.signal.aborted) {
     //   console.log(...callId, 'request to abort render was ignored', html, data)
-    checkAbortSignal(aborter.signal)
+    await checkAbortSignal(aborter.signal)
+
+    // bump the rest of this into the next browser task, to keep the rendering
+    // framerate up. see https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
+    // for an explanation of tasks and microtasks
+    await nextTask()
+
     self.setRendered(
       data,
       html,
