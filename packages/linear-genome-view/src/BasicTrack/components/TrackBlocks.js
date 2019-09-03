@@ -36,15 +36,15 @@ const useStyles = makeStyles({
   },
 })
 
-const ElidedBlockMarker = ({ width, offset }) => {
+const ElidedBlockMarker = ({ width, offset, height }) => {
   const classes = useStyles()
   return (
     <div
       className={classes.elidedBlock}
       style={{
-        left: `${offset}px`,
         width: `${width}px`,
-        transform: `translate(-${offset}px, 0)`,
+        transform: `translate(${offset}px, 0)`,
+        height: `${height}px`,
       }}
     />
   )
@@ -52,6 +52,7 @@ const ElidedBlockMarker = ({ width, offset }) => {
 ElidedBlockMarker.propTypes = {
   width: ReactPropTypes.number.isRequired,
   offset: ReactPropTypes.number.isRequired,
+  height: ReactPropTypes.number.isRequired,
 }
 
 // const BlockSet = observer(function BlockSet({}) {
@@ -102,7 +103,8 @@ function TrackBlocks({ model, viewModel, blockState }) {
             <ElidedBlockMarker
               key={block.key}
               width={block.widthPx}
-              offset={block.offsetPx}
+              offset={block.offsetPx - blockOffsetPx}
+              height={model.height}
             />
           )
         }

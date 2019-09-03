@@ -28,7 +28,7 @@ function Block({ block, offsetPx, height, children }) {
     <div
       style={{
         transform: `translate(${offsetPx}px, 0)`,
-        minHeight: `${height}px`,
+        height: `${height}px`,
         width: `${block.widthPx}px`,
       }}
       className={clsx(classes.block, {
