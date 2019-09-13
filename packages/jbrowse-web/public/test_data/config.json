@@ -891,6 +891,25 @@
       },
       "tracks": [
         {
+          "configId": "human_chord_eventid_test",
+          "type": "StructuralVariantChordTrack",
+          "name": "HG002 longrange with EVENTID",
+          "adapter": {
+            "type": "VcfTabixAdapter",
+            "vcfGzLocation": {
+              "uri": "https://jbrowse.org/genomes/hg19/NA24385_LongRanger_large_svs.vcf.gz"
+            },
+            "index": {
+              "location": {
+                "uri": "https://jbrowse.org/genomes/hg19/NA24385_LongRanger_large_svs.vcf.gz"
+              }
+            }
+          },
+          "renderer": {
+            "type": "StructuralVariantChordRenderer"
+          }
+        },
+        {
           "configId": "human_chord_test",
           "type": "StructuralVariantChordTrack",
           "name": "human chord test",
