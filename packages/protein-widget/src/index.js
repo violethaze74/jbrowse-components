@@ -27,8 +27,6 @@ import Ruler from '@gmod/jbrowse-plugin-linear-genome-view/src/LinearGenomeView/
 
 import * as rpcFuncs from './rpcMethods'
 
-import JBrowse from './JBrowse'
-import * as serviceWorker from './serviceWorker'
 import data from './mydata.json'
 
 const plugins = [Config, LinearGenomeView, Protein, Lollipop, SVG, Filtering]
@@ -307,10 +305,7 @@ let app = <App />
 
 // TODO: get rid of user agent detection
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
-if (window.chrome)
-  // this is the main process, so start and register our service worker and web workers
-  serviceWorker.register()
-else
+if (!window.chrome)
   app = (
     <div>
       <h1>This browser is not supported</h1>
