@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { toArray } from 'rxjs/operators'
 import { transaction } from 'mobx'
@@ -218,7 +218,7 @@ FeatureRendering.propTypes = {
   height: PropTypes.number.isRequired,
 }
 
-export function ExampleFeatureRendering(domElement) {
+function ExampleFeatureRendering(domElement) {
   const region = {
     refName: 'chr1',
     start: 1,
@@ -243,18 +243,19 @@ export function ExampleFeatureRendering(domElement) {
     },
   })
 
-  ReactDOM.render(
+  console.log([feat1, feat2])
+
+  return (
     <FeatureRendering
       features={[feat1, feat2]}
       width={800}
       height={200}
       region={region}
-    />,
-    domElement,
+    />
   )
 }
 
-export async function NclistFeatureRendering(domElement) {
+function NclistFeatureRendering(domElement) {
   const region = {
     refName: 'chr17',
     start: 41190000,
@@ -263,11 +264,18 @@ export async function NclistFeatureRendering(domElement) {
   const adapter = new AdapterClass({
     rootUrlTemplate: 'test_data/brca_nclist/{refseq}/trackData.json',
   })
-  const ret = adapter.getFeatures(region)
-  const feats = await ret.pipe(toArray()).toPromise()
+  const [feats, setFeats] = useState([])
   const width = 800
 
-  ReactDOM.render(
+  useEffect(() => {
+    async function fetchData() {
+      const ret = adapter.getFeatures(region)
+      const dl = await ret.pipe(toArray()).toPromise()
+      setFeats(dl)
+    }
+    fetchData()
+  }, [adapter, region])
+  return (
     <>
       <svg width={width} height={30}>
         <Ruler region={region} bpPerPx={(region.end - region.start) / width} />
@@ -278,12 +286,24 @@ export async function NclistFeatureRendering(domElement) {
         height={200}
         region={region}
       />
-    </>,
-    domElement,
+    </>
   )
 }
-const widget = new ProteinWidget(data)
-let app = <ProteinViewer widget={widget} />
+const App = () => {
+  const widget = new ProteinWidget(data)
+  return (
+    <>
+      <h1>Demo of protein widget</h1>
+      <ProteinViewer widget={widget} />
+      <h1>Demo of manually calling feature renderer with supplied JSON</h1>
+      <ExampleFeatureRendering />
+      <h1>Demo of manually calling feature renderer with NCList source data</h1>
+      <NclistFeatureRendering />
+    </>
+  )
+}
+
+let app = <App />
 
 // TODO: get rid of user agent detection
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
