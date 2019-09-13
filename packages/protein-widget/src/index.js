@@ -278,6 +278,7 @@ function NclistFeatureRendering(domElement) {
       <svg width={width} height={30}>
         <Ruler region={region} bpPerPx={(region.end - region.start) / width} />
       </svg>
+      <br />
       <FeatureRendering
         features={feats}
         width={width}
