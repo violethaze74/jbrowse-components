@@ -72,10 +72,6 @@ const JBrowseWeb = types
         type: 'number',
         defaultValue: 2,
       },
-      updateUrl: {
-        type: 'boolean',
-        defaultValue: true,
-      },
       useLocalStorage: {
         type: 'boolean',
         defaultValue: false,

@@ -25,12 +25,6 @@ function SessionMenu({ session }) {
     localStorage.removeItem('jbrowse-web-session')
     window.location = window.location.origin
   }
-  function toggleUpdateUrl() {
-    const updateUrl = readConfObject(rootConfig, 'updateUrl')
-    if (updateUrl) window.history.replaceState({}, '', window.location.origin)
-    rootConfig.updateUrl.set(!updateUrl)
-    handleSessionMenuClose()
-  }
   function toggleUseLocalStorage() {
     const useLocalStorage = readConfObject(rootConfig, 'useLocalStorage')
     rootConfig.useLocalStorage.set(!useLocalStorage)
@@ -50,16 +44,6 @@ function SessionMenu({ session }) {
             <Icon>clear</Icon>
           </ListItemIcon>
           Clear session
-        </MenuItem>
-        <MenuItem onClick={toggleUpdateUrl}>
-          <ListItemIcon>
-            <Icon>
-              {readConfObject(rootConfig, 'updateUrl')
-                ? 'check_box'
-                : 'check_box_outline_blank'}
-            </Icon>
-          </ListItemIcon>
-          Update URL
         </MenuItem>
         <MenuItem onClick={toggleUseLocalStorage}>
           <ListItemIcon>

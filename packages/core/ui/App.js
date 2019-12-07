@@ -42,16 +42,18 @@ const useStyles = makeStyles(theme => ({
 
 function App({ contentRect, measureRef, session }) {
   const classes = useStyles()
-  const { pluginManager } = session
+
   useEffect(() => {
     if (contentRect.bounds.width) {
-      if (isAlive(session)) {
+      if (session && isAlive(session)) {
         session.updateWidth(contentRect.bounds.width)
       }
     }
   }, [session, contentRect])
 
-  const { visibleDrawerWidget } = session
+  if (!session) return null
+
+  const { pluginManager, visibleDrawerWidget } = session
 
   return (
     <div ref={measureRef} className={classes.root}>

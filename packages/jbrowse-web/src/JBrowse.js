@@ -2,8 +2,6 @@ import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import '@gmod/jbrowse-core/fonts/material-icons.css'
 import { App, theme, FatalErrorDialog } from '@gmod/jbrowse-core/ui'
 import {
-  toUrlSafeB64,
-  fromUrlSafeB64,
   useDebounce,
   inDevelopment,
   mergeConfigs,
@@ -43,39 +41,23 @@ async function parseConfig(configLoc) {
 function useJBrowseWeb(config, initialState) {
   const [loaded, setLoaded] = useState(false)
   const [rootModel, setRootModel] = useState(initialState || {})
-  const [urlSnapshot, setUrlSnapshot] = useState()
+
+  const [sessionSnapshot, setSessionSnapshot] = useState()
+  const debouncedSessionSnapshot = useDebounce(sessionSnapshot, 400)
   const [configSnapshot, setConfigSnapshot] = useState(config || {})
-  const debouncedUrlSnapshot = useDebounce(urlSnapshot, 400)
 
   const { session, jbrowse } = rootModel || {}
   const useLocalStorage = jbrowse
     ? readConfObject(jbrowse.configuration, 'useLocalStorage')
     : false
 
-  const useUpdateUrl = jbrowse
-    ? readConfObject(jbrowse.configuration, 'updateUrl')
-    : false
-
-  // This serializes the session to URL
-  useEffect(() => {
-    if (debouncedUrlSnapshot) {
-      const { origin, pathname } = document.location
-      window.history.replaceState(
-        {},
-        '',
-        `${origin}${pathname}?session=${toUrlSafeB64(
-          JSON.stringify(debouncedUrlSnapshot),
-        )}`,
-      )
-    }
-  }, [debouncedUrlSnapshot])
-
   // This updates savedSession list on the rootModel
   useEffect(() => {
-    if (rootModel && rootModel.session && debouncedUrlSnapshot) {
-      rootModel.jbrowse.updateSavedSession(debouncedUrlSnapshot)
+    if (rootModel && rootModel.session && debouncedSessionSnapshot) {
+      rootModel.jbrowse.updateSavedSession(debouncedSessionSnapshot)
     }
-  }, [debouncedUrlSnapshot, rootModel])
+  }, [debouncedSessionSnapshot, rootModel])
+
   useEffect(() => {
     try {
       setRootModel(JBrowseRootModel.create({ jbrowse: configSnapshot }))
@@ -124,25 +106,10 @@ function useJBrowseWeb(config, initialState) {
 
   // finalize rootModel and setLoaded
   useEffect(() => {
-    const params = new URL(document.location).searchParams
-    const urlSession = params.get('session')
     if (rootModel && rootModel.jbrowse) {
-      if (urlSession) {
-        const savedSessionIndex = rootModel.jbrowse.savedSessionNames.indexOf(
-          urlSession,
-        )
-        if (savedSessionIndex !== -1) {
-          rootModel.setSession(
-            rootModel.jbrowse.savedSessions[savedSessionIndex],
-          )
-        } else {
-          rootModel.setSession(JSON.parse(fromUrlSafeB64(urlSession)))
-        }
-      } else {
-        const localStorageSession = localStorage.getItem('jbrowse-web-session')
-        if (localStorageSession) {
-          rootModel.setSession(JSON.parse(localStorageSession))
-        }
+      const localStorageSession = localStorage.getItem('jbrowse-web-session')
+      if (localStorageSession) {
+        rootModel.setSession(JSON.parse(localStorageSession))
       }
       if (!rootModel.session) {
         if (rootModel.jbrowse && rootModel.jbrowse.savedSessions.length) {
@@ -167,7 +134,7 @@ function useJBrowseWeb(config, initialState) {
       window.MODEL = rootModel.session
       window.ROOTMODEL = rootModel
     }
-  }, [loaded, rootModel])
+  }, [loaded, rootModel, rootModel.session])
 
   // set session in localstorage
   useEffect(
@@ -183,7 +150,7 @@ function useJBrowseWeb(config, initialState) {
     [loaded, rootModel, useLocalStorage],
   )
 
-  // set jbrowse-web data in localstorage
+  // save jbrowse-web data in localstorage when the session is snapshotted
   useEffect(
     () =>
       useLocalStorage && loaded
@@ -194,14 +161,15 @@ function useJBrowseWeb(config, initialState) {
     [loaded, rootModel, useLocalStorage],
   )
 
+  // listen to the session for snapshots
   useEffect(
     () =>
-      session && useUpdateUrl
+      session
         ? onSnapshot(session, snapshot => {
-            setUrlSnapshot(snapshot)
+            setSessionSnapshot(snapshot)
           })
         : () => {},
-    [useUpdateUrl, session],
+    [session],
   )
 
   return [loaded, rootModel]
