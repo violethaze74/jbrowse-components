@@ -485,7 +485,9 @@ describe('breakpoint split view', () => {
     const { findByTestId } = render(<JBrowse initialState={state} />)
 
     expect(
-      await findByTestId('pacbio_hg002_breakpoints-loaded'),
+      await findByTestId('pacbio_hg002_breakpoints-loaded', undefined, {
+        timeout: 9000,
+      }),
     ).toMatchSnapshot()
 
     expect(await findByTestId('pacbio_vcf-loaded')).toMatchSnapshot()
