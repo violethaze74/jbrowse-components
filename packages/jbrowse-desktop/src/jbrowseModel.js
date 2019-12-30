@@ -58,12 +58,43 @@ const DatasetConfigSchema = ConfigurationSchema(
 window.getSnapshot = getSnapshot
 window.resolveIdentifier = resolveIdentifier
 
+const assemblyConfigSchema = ConfigurationSchema('Assembly', {
+  name: {
+    type: 'string',
+    defaultValue: '',
+    description: 'Name of the assembly',
+  },
+  aliases: {
+    type: 'stringArray',
+    defaultValue: [],
+    description: 'Other possible names for the assembly',
+  },
+  species: {
+    type: 'string',
+    defaultValue: '',
+    description: 'Name of the assembly',
+  },
+  sequence:
+    pluginManager.elementTypes.track.ReferenceSequenceTrack.configSchema,
+  refNameAliases: types.maybe(
+    ConfigurationSchema('RefNameAliases', {
+      adapter: pluginManager.pluggableConfigSchemaType('adapter'),
+    }),
+  ),
+})
+
+pluginManager.acs = assemblyConfigSchema
+
 const JBrowseWeb = types
   .model('JBrowseWeb', {
     defaultSession: types.optional(types.frozen(Session), {
       name: `New Session`,
       menuBars: [{ type: 'MainMenuBar' }],
     }),
+    assemblies: types.array(assemblyConfigSchema),
+    // track configuration is an array of track config schemas. multiple
+    // instances of a track can exist that use the same configuration
+    tracks: types.array(pluginManager.pluggableConfigSchemaType('track')),
     datasets: types.array(DatasetConfigSchema),
     configuration: ConfigurationSchema('Root', {
       rpc: RpcManager.configSchema,

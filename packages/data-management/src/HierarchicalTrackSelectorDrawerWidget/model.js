@@ -1,5 +1,5 @@
 import { types } from 'mobx-state-tree'
-import { readConfObject } from '@gmod/jbrowse-core/configuration'
+import { getConf, readConfObject } from '@gmod/jbrowse-core/configuration'
 import { getSession } from '@gmod/jbrowse-core/util'
 import { ElementId } from '@gmod/jbrowse-core/mst-types'
 
@@ -49,32 +49,23 @@ export default pluginManager =>
       trackConfigurations(assemblyName) {
         if (!self.view) return []
         const session = getSession(self)
-        const trackConfigurations = []
-        session.datasets.forEach(datasetConf => {
-          if (
-            readConfObject(datasetConf, ['assembly', 'name']) ===
-              assemblyName ||
-            readConfObject(datasetConf, ['assembly', 'aliases']).includes(
-              assemblyName,
-            )
-          )
-            trackConfigurations.push(...datasetConf.tracks)
-        })
-
+        const trackConfigurations = session.tracks
         const relevantTrackConfigurations = trackConfigurations.filter(
-          conf => conf.viewType === self.view.type,
+          trackConf => {
+            const assemblies = readConfObject(trackConf, 'assemblies')
+            return (
+              trackConf.viewType === self.view.type &&
+              assemblies &&
+              assemblies.includes(assemblyName)
+            )
+          },
         )
         return relevantTrackConfigurations
       },
 
       get assemblyNames() {
-        if (!self.view) return []
-        const assemblyNames = []
-        self.view.displayedRegions.forEach(displayedRegion => {
-          if (!assemblyNames.includes(displayedRegion.assemblyName))
-            assemblyNames.push(displayedRegion.assemblyName)
-        })
-        return assemblyNames
+        const session = getSession(self)
+        return Array.from(session.loadedAssemblies.keys())
       },
 
       connectionTrackConfigurations(connection) {

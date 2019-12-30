@@ -77,7 +77,6 @@ export function stateModelFactory(pluginManager: any) {
       type: types.literal('LinearGenomeView'),
       offsetPx: 0,
       bpPerPx: 1,
-      displayedRegions: types.array(Region),
       displayRegionsFromAssemblyName: types.maybe(types.string),
       displayName: types.maybe(types.string),
       reversed: false,
@@ -103,6 +102,26 @@ export function stateModelFactory(pluginManager: any) {
       error: undefined as undefined | Error,
     }))
     .views(self => ({
+      get displayedRegions() {
+        const regions: IRegion[] = []
+        const session: any = getSession(self)
+        this.assemblies.forEach(assembly => {
+          regions.push(...session.loadedAssemblies.get(assembly))
+        })
+        return regions
+      },
+
+      get assemblies() {
+        const assemblies: Set<string> = new Set()
+        for (const track of self.tracks) {
+          const trackAssemblies = getConf(track, 'assemblies')
+          trackAssemblies.forEach((assembly: string) => {
+            assemblies.add(assembly)
+          })
+        }
+        return Array.from(assemblies)
+      },
+
       get viewingRegionWidth() {
         return self.width - self.controlsWidth
       },
@@ -147,8 +166,8 @@ export function stateModelFactory(pluginManager: any) {
 
       get displayedRegionsInOrder() {
         return self.reversed
-          ? self.displayedRegions.slice().reverse()
-          : self.displayedRegions
+          ? this.displayedRegions.slice().reverse()
+          : this.displayedRegions
       },
 
       get displayedRegionsTotalPx() {
@@ -177,7 +196,7 @@ export function stateModelFactory(pluginManager: any) {
           offsetPx += (r.end - r.start) / self.bpPerPx
           return false
         })
-        const foundRegion = self.displayedRegions[index]
+        const foundRegion = this.displayedRegions[index]
         offsetPx = Math.round(offsetPx)
         if (foundRegion) {
           return {
@@ -318,16 +337,11 @@ export function stateModelFactory(pluginManager: any) {
       },
 
       setDisplayedRegions(regions: IRegion[], isFromAssemblyName = false) {
-        try {
-          self.displayedRegions = cast(regions)
-          if (!isFromAssemblyName)
-            this.setDisplayedRegionsFromAssemblyName(undefined)
-        } catch (error) {
-          console.error(error)
-        }
+        console.log('setting LGV displayed regions')
       },
 
       setDisplayedRegionsFromAssemblyName(assemblyName: string | undefined) {
+        console.log('setting LGV displayed regions from assembly name')
         self.displayRegionsFromAssemblyName = assemblyName
       },
 
@@ -545,13 +559,6 @@ export function stateModelFactory(pluginManager: any) {
           return calculateDynamicBlocks(cast(self), self.horizontallyFlipped)
         },
       }
-    })
-    .postProcessSnapshot(self => {
-      if (self.displayRegionsFromAssemblyName) {
-        const { displayedRegions, ...rest } = self
-        return rest
-      }
-      return self
     })
 }
 export type LinearGenomeViewStateModel = ReturnType<typeof stateModelFactory>

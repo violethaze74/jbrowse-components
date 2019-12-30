@@ -507,8 +507,8 @@ const LinearGenomeView = observer((props: { model: LGV }) => {
   const { tracks, controlsWidth, error } = model
   const classes = useStyles()
 
-  const initialized =
-    !!model.displayedRegions.length || !!model.displayRegionsFromAssemblyName
+  const initialized = true
+  // !!model.displayedRegions.length || !!model.displayRegionsFromAssemblyName
   const style = (initialized
     ? {
         display: 'grid',

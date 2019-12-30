@@ -35,7 +35,11 @@ const generateBaseTrackConfig = (base: any) =>
         type: 'stringArray',
         defaultValue: [],
       },
-
+      assemblies: {
+        description: 'the assemblies with which this track is associated',
+        type: 'stringArray',
+        defaultValue: [],
+      },
       mouseover: {
         type: 'string',
         description: 'what to display in a given mouseover',

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { isConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
-import { IRegion } from '@gmod/jbrowse-core/mst-types'
+import { IRegion, Region } from '@gmod/jbrowse-core/mst-types'
 import { getContainingView } from '@gmod/jbrowse-core/util/tracks'
 import jsonStableStringify from 'json-stable-stringify'
 import { autorun } from 'mobx'
@@ -54,6 +54,7 @@ export default function sessionModelFactory(pluginManager: any) {
       connections: types.map(
         types.array(pluginManager.pluggableMstType('connection', 'stateModel')),
       ),
+      loadedAssemblies: types.map(types.array(Region)),
     })
     .volatile((/* self */) => ({
       pluginManager,
@@ -71,6 +72,8 @@ export default function sessionModelFactory(pluginManager: any) {
       task: undefined,
 
       snackbarMessage: undefined as string | undefined,
+
+      assemblyStuff: [] as any[],
     }))
     .views(self => ({
       get rpcManager() {
@@ -81,6 +84,12 @@ export default function sessionModelFactory(pluginManager: any) {
       },
       get configuration() {
         return getParent(self).jbrowse.configuration
+      },
+      get tracks() {
+        return getParent(self).jbrowse.tracks
+      },
+      get assemblies() {
+        return getParent(self).jbrowse.assemblies
       },
       get datasets() {
         return getParent(self).jbrowse.datasets
@@ -151,36 +160,88 @@ export default function sessionModelFactory(pluginManager: any) {
           self,
           autorun(() => {
             self.views.forEach(view => {
-              const assemblyName = view.displayRegionsFromAssemblyName
-              if (
-                assemblyName &&
-                self.assemblyData.get(assemblyName) &&
-                self.assemblyData.get(assemblyName).sequence
-              ) {
-                this.getRegionsForAssembly(assemblyName, self.assemblyData)
-                  .then((displayedRegions: any) => {
-                    // remember nothing inside here is tracked by the autorun
-                    if (isAlive(self)) {
-                      getParent(self).history.withoutUndo(() => {
-                        if (
-                          JSON.stringify(view.displayedRegions) !==
-                          JSON.stringify(displayedRegions)
-                        )
-                          view.setDisplayedRegions(displayedRegions, true)
-                      })
-                      view.setError && view.setError(undefined)
-                    }
-                  })
-                  .catch((error: Error) => {
-                    console.error(error)
-                    if (isAlive(self)) {
-                      view.setError && view.setError(error)
-                    }
-                  })
+              if (view.type !== 'LinearGenomeView') {
+                const assemblyName = view.displayRegionsFromAssemblyName
+                if (
+                  assemblyName &&
+                  self.assemblyData.get(assemblyName) &&
+                  self.assemblyData.get(assemblyName).sequence
+                ) {
+                  this.getRegionsForAssembly(assemblyName, self.assemblyData)
+                    .then((displayedRegions: any) => {
+                      // remember nothing inside here is tracked by the autorun
+                      if (isAlive(self)) {
+                        getParent(self).history.withoutUndo(() => {
+                          if (
+                            JSON.stringify(view.displayedRegions) !==
+                            JSON.stringify(displayedRegions)
+                          )
+                            view.setDisplayedRegions(displayedRegions, true)
+                        })
+                        view.setError && view.setError(undefined)
+                      }
+                    })
+                    .catch((error: Error) => {
+                      console.error(error)
+                      if (isAlive(self)) {
+                        view.setError && view.setError(error)
+                      }
+                    })
+                }
               }
             })
           }),
         )
+
+        addDisposer(
+          self,
+          autorun(() => {
+            const assemblyGetRegionsCalls: Promise<IRegion[]>[] = []
+            self.assemblies.forEach((assembly: any) => {
+              const assemblyName = readConfObject(assembly, 'name')
+              const adapterConfig = readConfObject(assembly, [
+                'sequence',
+                'adapter',
+              ])
+              const adapterConfigId = jsonStableStringify(adapterConfig)
+              assemblyGetRegionsCalls.push(
+                self.rpcManager
+                  .call(
+                    adapterConfigId,
+                    'getRegions',
+                    {
+                      sessionId: assemblyName,
+                      adapterType: adapterConfig.type,
+                      adapterConfig,
+                      // signal: opts.signal,
+                    },
+                    { timeout: 1000000 },
+                  )
+                  .then((adapterRegions: IRegion[]) => {
+                    const adapterRegionsWithAssembly = adapterRegions.map(
+                      adapterRegion => ({
+                        ...adapterRegion,
+                        assemblyName,
+                      }),
+                    )
+                    return adapterRegionsWithAssembly
+                  }),
+              )
+            })
+            Promise.all(assemblyGetRegionsCalls).then(
+              assemblyAdapterRegions => {
+                assemblyAdapterRegions.forEach(adapterRegions => {
+                  const { assemblyName } = adapterRegions[0]
+                  this.addLoadedAssembly(assemblyName, adapterRegions)
+                })
+              },
+            )
+          }),
+        )
+      },
+
+      addLoadedAssembly(assemblyName: string, regions: IRegion[]) {
+        self.loadedAssemblies.set(assemblyName, regions)
       },
 
       setSnackbarMessage(str: string | undefined) {

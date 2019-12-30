@@ -1,28 +1,28 @@
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { getSession } from '@gmod/jbrowse-core/util'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
+// import Button from '@material-ui/core/Button'
+// import Dialog from '@material-ui/core/Dialog'
+// import DialogActions from '@material-ui/core/DialogActions'
+// import DialogContent from '@material-ui/core/DialogContent'
+// import DialogContentText from '@material-ui/core/DialogContentText'
+// import DialogTitle from '@material-ui/core/DialogTitle'
 import Fab from '@material-ui/core/Fab'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormGroup from '@material-ui/core/FormGroup'
+// import FormControlLabel from '@material-ui/core/FormControlLabel'
+// import FormGroup from '@material-ui/core/FormGroup'
 import Icon from '@material-ui/core/Icon'
 import IconButton from '@material-ui/core/IconButton'
 import InputAdornment from '@material-ui/core/InputAdornment'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
+// import List from '@material-ui/core/List'
+// import ListItem from '@material-ui/core/ListItem'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
+// import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
-import Switch from '@material-ui/core/Switch'
+// import Switch from '@material-ui/core/Switch'
 import Tab from '@material-ui/core/Tab'
 import Tabs from '@material-ui/core/Tabs'
 import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
+// import Typography from '@material-ui/core/Typography'
 import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
 import React, { useState } from 'react'
 import Contents from './Contents'
@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
 function HierarchicalTrackSelector({ model }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [assemblyIdx, setAssemblyIdx] = useState(0)
-  const [modalInfo, setModalInfo] = useState()
+  // const [modalInfo, setModalInfo] = useState()
   const classes = useStyles()
 
   const session = getSession(model)
@@ -100,43 +100,43 @@ function HierarchicalTrackSelector({ model }) {
     return name.toLowerCase().includes(model.filterText.toLowerCase())
   }
 
-  function handleConnectionToggle(connectionConf) {
-    const assemblyConnections = session.connections.get(assemblyName)
-    const existingConnection =
-      assemblyConnections &&
-      !!assemblyConnections.find(
-        connection =>
-          connection.name === readConfObject(connectionConf, 'name'),
-      )
-    if (existingConnection) {
-      breakConnection(connectionConf)
-    } else {
-      session.makeConnection(connectionConf)
-    }
-  }
+  // function handleConnectionToggle(connectionConf) {
+  //   const assemblyConnections = session.connections.get(assemblyName)
+  //   const existingConnection =
+  //     assemblyConnections &&
+  //     !!assemblyConnections.find(
+  //       connection =>
+  //         connection.name === readConfObject(connectionConf, 'name'),
+  //     )
+  //   if (existingConnection) {
+  //     breakConnection(connectionConf)
+  //   } else {
+  //     session.makeConnection(connectionConf)
+  //   }
+  // }
 
-  function breakConnection(connectionConf) {
-    const name = readConfObject(connectionConf, 'name')
-    const [
-      safelyBreakConnection,
-      dereferenceTypeCount,
-    ] = session.prepareToBreakConnection(connectionConf)
-    if (Object.keys(dereferenceTypeCount).length > 0) {
-      setModalInfo({ safelyBreakConnection, dereferenceTypeCount, name })
-    } else {
-      safelyBreakConnection()
-    }
-  }
+  // function breakConnection(connectionConf) {
+  //   const name = readConfObject(connectionConf, 'name')
+  //   const [
+  //     safelyBreakConnection,
+  //     dereferenceTypeCount,
+  //   ] = session.prepareToBreakConnection(connectionConf)
+  //   if (Object.keys(dereferenceTypeCount).length > 0) {
+  //     setModalInfo({ safelyBreakConnection, dereferenceTypeCount, name })
+  //   } else {
+  //     safelyBreakConnection()
+  //   }
+  // }
 
   const { assemblyNames } = model
   const assemblyName = assemblyNames[assemblyIdx]
   if (!assemblyName) return null
   const filterError =
-    model.trackConfigurations(assemblyName) > 0 &&
-    model.trackConfigurations(assemblyName).filter(filter).length === 0
-  const dataset = session.datasets.find(
-    s => readConfObject(s, ['assembly', 'name']) === assemblyName,
-  )
+    model.trackConfigurations > 0 &&
+    model.trackConfigurations.filter(filter).length === 0
+  // const dataset = session.datasets.find(
+  //   s => readConfObject(s, ['assembly', 'name']) === assemblyName,
+  // )
 
   return (
     <div
@@ -174,12 +174,13 @@ function HierarchicalTrackSelector({ model }) {
         }}
       />
       <Contents
+        key={assemblyName}
         model={model}
         filterPredicate={filter}
         assemblyName={assemblyName}
         top
       />
-      <FormGroup>
+      {/* <FormGroup>
         {dataset.connections.map(connectionConf => (
           <FormControlLabel
             key={readConfObject(connectionConf, 'name')}
@@ -196,14 +197,13 @@ function HierarchicalTrackSelector({ model }) {
                     )
                 }
                 onChange={() => handleConnectionToggle(connectionConf)}
-                // value="checkedA"
               />
             }
             label={readConfObject(connectionConf, 'name')}
           />
         ))}
-      </FormGroup>
-      {session.connections.has(assemblyName) ? (
+      </FormGroup> */}
+      {/* {session.connections.has(assemblyName) ? (
         <>
           <Typography variant="h5">Connections</Typography>
           {session.connections.get(assemblyName).map(connection => (
@@ -223,7 +223,7 @@ function HierarchicalTrackSelector({ model }) {
             </Paper>
           ))}
         </>
-      ) : null}
+      ) : null} */}
 
       <Fab color="secondary" className={classes.fab} onClick={handleFabClick}>
         <Icon>add</Icon>
@@ -237,7 +237,7 @@ function HierarchicalTrackSelector({ model }) {
         <MenuItem onClick={addConnection}>Add connection</MenuItem>
         <MenuItem onClick={addTrack}>Add track</MenuItem>
       </Menu>
-      <Dialog
+      {/* <Dialog
         aria-labelledby="connection-modal-title"
         aria-describedby="connection-modal-description"
         open={Boolean(modalInfo)}
@@ -284,7 +284,7 @@ function HierarchicalTrackSelector({ model }) {
             Close
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }

@@ -224,21 +224,26 @@ ipcMain.handle('loadConfig', async () => {
     if (error.code === 'ENOENT') {
       // make a config file since one does not exist yet
       const configTemplateLocation = isDev
-        ? path.join(app.getAppPath(), 'public', 'test_data', 'config.json')
+        ? path.join(
+            app.getAppPath(),
+            'public',
+            'test_data',
+            'config_in_dev.json',
+          )
         : path.join(app.getAppPath(), 'build', 'test_data', 'config.json')
       const config = JSON.parse(
         await fsReadFile(configTemplateLocation, { encoding: 'utf8' }),
       )
-      if (isDev) {
-        config.datasets = mergeConfigs(
-          config,
-          JSON.parse(
-            await fsReadFile('./test_data/config_in_dev.json', {
-              encoding: 'utf8',
-            }),
-          ),
-        )
-      }
+      // if (isDev) {
+      //   config.datasets = mergeConfigs(
+      //     config,
+      //     JSON.parse(
+      //       await fsReadFile('./test_data/config_in_dev.json', {
+      //         encoding: 'utf8',
+      //       }),
+      //     ),
+      //   )
+      // }
       await fsWriteFile(configLocation, JSON.stringify(config, null, 2))
       return config
     }

@@ -171,15 +171,16 @@ function renderBlockData(self: Instance<BlockStateModel>) {
   const trackAssemblyData =
     (assemblyData && assemblyData.get(assemblyName)) || {}
   const trackAssemblyAliases = trackAssemblyData.aliases || []
-  let cannotBeRenderedReason
-  if (
-    !(
-      assemblyName === self.region.assemblyName ||
-      trackAssemblyAliases.includes(self.region.assemblyName)
-    )
-  )
-    cannotBeRenderedReason = 'region assembly does not match track assembly'
-  else cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
+  // let cannotBeRenderedReason
+  // if (
+  //   !(
+  //     assemblyName === self.region.assemblyName ||
+  //     trackAssemblyAliases.includes(self.region.assemblyName)
+  //   )
+  // )
+  //   cannotBeRenderedReason = 'region assembly does not match track assembly'
+  // else cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
+  const cannotBeRenderedReason = track.regionCannotBeRendered(self.region)
   const { renderProps } = track
   const { rendererType } = track
   const { config } = renderProps
@@ -199,7 +200,7 @@ function renderBlockData(self: Instance<BlockStateModel>) {
     cannotBeRenderedReason,
     trackError: track.error,
     renderArgs: {
-      assemblyName,
+      // assemblyName,
       region: self.region,
       adapterType: track.adapterType.name,
       adapterConfig: getConf(track, 'adapter'),
