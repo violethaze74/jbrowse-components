@@ -103,6 +103,7 @@ function RenderedFeatureGlyph(props) {
     region,
     config,
     layout,
+    setHeight,
   } = props
   const start = feature.get(horizontallyFlipped ? 'end' : 'start')
   const startPx = bpToPx(start, region, bpPerPx, horizontallyFlipped)
@@ -171,6 +172,7 @@ function RenderedFeatureGlyph(props) {
     return null
   }
   rootLayout.move(startPx, topPx)
+  setHeight(layout.getTotalHeight())
 
   return (
     <FeatureGlyph
@@ -205,6 +207,7 @@ RenderedFeatureGlyph.propTypes = {
     get: ReactPropTypes.func.isRequired,
   }).isRequired,
   config: CommonPropTypes.ConfigSchema.isRequired,
+  setHeight: ReactPropTypes.func.isRequired,
 }
 
 RenderedFeatureGlyph.defaultProps = {
@@ -212,14 +215,18 @@ RenderedFeatureGlyph.defaultProps = {
 }
 
 const RenderedFeatures = observer(props => {
-  const { layout, setHeight, features } = props
+  const { setHeight, features } = props
   const featuresRendered = []
   for (const feature of features.values()) {
     featuresRendered.push(
-      <RenderedFeatureGlyph key={feature.id()} feature={feature} {...props} />,
+      <RenderedFeatureGlyph
+        key={feature.id()}
+        feature={feature}
+        setHeight={setHeight}
+        {...props}
+      />,
     )
   }
-  setHeight(layout.getTotalHeight())
   return <>{featuresRendered}</>
 })
 RenderedFeatures.propTypes = {
