@@ -209,6 +209,11 @@ const FeatureRendering = ({ features, region, width, height }) => (
     features={features}
     config={SvgRendererConfigSchema.create({})}
     bpPerPx={(region.end - region.start) / width}
+    trackModel={{
+      configuration: {},
+      setFeatureIdUnderMouse: () => {},
+      getFeatureOverlapping: () => [],
+    }}
   />
 )
 FeatureRendering.propTypes = {

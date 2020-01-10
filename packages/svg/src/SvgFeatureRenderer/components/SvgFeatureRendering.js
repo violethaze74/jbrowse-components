@@ -253,7 +253,11 @@ function SvgFeatureRendering(props) {
     features,
     trackModel,
   } = props
-  const { configuration } = trackModel
+  const {
+    configuration,
+    setFeatureIdUnderMouse,
+    getFeatureOverlapping,
+  } = trackModel
   const width = (region.end - region.start) / bpPerPx
 
   const ref = useRef()
@@ -309,11 +313,11 @@ function SvgFeatureRendering(props) {
     event => {
       const handler = onMouseLeave
       setLocalFeatureIdUnderMouse(undefined)
-      trackModel.setFeatureIdUnderMouse(undefined)
+      setFeatureIdUnderMouse(undefined)
       if (!handler) return undefined
       return handler(event)
     },
-    [onMouseLeave, trackModel],
+    [onMouseLeave, setFeatureIdUnderMouse],
   )
 
   const mouseOver = useCallback(
@@ -349,17 +353,13 @@ function SvgFeatureRendering(props) {
       const px = horizontallyFlipped ? width - offsetX : offsetX
       const clientBp = region.start + bpPerPx * px
 
-      const feats = trackModel.getFeatureOverlapping(
-        blockKey,
-        clientBp,
-        offsetY,
-      )
+      const feats = getFeatureOverlapping(blockKey, clientBp, offsetY)
       const featureIdCurrentlyUnderMouse = feats.length
         ? feats[0].name
         : undefined
       setTooltipCoord([offsetX, offsetY])
       setLocalFeatureIdUnderMouse(featureIdCurrentlyUnderMouse)
-      trackModel.setFeatureIdUnderMouse(featureIdCurrentlyUnderMouse)
+      setFeatureIdUnderMouse(featureIdCurrentlyUnderMouse)
 
       if (!handler) return undefined
       return handler(event)
@@ -367,11 +367,12 @@ function SvgFeatureRendering(props) {
     [
       blockKey,
       bpPerPx,
+      getFeatureOverlapping,
       horizontallyFlipped,
       mouseIsDown,
       onMouseMove,
       region.start,
-      trackModel,
+      setFeatureIdUnderMouse,
       width,
     ],
   )
