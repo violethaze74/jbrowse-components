@@ -1,4 +1,4 @@
-const { electronBetterIpc, rpcMethods, rpcStuff } = window
+const { electronBetterIpc, rpcStuff } = window
 
 const { ipcRenderer } = electronBetterIpc
 
@@ -63,8 +63,8 @@ function wrapForRpc(func) {
 
 const wrappedRpcMethods = {}
 
-Object.keys(rpcMethods).forEach(key => {
-  wrappedRpcMethods[key] = wrapForRpc(rpcMethods[key])
+Object.entries(jbPluginManager.getRpcMethods()).forEach(([key, method]) => {
+  wrappedRpcMethods[key] = wrapForRpc(method)
 })
 
 ipcRenderer.answerRenderer('ready', async () => true)

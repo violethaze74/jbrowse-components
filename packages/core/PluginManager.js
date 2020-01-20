@@ -43,6 +43,8 @@ export default class PluginManager {
 
   elementTypes = {}
 
+  rpcMethods = {}
+
   elementCreationSchedule = new PhasedScheduler(
     'renderer',
     'adapter',
@@ -67,18 +69,18 @@ export default class PluginManager {
     this.lib = PluginManager.lib
 
     this.getRendererType = this.getElementType.bind(this, 'renderer')
-    this.getAdapterType = this.getElementType.bind(this, 'adapter')
-    this.getTrackType = this.getElementType.bind(this, 'track')
-    this.getViewType = this.getElementType.bind(this, 'view')
-    this.getDrawerWidgetType = this.getElementType.bind(this, 'drawer widget')
-    this.getMenuBarType = this.getElementType.bind(this, 'menu bar')
-    this.getConnectionType = this.getElementType.bind(this, 'connection')
     this.addRendererType = this.addElementType.bind(this, 'renderer')
+    this.getAdapterType = this.getElementType.bind(this, 'adapter')
     this.addAdapterType = this.addElementType.bind(this, 'adapter')
+    this.getTrackType = this.getElementType.bind(this, 'track')
     this.addTrackType = this.addElementType.bind(this, 'track')
+    this.getViewType = this.getElementType.bind(this, 'view')
     this.addViewType = this.addElementType.bind(this, 'view')
+    this.getDrawerWidgetType = this.getElementType.bind(this, 'drawer widget')
     this.addDrawerWidgetType = this.addElementType.bind(this, 'drawer widget')
+    this.getMenuBarType = this.getElementType.bind(this, 'menu bar')
     this.addMenuBarType = this.addElementType.bind(this, 'menu bar')
+    this.getConnectionType = this.getElementType.bind(this, 'connection')
     this.addConnectionType = this.addElementType.bind(this, 'connection')
 
     // add all the initial plugins
@@ -197,6 +199,27 @@ export default class PluginManager {
     return this.getElementTypesInGroup(groupName)
       .map(t => t[memberName])
       .filter(m => !!m)
+  }
+
+  addWorkerMethod(methodName, methodCode) {
+    if (this.rpcMethods[methodName])
+      throw new Error(
+        `RPC method "${methodName}" already exists, cannot register a method twice`,
+      )
+    this.rpcMethods[methodName] = methodCode
+  }
+
+  addWorkerMethods(rpcMethods) {
+    Object.entries(rpcMethods).forEach(([methodName, methodCode]) => {
+      this.addRpcMethod(methodName, methodCode)
+    })
+  }
+
+  /**
+   * get an object of all the registered rpc methods
+   */
+  getWorkerMethods() {
+    return this.rpcMethods
   }
 
   configure() {
