@@ -39,14 +39,7 @@ interface BaseInfo {
 
 export default class SNPCoverageRenderer extends WiggleBaseRenderer {
   draw(ctx: CanvasRenderingContext2D, props: SNPCoverageRendererProps) {
-    const {
-      features,
-      region,
-      bpPerPx,
-      scaleOpts,
-      height,
-      horizontallyFlipped,
-    } = props
+    const { region, bpPerPx, scaleOpts, height, horizontallyFlipped } = props
 
     const viewScale = getScale({ ...scaleOpts, range: [0, height] })
     const originY = getOrigin(scaleOpts.scaleType)
@@ -62,34 +55,35 @@ export default class SNPCoverageRenderer extends WiggleBaseRenderer {
       total: 'lightgrey',
     }
 
+    const featureRect = this.calculatePixelScores(props)
     // Use two pass rendering, which helps in visualizing the SNPs are high zoom levels
     // First pass: draw the gray background
     // Second pass: draw the SNP data, and add a minimum feature width of 1px which can be wider than the actual bpPerPx
     // This reduces overdrawing of the grey background over the SNPs
-    for (const feature of features.values()) {
+    for (const fRect of featureRect.values()) {
       const [leftPx, rightPx] = featureSpanPx(
-        feature,
+        fRect.feature,
         region,
         bpPerPx,
         horizontallyFlipped,
       )
-      const score = feature.get('score')
+      const score = fRect.feature.get('score')
 
       // draw total
       ctx.fillStyle = colorForBase.total
       const w = rightPx - leftPx + 0.3
       ctx.fillRect(leftPx, toY(score), w, toHeight(score))
     }
-    for (const feature of features.values()) {
+    for (const fRect of featureRect.values()) {
       const [leftPx, rightPx] = featureSpanPx(
-        feature,
+        fRect.feature,
         region,
         bpPerPx,
         horizontallyFlipped,
       )
       const w = Math.max(rightPx - leftPx + 0.3, 1)
       // grab array with nestedtable's info, draw mismatches
-      const infoArray = feature.get('snpinfo')
+      const infoArray = fRect.feature.get('snpinfo')
       infoArray.forEach(function iterate(info: BaseInfo, index: number) {
         if (info.base === 'reference' || info.base === 'total') return
         ctx.fillStyle = info.base.match(insRegex)

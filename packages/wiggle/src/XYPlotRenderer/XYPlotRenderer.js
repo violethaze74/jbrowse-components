@@ -7,7 +7,6 @@ import WiggleBaseRenderer from '../WiggleBaseRenderer'
 export default class XYPlotRenderer extends WiggleBaseRenderer {
   draw(ctx, props) {
     const {
-      features,
       region,
       bpPerPx,
       scaleOpts,
@@ -36,22 +35,24 @@ export default class XYPlotRenderer extends WiggleBaseRenderer {
       colorCallback = feature => readConfObject(config, 'color', [feature])
     }
 
-    for (const feature of features.values()) {
+    const featureRect = this.calculatePixelScores(props)
+
+    for (const fRect of featureRect.values()) {
       const [leftPx, rightPx] = featureSpanPx(
-        feature,
+        fRect.feature,
         region,
         bpPerPx,
         horizontallyFlipped,
       )
-      let score = feature.get('score')
-      const maxr = feature.get('maxScore')
-      const minr = feature.get('minScore')
+      let score = fRect.feature.get('score')
+      const maxr = fRect.feature.get('maxScore')
+      const minr = fRect.feature.get('minScore')
 
       const lowClipping = score < niceMin
       const highClipping = score > niceMax
       const w = rightPx - leftPx + 0.3 // fudge factor for subpixel rendering
 
-      const c = colorCallback(feature)
+      const c = colorCallback(fRect.feature)
       if (summaryScoreMode === 'max') {
         score = maxr === undefined ? score : maxr
         ctx.fillStyle = c
@@ -91,7 +92,7 @@ export default class XYPlotRenderer extends WiggleBaseRenderer {
         ctx.fillStyle = clipColor
         ctx.fillRect(leftPx, height - 4, w, height)
       }
-      if (feature.get('highlighted')) {
+      if (fRect.feature.get('highlighted')) {
         ctx.fillStyle = highlightColor
         ctx.fillRect(leftPx, 0, w, height)
       }
