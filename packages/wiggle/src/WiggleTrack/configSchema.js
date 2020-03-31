@@ -57,6 +57,7 @@ export default pluginManager => {
         defaultValue: false,
       },
       adapter: pluginManager.pluggableConfigSchemaType('adapter'),
+      displayMethods: keyValueMapOfTheRegisteredDisplayMethodConfigs(pluginManager.pluggableConfigSchemaType('display')) //similar to renderers below, but dynamically finds relevant registered display types
 
       defaultRendering: {
         type: 'stringEnum',

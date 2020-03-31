@@ -100,14 +100,11 @@ const BaseTrack = types
       onHorizontalScroll: Function
       blockState: Record<string, any>
     }> {
-      return (
-        self.ReactComponent ||
-        (() => (
-          <div className="TrackRenderingNotImplemented">
-            Rendering not implemented for {self.type} tracks
-          </div>
-        ))
-      )
+      console.log(window.getSnapshot(self), getConf(self))
+      if (!self.ReactComponent) {
+        throw new Error(`Rendering not implemented for ${self.type} tracks`)
+      }
+      return self.ReactComponent
     },
 
     /**

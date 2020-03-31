@@ -5,7 +5,7 @@ import {
 import { BaseTrack } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types, addDisposer } from 'mobx-state-tree'
 import { autorun } from 'mobx'
-import AlignmentsTrackComponent from './components/AlignmentsTrack'
+import AlignmentsDisplayComponent from './components/AlignmentsDisplay'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default (pluginManager: any, configSchema: any) => {
@@ -26,7 +26,7 @@ export default (pluginManager: any, configSchema: any) => {
           height: 250,
         })
         .volatile(() => ({
-          ReactComponent: AlignmentsTrackComponent,
+          ReactComponent: AlignmentsDisplayComponent,
         })),
     )
     .views(self => ({

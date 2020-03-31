@@ -59,7 +59,7 @@ export default class extends Plugin {
     pluginManager.addDisplayType(() => {
       const configSchema = pileupDisplayConfigSchemaFactory(pluginManager)
       return new DisplayType({
-        name: 'PileupDisplayMethod',
+        name: 'PileupDisplay',
         configSchema,
         stateModel: pileupDisplayModelFactory(pluginManager, configSchema),
       })

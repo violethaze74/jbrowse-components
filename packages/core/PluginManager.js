@@ -72,6 +72,7 @@ export default class PluginManager {
     this.getRendererType = this.getElementType.bind(this, 'renderer')
     this.getAdapterType = this.getElementType.bind(this, 'adapter')
     this.getTrackType = this.getElementType.bind(this, 'track')
+    this.getDisplayType = this.getElementType.bind(this, 'display')
     this.getViewType = this.getElementType.bind(this, 'view')
     this.getDrawerWidgetType = this.getElementType.bind(this, 'drawer widget')
     this.getMenuBarType = this.getElementType.bind(this, 'menu bar')
