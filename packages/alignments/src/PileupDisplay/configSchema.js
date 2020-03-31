@@ -12,9 +12,8 @@ export default pluginManager => {
 
   // modify config schema to take in a sub coverage track
   return ConfigurationSchema(
-    'PileupTrack',
+    'PileupDisplay',
     {
-      adapter: pluginManager.pluggableConfigSchemaType('adapter'),
       defaultRendering: {
         type: 'stringEnum',
         model: types.enumeration('Rendering', ['pileup', 'svg']),

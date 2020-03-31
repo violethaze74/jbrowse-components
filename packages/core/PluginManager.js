@@ -3,6 +3,7 @@ import { types } from 'mobx-state-tree'
 import RendererType from './pluggableElementTypes/renderers/RendererType'
 import AdapterType from './pluggableElementTypes/AdapterType'
 import TrackType from './pluggableElementTypes/TrackType'
+import DisplayType from './pluggableElementTypes/DisplayType'
 import ViewType from './pluggableElementTypes/ViewType'
 import DrawerWidgetType from './pluggableElementTypes/DrawerWidgetType'
 import MenuBarType from './pluggableElementTypes/MenuBarType'
@@ -47,6 +48,7 @@ export default class PluginManager {
     'renderer',
     'adapter',
     'track',
+    'display',
     'connection',
     'view',
     'drawer widget',
@@ -57,6 +59,7 @@ export default class PluginManager {
     renderer: RendererType,
     adapter: AdapterType,
     track: TrackType,
+    display: DisplayType,
     connection: ConnectionType,
     view: ViewType,
     'drawer widget': DrawerWidgetType,
@@ -76,6 +79,7 @@ export default class PluginManager {
     this.addRendererType = this.addElementType.bind(this, 'renderer')
     this.addAdapterType = this.addElementType.bind(this, 'adapter')
     this.addTrackType = this.addElementType.bind(this, 'track')
+    this.addDisplayType = this.addElementType.bind(this, 'display')
     this.addViewType = this.addElementType.bind(this, 'view')
     this.addDrawerWidgetType = this.addElementType.bind(this, 'drawer widget')
     this.addMenuBarType = this.addElementType.bind(this, 'menu bar')

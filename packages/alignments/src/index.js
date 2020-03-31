@@ -1,6 +1,7 @@
 import AdapterType from '@gmod/jbrowse-core/pluggableElementTypes/AdapterType'
 import DrawerWidgetType from '@gmod/jbrowse-core/pluggableElementTypes/DrawerWidgetType'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
+import DisplayType from '@gmod/jbrowse-core/pluggableElementTypes/DisplayType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import { lazy } from 'react'
 import {
@@ -8,18 +9,22 @@ import {
   modelFactory as alignmentsTrackModelFactory,
 } from './AlignmentsTrack'
 import {
+  configSchemaFactory as alignmentsDisplayConfigSchemaFactory,
+  modelFactory as alignmentsDisplayModelFactory,
+} from './AlignmentsDisplay'
+import {
   configSchema as alignmentsFeatureDetailConfigSchema,
   ReactComponent as AlignmentsFeatureDetailReactComponent,
   stateModel as alignmentsFeatureDetailStateModel,
 } from './AlignmentsFeatureDetail'
 import {
-  configSchemaFactory as pileupTrackConfigSchemaFactory,
-  modelFactory as pileupTrackModelFactory,
-} from './PileupTrack'
+  configSchemaFactory as pileupDisplayConfigSchemaFactory,
+  modelFactory as pileupDisplayModelFactory,
+} from './PileupDisplay'
 import {
-  configSchemaFactory as snpCoverageTrackConfigSchemaFactory,
-  modelFactory as snpCoverageTrackModelFactory,
-} from './SNPCoverageTrack'
+  configSchemaFactory as snpCoverageDisplayConfigSchemaFactory,
+  modelFactory as snpCoverageDisplayModelFactory,
+} from './SNPCoverageDisplay'
 import {
   AdapterClass as SNPCoverageAdapterClass,
   configSchema as snpCoverageAdapterConfigSchema,
@@ -44,11 +49,19 @@ import SNPCoverageRenderer, {
 export default class extends Plugin {
   install(pluginManager) {
     pluginManager.addTrackType(() => {
-      const configSchema = pileupTrackConfigSchemaFactory(pluginManager)
+      const configSchema = alignmentsTrackConfigSchemaFactory(pluginManager)
       return new TrackType({
-        name: 'PileupTrack',
+        name: 'AlignmentsTrack',
         configSchema,
-        stateModel: pileupTrackModelFactory(pluginManager, configSchema),
+        stateModel: alignmentsTrackModelFactory(pluginManager, configSchema),
+      })
+    })
+    pluginManager.addDisplayType(() => {
+      const configSchema = pileupDisplayConfigSchemaFactory(pluginManager)
+      return new DisplayType({
+        name: 'PileupDisplayMethod',
+        configSchema,
+        stateModel: pileupDisplayModelFactory(pluginManager, configSchema),
       })
     })
     pluginManager.addDrawerWidgetType(
@@ -61,20 +74,20 @@ export default class extends Plugin {
           LazyReactComponent: lazy(() => AlignmentsFeatureDetailReactComponent),
         }),
     )
-    pluginManager.addTrackType(() => {
-      const configSchema = snpCoverageTrackConfigSchemaFactory(pluginManager)
-      return new TrackType({
-        name: 'SNPCoverageTrack',
+    pluginManager.addDisplayType(() => {
+      const configSchema = snpCoverageDisplayConfigSchemaFactory(pluginManager)
+      return new DisplayType({
+        name: 'SNPCoverageDisplay',
         configSchema,
-        stateModel: snpCoverageTrackModelFactory(configSchema),
+        stateModel: snpCoverageDisplayModelFactory(configSchema),
       })
     })
-    pluginManager.addTrackType(() => {
-      const configSchema = alignmentsTrackConfigSchemaFactory(pluginManager)
-      return new TrackType({
-        name: 'AlignmentsTrack',
+    pluginManager.addDisplayType(() => {
+      const configSchema = alignmentsDisplayConfigSchemaFactory(pluginManager)
+      return new DisplayType({
+        name: 'AlignmentsComboDisplay',
         configSchema,
-        stateModel: alignmentsTrackModelFactory(pluginManager, configSchema),
+        stateModel: alignmentsDisplayModelFactory(pluginManager, configSchema),
       })
     })
     pluginManager.addAdapterType(

@@ -7,9 +7,9 @@ const rendererTypes = new Map([['snpcoverage', 'SNPCoverageRenderer']])
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const stateModelFactory = (configSchema: any) =>
   types.compose(
-    'SNPCoverageTrack',
+    'SNPCoverageDisplay',
     wiggleStateModelFactory(configSchema),
-    types.model({ type: types.literal('SNPCoverageTrack') }).views(() => ({
+    types.model({ type: types.literal('SNPCoverageDisplay') }).views(() => ({
       get rendererTypeName() {
         return rendererTypes.get('snpcoverage')
       },
@@ -20,6 +20,6 @@ const stateModelFactory = (configSchema: any) =>
     })),
   )
 
-export type SNPCoverageTrackModel = ReturnType<typeof stateModelFactory>
+export type SNPCoverageDisplayModel = ReturnType<typeof stateModelFactory>
 
 export default stateModelFactory

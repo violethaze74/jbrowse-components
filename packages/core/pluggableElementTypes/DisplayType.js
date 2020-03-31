@@ -1,9 +1,9 @@
 import PluggableElementType from './PluggableElementBase'
 import { getDefaultValue } from '../util/mst-reflection'
 
-export default class TrackType extends PluggableElementType {
+export default class DisplayType extends PluggableElementType {
   constructor(stuff, subClassDefaults = {}) {
-    console.log(subClassDefaults, stuff)
+    console.log('displayType', subClassDefaults, stuff)
     super(stuff, subClassDefaults)
     if (!this.stateModel) {
       throw new Error(`no stateModel defined for track ${this.name}`)

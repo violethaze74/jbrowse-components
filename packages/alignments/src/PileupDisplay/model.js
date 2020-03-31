@@ -16,11 +16,11 @@ const rendererTypes = new Map([
 
 export default (pluginManager, configSchema) =>
   types.compose(
-    'PileupTrack',
+    'PileupDisplay',
     blockBasedTrackModel,
     types
       .model({
-        type: types.literal('PileupTrack'),
+        type: types.literal('PileupDisplay'),
         configuration: ConfigurationReference(configSchema),
       })
       .actions(self => ({
