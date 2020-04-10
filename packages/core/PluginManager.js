@@ -51,7 +51,7 @@ export default class PluginManager {
     'display',
     'connection',
     'view',
-    'drawer widget',
+    'drawerWidget',
     'menu bar',
   )
 
@@ -62,8 +62,8 @@ export default class PluginManager {
     display: DisplayType,
     connection: ConnectionType,
     view: ViewType,
-    'drawer widget': DrawerWidgetType,
-    'menu bar': MenuBarType,
+    drawerWidget: DrawerWidgetType,
+    menuBar: MenuBarType,
   }
 
   constructor(initialPlugins = []) {
@@ -74,17 +74,19 @@ export default class PluginManager {
     this.getTrackType = this.getElementType.bind(this, 'track')
     this.getDisplayType = this.getElementType.bind(this, 'display')
     this.getViewType = this.getElementType.bind(this, 'view')
-    this.getDrawerWidgetType = this.getElementType.bind(this, 'drawer widget')
-    this.getMenuBarType = this.getElementType.bind(this, 'menu bar')
+    this.getDrawerWidgetType = this.getElementType.bind(this, 'drawerWidget')
+    this.getMenuBarType = this.getElementType.bind(this, 'menuBar')
     this.getConnectionType = this.getElementType.bind(this, 'connection')
     this.addRendererType = this.addElementType.bind(this, 'renderer')
     this.addAdapterType = this.addElementType.bind(this, 'adapter')
     this.addTrackType = this.addElementType.bind(this, 'track')
     this.addDisplayType = this.addElementType.bind(this, 'display')
     this.addViewType = this.addElementType.bind(this, 'view')
-    this.addDrawerWidgetType = this.addElementType.bind(this, 'drawer widget')
-    this.addMenuBarType = this.addElementType.bind(this, 'menu bar')
+    this.addDrawerWidgetType = this.addElementType.bind(this, 'drawerWidget')
+    this.addMenuBarType = this.addElementType.bind(this, 'menuBar')
     this.addConnectionType = this.addElementType.bind(this, 'connection')
+
+    this.displayTypesForTrackType = {}
 
     // add all the initial plugins
     initialPlugins.forEach(plugin => {
@@ -149,7 +151,32 @@ export default class PluginManager {
     return types.union(...pluggableTypes)
   }
 
-  /** get a MST type for the union of all specified pluggable config schemas */
+  /** this is a special notion to get the displays associated with a given track */
+  pluggableDisplayTypesForTrack(
+    trackName,
+    fieldName = 'configSchema',
+    fallback = types.maybe(types.null),
+  ) {
+    const pluggableTypes = this.getElementTypeMembers(
+      'display',
+      fieldName,
+      name => {
+        const displays = this.displayTypesForTrackType[trackName]
+        const rest = displays ? displays.includes(name) : false
+        return rest
+      },
+    )
+    // try to smooth over the case when no types are registered, mostly encountered in tests
+    if (pluggableTypes.length === 0) {
+      console.warn(
+        `No JBrowse display types found matching ('${trackName}','${fieldName}'), returning null type`,
+      )
+      return fallback
+    }
+    return types.union(...pluggableTypes)
+  }
+
+  /** get a MST type for the union of all specified pluggable 4onfig schemas */
   pluggableConfigSchemaType(
     typeGroup,
     fieldName = 'configSchema',
@@ -168,13 +195,16 @@ export default class PluginManager {
     if (!typeBaseClass) {
       throw new Error(`unknown pluggable element type ${groupName}, cannot add`)
     }
-    if (!this.elementTypes[groupName]) this.elementTypes[groupName] = {}
+    if (!this.elementTypes[groupName]) {
+      this.elementTypes[groupName] = {}
+    }
 
     this.elementCreationSchedule.add(groupName, () => {
       const element = creationCallback(this)
       if (
         groupName === 'adapter' &&
-        !element.AdapterClass.capabilities.length
+        (!element.AdapterClass.capabilities ||
+          !element.AdapterClass.capabilities.length)
       ) {
         throw new Error(
           `Adapter ${element.AdapterClass.name} must provide a static property "capabilities" that has at least one entry. See BaseAdapter for an example.`,
@@ -192,6 +222,13 @@ export default class PluginManager {
     return this
   }
 
+  registerDisplayTypeForTrack({ track, display }) {
+    if (!this.displayTypesForTrackType[track]) {
+      this.displayTypesForTrackType[track] = []
+    }
+    this.displayTypesForTrackType[track].push(display)
+  }
+
   getElementType(groupName, typeName) {
     if (!typeName) {
       throw new Error(`invalid type name "${typeName}"`)
@@ -199,12 +236,14 @@ export default class PluginManager {
     return (this.elementTypes[groupName] || {})[typeName]
   }
 
-  getElementTypesInGroup(groupName) {
-    return Object.values(this.elementTypes[groupName] || {})
+  getElementTypesInGroup(groupName, filter = elt => elt) {
+    return Object.values(this.elementTypes[groupName] || {}).filter(elt => {
+      return filter(elt.name)
+    })
   }
 
-  getElementTypeMembers(groupName, memberName) {
-    return this.getElementTypesInGroup(groupName)
+  getElementTypeMembers(groupName, memberName, filter = elt => elt) {
+    return this.getElementTypesInGroup(groupName, filter)
       .map(t => t[memberName])
       .filter(m => !!m)
   }

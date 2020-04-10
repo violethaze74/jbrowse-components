@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`base data adapter properly propagates errors in feature fetching 1`] = `
+Object {
+  "configSchema": ModelType {
+    "flags": 128,
+    "identifierAttribute": undefined,
+    "initializers": Array [],
+    "isType": true,
+    "name": "AnonymousModel",
+    "named": [Function],
+    "postProcessSnapshot": [Function],
+    "preProcessSnapshot": [Function],
+    "properties": Object {
+      "hello": OptionalValue {
+        "_defaultValue": "world",
+        "_subtype": CoreType {
+          "checker": [Function],
+          "flags": 1,
+          "initializer": [Function],
+          "isType": true,
+          "name": "string",
+        },
+        "isType": true,
+        "name": "string",
+        "optionalValues": Array [
+          undefined,
+        ],
+      },
+    },
+    "propertyNames": Array [
+      "hello",
+    ],
+    "props": [Function],
+  },
+  "name": "KittyDisplay",
+}
+`;
