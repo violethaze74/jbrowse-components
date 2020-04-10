@@ -106,7 +106,8 @@ export function stateModelFactory(pluginManager: any) {
         return HEADER_BAR_HEIGHT + HEADER_OVERVIEW_HEIGHT
       },
       get trackHeights() {
-        return self.tracks.map(t => t.height).reduce((a, b) => a + b, 0)
+        // "+ 2" is for 1px track border
+        return self.tracks.map(t => t.height).reduce((a, b) => a + b + 2, 0)
       },
       get trackHeightsWithResizeHandles() {
         return this.trackHeights + self.tracks.length * RESIZE_HANDLE_HEIGHT
@@ -250,7 +251,8 @@ export function stateModelFactory(pluginManager: any) {
         )
         let accum = 0
         for (let i = 0; i < idx; i += 1) {
-          accum += self.tracks[i].height + RESIZE_HANDLE_HEIGHT
+          // "+ 2" is for 1px track border
+          accum += self.tracks[i].height + 2 + RESIZE_HANDLE_HEIGHT
         }
         return accum
       },
