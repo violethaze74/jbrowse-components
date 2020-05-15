@@ -61,8 +61,10 @@ export function assemblyFactory(assemblyConfigType: IAnyType) {
       get rpcManager() {
         return getParent(self, 2).rpcManager
       },
+    }))
+    .views(self => ({
       getCanonicalRefName(refName: string) {
-        if (this.refNames.includes(refName)) {
+        if (self.refNames.includes(refName)) {
           return refName
         }
         for (const [rName, aliases] of self.refNameAliases) {
@@ -73,7 +75,7 @@ export function assemblyFactory(assemblyConfigType: IAnyType) {
         return undefined
       },
       isValidRefName(refName: string) {
-        return this.allRefNames.includes(refName)
+        return self.allRefNames.includes(refName)
       },
     }))
     .actions(self => {
@@ -309,7 +311,7 @@ export default function assemblyManagerFactory(assemblyConfigType: IAnyType) {
       get allPossibleRefNames() {
         const refNames: string[] = []
         self.assemblies.forEach(assembly => {
-          refNames.push(...assembly.refNames)
+          refNames.push(...assembly.allRefNames)
         })
         return refNames
       },
@@ -343,6 +345,7 @@ export default function assemblyManagerFactory(assemblyConfigType: IAnyType) {
           if (assembly) {
             return assembly.isValidRefName(refName)
           }
+          return false
         }
         return self.allPossibleRefNames.includes(refName)
       },
