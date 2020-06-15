@@ -4,6 +4,13 @@ import Plugin from '@gmod/jbrowse-core/Plugin'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
 import DrawerWidgetType from '@gmod/jbrowse-core/pluggableElementTypes/DrawerWidgetType'
 import { lazy } from 'react'
+import ViewType from '@gmod/jbrowse-core/pluggableElementTypes/ViewType'
+
+import {
+  ReactComponent as GDCFeatureViewReactComponent,
+  stateModel as gdcFeatureViewStateModel,
+} from './GDCFeatureView'
+
 import {
   configSchema as ConfigSchema,
   HeadingComponent,
@@ -65,6 +72,15 @@ export default class extends Plugin {
           configSchema: gdcFeatureDrawerWidgetConfigSchema,
           stateModel: gdcFeatureDrawerWidgetStateModel,
           LazyReactComponent: lazy(() => GDCFeatureDrawerWidgetReactComponent),
+        }),
+    )
+
+    pluginManager.addViewType(
+      () =>
+        new ViewType({
+          name: 'GDCFeatureView',
+          stateModel: gdcFeatureViewStateModel,
+          ReactComponent: GDCFeatureViewReactComponent,
         }),
     )
   }
