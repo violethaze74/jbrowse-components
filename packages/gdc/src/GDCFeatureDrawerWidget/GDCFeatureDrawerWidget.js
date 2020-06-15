@@ -558,7 +558,7 @@ GeneProjects.propTypes = {
  * Extended feature detail drawer for GDC features
  * @param {*} props
  */
-function GDCFeatureDetails(props) {
+const GDCFeatureView = observer(props => {
   const classes = useStyles()
   const { model } = props
   const feat = JSON.parse(JSON.stringify(model.featureData))
@@ -586,10 +586,10 @@ function GDCFeatureDetails(props) {
       {feat.ssmId && <SSMProjects featureId={feat.ssmId} />}
     </Paper>
   )
-}
+})
 
-GDCFeatureDetails.propTypes = {
+GDCFeatureView.propTypes = {
   model: MobxPropTypes.observableObject.isRequired,
 }
 
-export default observer(GDCFeatureDetails)
+export default GDCFeatureView

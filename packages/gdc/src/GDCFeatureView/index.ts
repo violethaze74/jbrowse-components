@@ -26,4 +26,4 @@ export const stateModel = types
     height: 300,
   }))
 
-export { default as ReactComponent } from './GDCFeatureView'
+export { default as ReactComponent } from '../GDCFeatureDrawerWidget/GDCFeatureDrawerWidget'

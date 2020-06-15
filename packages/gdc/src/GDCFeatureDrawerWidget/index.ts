@@ -10,7 +10,7 @@ export const stateModel = types
     featureData: types.frozen({}),
   })
   .actions(self => ({
-    setFeatureData(data) {
+    setFeatureData(data: any) {
       self.featureData = data
     },
     clearFeatureData() {

@@ -6,8 +6,9 @@ import {
   BlockBasedTrack,
 } from '@gmod/jbrowse-plugin-linear-genome-view'
 import FilterListIcon from '@material-ui/icons/FilterList'
-import { types } from 'mobx-state-tree'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
+import PlaylistAdd from '@material-ui/icons/PlaylistAdd'
+import { types } from 'mobx-state-tree'
 
 export default function stateModelFactory(configSchema) {
   return types
@@ -77,7 +78,7 @@ export default function stateModelFactory(configSchema) {
               },
               {
                 label: 'Open feature details in a view',
-                icon: MenuOpenIcon,
+                icon: PlaylistAdd,
                 onClick: () => {
                   if (self.contextMenuFeature) {
                     self.selectFeatureView(self.contextMenuFeature)
