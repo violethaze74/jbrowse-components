@@ -10,6 +10,7 @@ export const stateModel = types
     featureData: types.frozen({}),
   })
   .actions(self => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setFeatureData(data: any) {
       self.featureData = data
     },

@@ -14,6 +14,7 @@ export const stateModel = types
     setHeight(newHeight: number) {
       self.height = newHeight
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setFeatureData(data: any) {
       self.featureData = data
     },
