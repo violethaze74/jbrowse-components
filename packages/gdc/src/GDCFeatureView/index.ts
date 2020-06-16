@@ -6,15 +6,13 @@ export const stateModel = types
     id: ElementId,
     type: types.literal('GDCFeatureView'),
     featureData: types.frozen({}),
-    width: types.number,
-    height: types.number,
   })
+  .volatile(() => ({
+    width: 800,
+  }))
   .actions(self => ({
     setWidth(newWidth: number) {
       self.width = newWidth
-    },
-    setHeight(newHeight: number) {
-      self.height = newHeight
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setFeatureData(data: any) {
@@ -23,10 +21,6 @@ export const stateModel = types
     clearFeatureData() {
       self.featureData = {}
     },
-  }))
-  .volatile(() => ({
-    width: 800,
-    height: 300,
   }))
 
 export { default as ReactComponent } from '../GDCFeatureDrawerWidget/GDCFeatureDrawerWidget'
