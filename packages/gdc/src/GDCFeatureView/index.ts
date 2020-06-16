@@ -6,6 +6,8 @@ export const stateModel = types
     id: ElementId,
     type: types.literal('GDCFeatureView'),
     featureData: types.frozen({}),
+    width: types.number,
+    height: types.number,
   })
   .actions(self => ({
     setWidth(newWidth: number) {
