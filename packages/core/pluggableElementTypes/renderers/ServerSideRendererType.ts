@@ -195,23 +195,17 @@ export default class ServerSideRenderer extends RendererType {
       if (requestRegion.end) {
         requestRegion.end = Math.ceil(requestRegion.end)
       }
-      return requestRegion
+
+      return this.getExpandedRegion(requestRegion, renderArgs)
     })
 
-    const featureObservable =
-      requestRegions.length === 1
-        ? dataAdapter.getFeatures(
-            this.getExpandedRegion(requestRegions[0], renderArgs),
-            {
-              signal,
-              bpPerPx,
-            },
-          )
-        : dataAdapter.getFeaturesInMultipleRegions(requestRegions, {
-            signal,
-            bpPerPx,
-          })
-
+    const featureObservable = dataAdapter.getFeaturesInMultipleRegions(
+      requestRegions,
+      {
+        signal,
+        bpPerPx,
+      },
+    )
     await featureObservable
       .pipe(
         tap(() => checkAbortSignal(signal)),
