@@ -24,7 +24,7 @@
     "@gmod/jbrowse-plugin-dotplot-view": "^2.0.0",
     "@gmod/jbrowse-plugin-filtering": "^2.0.0",
     "@gmod/jbrowse-plugin-gdc": "^2.0.0",
-    "@gmod/jbrowse-plugin-gff3tabix": "^2.0.0",
+    "@gmod/jbrowse-plugin-gff3": "^0.0.1",
     "@gmod/jbrowse-plugin-legacy-jbrowse": "^2.0.0",
     "@gmod/jbrowse-plugin-linear-genome-view": "^2.0.0",
     "@gmod/jbrowse-plugin-linear-comparative-view": "^2.0.0",

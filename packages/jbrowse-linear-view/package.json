@@ -26,7 +26,7 @@
     "@gmod/jbrowse-plugin-bed": "^2.0.0",
     "@gmod/jbrowse-plugin-config": "^2.0.0",
     "@gmod/jbrowse-plugin-data-management": "^2.0.0",
-    "@gmod/jbrowse-plugin-gff3tabix": "^2.0.0",
+    "@gmod/jbrowse-plugin-gff3": "^0.0.1",
     "@gmod/jbrowse-plugin-linear-genome-view": "^2.0.0",
     "@gmod/jbrowse-plugin-sequence": "^2.0.0",
     "@gmod/jbrowse-plugin-svg": "^0.0.1",
