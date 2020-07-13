@@ -108,7 +108,9 @@ export default class extends BaseFeatureDataAdapter {
           `getFeaturesInMultipleRegions fetching ${pct}% of VCF file, but whole-file streaming not yet implemented`,
         )
       }
-      superGetFeaturesInMultipleRegions(regions, opts).subscribe(observer)
+      superGetFeaturesInMultipleRegions
+        .call(this, regions, opts)
+        .subscribe(observer)
     })
   }
 
