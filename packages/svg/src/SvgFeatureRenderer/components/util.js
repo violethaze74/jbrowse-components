@@ -1,29 +1,22 @@
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
-import SceneGraph from '@gmod/jbrowse-core/util/layouts/SceneGraph'
-import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
-import { AnyConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
 import Box from './Box'
 import Chevron from './Chevron'
 import ProcessedTranscript from './ProcessedTranscript'
 import Segments from './Segments'
 import Subfeatures from './Subfeatures'
 
-interface Glyph extends React.FunctionComponent {
-  layOut?: Function
-}
-
-export function chooseGlyphComponent(feature: Feature): Glyph {
+export function chooseGlyphComponent(feature) {
   const subfeatures = feature.get('subfeatures')
   let hasSubSub = false
   if (subfeatures) {
-    subfeatures.forEach((subfeature: Feature) => {
+    subfeatures.forEach(subfeature => {
       if (subfeature.get('subfeatures')) hasSubSub = true
     })
     if (hasSubSub) return Subfeatures
     const type = feature.get('type')
     if (
       ['mRNA', 'transcript'].includes(type) &&
-      subfeatures.find((f: Feature) => f.get('type') === 'CDS')
+      subfeatures.find(f => f.get('type') === 'CDS')
     )
       return ProcessedTranscript
     return Segments
@@ -33,28 +26,7 @@ export function chooseGlyphComponent(feature: Feature): Glyph {
   return Box
 }
 
-interface BaseLayOutArgs {
-  layout: SceneGraph
-  bpPerPx: number
-  reversed: boolean
-  config: AnyConfigurationModel
-}
-
-interface FeatureLayOutArgs extends BaseLayOutArgs {
-  feature: Feature
-}
-
-interface SubfeatureLayOutArgs extends BaseLayOutArgs {
-  subfeatures: Feature[]
-}
-
-export function layOut({
-  layout,
-  feature,
-  bpPerPx,
-  reversed,
-  config,
-}: FeatureLayOutArgs): SceneGraph {
+export function layOut({ layout, feature, bpPerPx, reversed, config }) {
   const displayMode = readConfObject(config, 'displayMode')
   const subLayout = layOutFeature({
     layout,
@@ -75,7 +47,7 @@ export function layOut({
   return subLayout
 }
 
-export function layOutFeature(args: FeatureLayOutArgs): SceneGraph {
+export function layOutFeature(args) {
   const { layout, feature, bpPerPx, reversed, config } = args
   const displayMode = readConfObject(config, 'displayMode')
   const GlyphComponent =
@@ -103,9 +75,9 @@ export function layOutFeature(args: FeatureLayOutArgs): SceneGraph {
   return subLayout
 }
 
-export function layOutSubfeatures(args: SubfeatureLayOutArgs): void {
+export function layOutSubfeatures(args) {
   const { layout: subLayout, subfeatures, bpPerPx, reversed, config } = args
-  subfeatures.forEach((subfeature: Feature) => {
+  subfeatures.forEach(subfeature => {
     const SubfeatureGlyphComponent = chooseGlyphComponent(subfeature)
     ;(SubfeatureGlyphComponent.layOut || layOut)({
       layout: subLayout,
@@ -117,7 +89,7 @@ export function layOutSubfeatures(args: SubfeatureLayOutArgs): void {
   })
 }
 
-export function isUTR(feature: Feature): boolean {
+export function isUTR(feature) {
   return /(\bUTR|_UTR|untranslated[_\s]region)\b/.test(
     feature.get('type') || '',
   )

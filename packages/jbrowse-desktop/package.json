@@ -34,7 +34,7 @@
     "@gmod/jbrowse-plugin-sequence": "^2.0.0",
     "@gmod/jbrowse-plugin-spreadsheet-view": "^2.0.0",
     "@gmod/jbrowse-plugin-sv-inspector": "^2.0.0",
-    "@gmod/jbrowse-plugin-svg": "^2.0.0",
+    "@gmod/jbrowse-plugin-svg": "^0.0.1",
     "@gmod/jbrowse-plugin-trackhub-registry": "^2.0.0",
     "@gmod/jbrowse-plugin-variants": "^0.0.1",
     "@gmod/jbrowse-plugin-wiggle": "^0.0.1",

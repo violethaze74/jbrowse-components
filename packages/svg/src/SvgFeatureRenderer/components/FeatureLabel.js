@@ -1,16 +1,6 @@
 import React from 'react'
 
-export default function Label(props: {
-  text: string
-  x: number
-  y: number
-  color?: string
-  fontHeight?: number
-  featureWidth?: number
-  allowedWidthExpansion?: number
-  reversed?: boolean
-  fontWidthScaleFactor?: number
-}) {
+export default function Label(props) {
   const {
     text,
     x,
