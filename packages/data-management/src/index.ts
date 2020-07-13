@@ -1,4 +1,3 @@
-import { lazy } from 'react'
 import ConnectionType from '@gmod/jbrowse-core/pluggableElementTypes/ConnectionType'
 import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/WidgetType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
@@ -49,7 +48,7 @@ export default class extends Plugin {
         heading: 'Available Tracks',
         configSchema: HierarchicalTrackSelectorConfigSchema,
         stateModel: HierarchicalTrackSelectorStateModelFactory(pluginManager),
-        LazyReactComponent: lazy(() => HierarchicalTrackSelectorReactComponent),
+        ReactComponent: HierarchicalTrackSelectorReactComponent,
       })
     })
 
@@ -59,7 +58,7 @@ export default class extends Plugin {
         heading: 'Add a track',
         configSchema: AddTrackConfigSchema,
         stateModel: AddTrackStateModelFactory(pluginManager),
-        LazyReactComponent: lazy(() => AddTrackReactComponent),
+        ReactComponent: AddTrackReactComponent,
       })
     })
 
@@ -69,7 +68,7 @@ export default class extends Plugin {
         heading: 'Add a connection',
         configSchema: AddConnectionConfigSchema,
         stateModel: AddConnectionStateModel,
-        LazyReactComponent: lazy(() => AddConnectionReactComponent),
+        ReactComponent: AddConnectionReactComponent,
       })
     })
   }

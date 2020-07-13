@@ -1,9 +1,7 @@
-import { lazy } from 'react'
 import { ConfigurationSchema } from '../../configuration'
 import Plugin, { MenuBarType } from '../../Plugin'
 import HelloWorldMenuBarModelFactory from './model'
-
-const HelloWorld = lazy(() => import('./components/HelloWorld'))
+import HelloWorld from './components/HelloWorld'
 
 export default class extends Plugin {
   install(pluginManager) {
@@ -16,7 +14,7 @@ export default class extends Plugin {
         name: 'HelloWorldMenuBar',
         configSchema,
         stateModel,
-        LazyReactComponent: HelloWorld,
+        ReactComponent: HelloWorld,
       })
     })
   }

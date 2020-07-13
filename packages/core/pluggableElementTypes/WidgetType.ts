@@ -34,9 +34,9 @@ export default class WidgetType extends PluggableElementBase {
     this.configSchema = stuff.configSchema
     this.stateModel = stuff.stateModel
     this.ReactComponent = stuff.ReactComponent
-    if (!this.LazyReactComponent) {
+    if (!this.ReactComponent) {
       throw new Error(
-        `no LazyReactComponent defined for drawer widget ${this.name}`,
+        `no ReactComponent defined for drawer widget ${this.name}`,
       )
     }
     if (!this.stateModel) {

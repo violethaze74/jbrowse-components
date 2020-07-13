@@ -1,15 +1,11 @@
-import { lazy } from 'react'
 import { ConfigurationSchema } from '../../configuration'
 import Plugin, { WidgetType, MenuBarType } from '../../Plugin'
 import {
   HelloWorldWidgetModelFactory,
   HelloWorldMenuBarModelFactory,
 } from './model'
-
-const HelloWorldMenuBar = lazy(() => import('./components/HelloWorldMenuBar'))
-const HelloWorldWidget = lazy(() =>
-  import('./components/HelloWorldWidget'),
-)
+import HelloWorldMenuBar from './components/HelloWorldMenuBa'
+import HelloWorldWidget from './components/HelloWorldWidget'
 
 export default class extends Plugin {
   install(pluginManager) {
@@ -22,7 +18,7 @@ export default class extends Plugin {
         name: 'HelloWorldMenuBar',
         configSchema,
         stateModel,
-        LazyReactComponent: HelloWorldMenuBar,
+        ReactComponent: HelloWorldMenuBar,
       })
     })
 
@@ -35,7 +31,7 @@ export default class extends Plugin {
         name: 'HelloWorldWidget',
         configSchema,
         stateModel,
-        LazyReactComponent: HelloWorldWidget,
+        ReactComponent: HelloWorldWidget,
       })
     })
   }

@@ -3,7 +3,6 @@ import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
 import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/WidgetType'
-import { lazy } from 'react'
 import {
   configSchema as ConfigSchema,
   HeadingComponent,
@@ -53,7 +52,7 @@ export default class extends Plugin {
         HeadingComponent,
         configSchema: ConfigSchema,
         stateModel: filterDrawerStateModelFactory(pluginManager),
-        LazyReactComponent: lazy(() => ReactComponent),
+        ReactComponent,
       })
     })
 
@@ -64,7 +63,7 @@ export default class extends Plugin {
           heading: 'Feature Details',
           configSchema: gdcFeatureWidgetConfigSchema,
           stateModel: gdcFeatureWidgetStateModel,
-          LazyReactComponent: lazy(() => GDCFeatureWidgetReactComponent),
+          ReactComponent: GDCFeatureWidgetReactComponent,
         }),
     )
   }

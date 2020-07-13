@@ -1,5 +1,4 @@
 import AppBar from '@material-ui/core/AppBar'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import Modal from '@material-ui/core/Modal'
 import Paper from '@material-ui/core/Paper'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -7,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import { observer } from 'mobx-react'
 import { Instance } from 'mobx-state-tree'
-import React, { Suspense } from 'react'
+import React from 'react'
 import 'typeface-roboto'
 import createSessionModel from '../createModel/createSessionModel'
 
@@ -35,7 +34,7 @@ const ModalWidgetContents = observer(({ session }: { session: Session }) => {
     )
   }
   const {
-    LazyReactComponent,
+    ReactComponent,
     HeadingComponent,
     heading,
   } = pluginManager.getWidgetType(visibleWidget.type)
@@ -50,11 +49,7 @@ const ModalWidgetContents = observer(({ session }: { session: Session }) => {
           )}
         </Toolbar>
       </AppBar>
-      {visibleWidget && LazyReactComponent ? (
-        <Suspense fallback={<CircularProgress disableShrink />}>
-          <LazyReactComponent model={visibleWidget} session={session} />
-        </Suspense>
-      ) : null}
+      <ReactComponent model={visibleWidget} session={session} />
     </>
   )
 })
