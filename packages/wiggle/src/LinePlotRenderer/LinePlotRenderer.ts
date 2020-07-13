@@ -1,10 +1,13 @@
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { featureSpanPx } from '@gmod/jbrowse-core/util'
+import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import { getScale } from '../util'
-import WiggleBaseRenderer from '../WiggleBaseRenderer'
+import WiggleBaseRenderer, {
+  WiggleBaseRendererProps,
+} from '../WiggleBaseRenderer'
 
 export default class extends WiggleBaseRenderer {
-  draw(ctx, props) {
+  draw(ctx: CanvasRenderingContext2D, props: WiggleBaseRendererProps) {
     const { features, regions, bpPerPx, scaleOpts, height, config } = props
     const [region] = regions
     const pivotValue = readConfObject(config, 'bicolorPivotValue')
@@ -14,13 +17,14 @@ export default class extends WiggleBaseRenderer {
     const highlightColor = readConfObject(config, 'highlightColor')
     const scale = getScale({ ...scaleOpts, range: [0, height] })
     const [niceMin, niceMax] = scale.domain()
-    const toY = rawscore => height - scale(rawscore)
+    const toY = (rawscore: number) => height - scale(rawscore)
     let colorCallback
     if (readConfObject(config, 'color') === '#f0f') {
-      colorCallback = feature =>
+      colorCallback = (feature: Feature) =>
         feature.get('score') < pivotValue ? negColor : posColor
     } else {
-      colorCallback = feature => readConfObject(config, 'color', [feature])
+      colorCallback = (feature: Feature) =>
+        readConfObject(config, 'color', [feature])
     }
     let lastVal
 
