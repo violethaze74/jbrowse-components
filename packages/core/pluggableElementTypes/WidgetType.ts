@@ -1,4 +1,4 @@
-import { ComponentType, LazyExoticComponent } from 'react'
+import { ComponentType } from 'react'
 import { IAnyModelType, IAnyStateTreeNode } from 'mobx-state-tree'
 import PluggableElementBase from './PluggableElementBase'
 import { AnyConfigurationSchemaType } from '../configuration/configurationSchema'
@@ -10,9 +10,10 @@ export default class WidgetType extends PluggableElementBase {
 
   HeadingComponent?: ComponentType<{ model: IAnyStateTreeNode }>
 
-  LazyReactComponent: LazyExoticComponent<
-    ComponentType<{ model: IAnyStateTreeNode; session: IAnyStateTreeNode }>
-  >
+  ReactComponent: ComponentType<{
+    model: IAnyStateTreeNode
+    session: IAnyStateTreeNode
+  }>
 
   stateModel: IAnyModelType
 
@@ -22,16 +23,17 @@ export default class WidgetType extends PluggableElementBase {
     HeadingComponent?: ComponentType<{ model: IAnyStateTreeNode }>
     configSchema: AnyConfigurationSchemaType
     stateModel: IAnyModelType
-    LazyReactComponent: LazyExoticComponent<
-      ComponentType<{ model: IAnyStateTreeNode; session: IAnyStateTreeNode }>
-    >
+    ReactComponent: ComponentType<{
+      model: IAnyStateTreeNode
+      session: IAnyStateTreeNode
+    }>
   }) {
     super(stuff)
     this.heading = stuff.heading
     this.HeadingComponent = stuff.HeadingComponent
     this.configSchema = stuff.configSchema
     this.stateModel = stuff.stateModel
-    this.LazyReactComponent = stuff.LazyReactComponent
+    this.ReactComponent = stuff.ReactComponent
     if (!this.LazyReactComponent) {
       throw new Error(
         `no LazyReactComponent defined for drawer widget ${this.name}`,

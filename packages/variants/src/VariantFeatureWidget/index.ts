@@ -10,7 +10,8 @@ export const stateModel = types
     featureData: types.frozen({}),
   })
   .actions(self => ({
-    setFeatureData(data) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setFeatureData(data: Record<string, any>) {
       self.featureData = data
     },
     clearFeatureData() {
@@ -18,4 +19,4 @@ export const stateModel = types
     },
   }))
 
-export const ReactComponent = import('./VariantFeatureWidget')
+export { default as ReactComponent } from './VariantFeatureWidget'
