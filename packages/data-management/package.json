@@ -1,13 +1,26 @@
 {
   "name": "@gmod/jbrowse-plugin-data-management",
-  "version": "2.0.0",
   "description": "JBrowse 2 track and assembly data management",
-  "main": "src/index.ts",
-  "scripts": {
-    "test": "cd ../..; jest packages/data-management"
-  },
-  "author": "Garrett Stevens",
+  "author": "JBrowse Team",
+  "version": "0.0.1",
   "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/jbrowse-plugin-data-management.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "prepare": "tsdx build",
+    "storybook": "start-storybook -s ./public -p 6006",
+    "build-storybook": "build-storybook"
+  },
   "dependencies": {
     "@gmod/ucsc-hub": "^0.1.2",
     "@material-ui/icons": "^4.9.1",

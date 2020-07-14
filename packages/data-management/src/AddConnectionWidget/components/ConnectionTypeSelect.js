@@ -1,19 +1,11 @@
 import IconButton from '@material-ui/core/IconButton'
 import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
+import PropTypes from 'prop-types'
 import React from 'react'
 import OpenInNewIcon from '@material-ui/icons/OpenInNew'
 
-import ConnectionType from '@gmod/jbrowse-core/pluggableElementTypes/ConnectionType'
-
-function ConnectionTypeSelect(props: {
-  connectionTypeChoices: ConnectionType[]
-  connectionType: ConnectionType
-  setConnectionType: Function
-  assemblyNameChoices: string[]
-  assemblyName: string
-  setAssemblyName: Function
-}): JSX.Element {
+function ConnectionTypeSelect(props) {
   const {
     connectionTypeChoices,
     connectionType,
@@ -23,12 +15,10 @@ function ConnectionTypeSelect(props: {
     setAssemblyName,
   } = props
 
-  function handleChange(
-    event: React.ChangeEvent<{ name?: string; value: unknown }>,
-  ): void {
+  function handleChange(event) {
     setConnectionType(
       connectionTypeChoices.find(
-        (connectionTypeChoice: ConnectionType) =>
+        connectionTypeChoice =>
           connectionTypeChoice.name === event.target.value,
       ),
     )
@@ -42,7 +32,7 @@ function ConnectionTypeSelect(props: {
         helperText="Assembly to which the track will be added"
         select
         fullWidth
-        onChange={(event): void => setAssemblyName(event.target.value)}
+        onChange={event => setAssemblyName(event.target.value)}
         inputProps={{ 'data-testid': 'assemblyNameSelect' }}
       >
         {assemblyNameChoices.map(assemblyNameChoice => (
@@ -75,7 +65,7 @@ function ConnectionTypeSelect(props: {
         fullWidth
         onChange={handleChange}
       >
-        {connectionTypeChoices.map((connectionTypeChoice: ConnectionType) => (
+        {connectionTypeChoices.map(connectionTypeChoice => (
           <MenuItem
             key={connectionTypeChoice.name}
             value={connectionTypeChoice.name}
@@ -86,6 +76,25 @@ function ConnectionTypeSelect(props: {
       </TextField>
     </form>
   )
+}
+
+ConnectionTypeSelect.propTypes = {
+  connectionTypeChoices: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      description: PropTypes.string,
+      url: PropTypes.string,
+    }),
+  ).isRequired,
+  connectionType: PropTypes.shape({
+    name: PropTypes.string,
+    description: PropTypes.string,
+    url: PropTypes.string,
+  }).isRequired,
+  setConnectionType: PropTypes.func.isRequired,
+  assemblyNameChoices: PropTypes.arrayOf(PropTypes.string).isRequired,
+  assemblyName: PropTypes.string.isRequired,
+  setAssemblyName: PropTypes.func.isRequired,
 }
 
 export default ConnectionTypeSelect
