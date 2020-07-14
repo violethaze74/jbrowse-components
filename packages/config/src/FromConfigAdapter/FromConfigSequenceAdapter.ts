@@ -12,8 +12,12 @@ export default class FromSequenceConfigAdapter extends FromConfigAdapter {
    */
   getFeatures(region: NoAssemblyRegion) {
     const { start, end } = region
+    const superGetFeatures = super.getFeatures
     return ObservableCreate<Feature>(async observer => {
-      const feats = await super.getFeatures(region).pipe(toArray()).toPromise()
+      const feats = await superGetFeatures
+        .call(this, region)
+        .pipe(toArray())
+        .toPromise()
       const feat = feats[0]
       observer.next(
         new SimpleFeature({

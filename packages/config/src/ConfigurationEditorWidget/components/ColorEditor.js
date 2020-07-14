@@ -7,9 +7,9 @@ import React, { useState } from 'react'
 
 // this is needed because passing a entire color object into the react-color
 // for alpha, can't pass in an rgba string for example
-function serializeColor(color: Color) {
+function serializeColor(color) {
   if (color instanceof Object) {
-    const { r, g, b, a } = color as RGBColor
+    const { r, g, b, a } = color
     return `rgb(${r},${g},${b},${a})`
   }
   return color
@@ -28,10 +28,7 @@ const useStyles = makeStyles({
   },
 })
 
-export function ColorPicker(props: {
-  color: Color
-  onChange: (color: ColorResult) => void
-}) {
+export function ColorPicker(props) {
   const { color, onChange } = props
   const classes = useStyles()
   const [displayColorPicker, setDisplayColorPicker] = useState(true)
@@ -60,15 +57,7 @@ ColorPicker.propTypes = {
   onChange: ReactPropTypes.func.isRequired,
 }
 
-export const ColorSlot = (props: {
-  value: string
-  label: string
-  TextFieldProps: {
-    helperText: string
-    fullWidth: boolean
-  }
-  onChange: (arg: string) => void
-}) => {
+export const ColorSlot = props => {
   const { value, label, TextFieldProps, onChange } = props
   const [displayed, setDisplayed] = useState(false)
 
@@ -94,7 +83,7 @@ export const ColorSlot = (props: {
       {displayed ? (
         <ColorPicker
           color={value}
-          onChange={(event: ColorResult) => {
+          onChange={event => {
             onChange(serializeColor(event.rgb))
           }}
         />
@@ -114,20 +103,13 @@ ColorSlot.defaultProps = {
   TextFieldProps: {},
 }
 
-function ColorEditorSlot(props: {
-  slot: {
-    name: string
-    value: string
-    description: string
-    set: (arg: string) => void
-  }
-}) {
+function ColorEditorSlot(props) {
   const { slot } = props
   return (
     <ColorSlot
       label={slot.name}
       value={slot.value}
-      onChange={(color: string) => {
+      onChange={color => {
         slot.set(color)
       }}
       TextFieldProps={{
