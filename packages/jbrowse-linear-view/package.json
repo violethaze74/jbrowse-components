@@ -23,7 +23,7 @@
   "dependencies": {
     "@gmod/jbrowse-core": "^2.0.0",
     "@gmod/jbrowse-plugin-alignments": "^2.0.0",
-    "@gmod/jbrowse-plugin-bed": "^2.0.0",
+    "@gmod/jbrowse-plugin-bed": "^0.0.1",
     "@gmod/jbrowse-plugin-config": "^0.0.1",
     "@gmod/jbrowse-plugin-data-management": "^0.0.1",
     "@gmod/jbrowse-plugin-gff3": "^0.0.1",

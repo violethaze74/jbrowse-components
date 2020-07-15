@@ -1,5 +1,5 @@
 {
-  "name": "@gmod/jbrowse-plugin-bed",
+  "name": "@gmod/jbrowse-plugin-bed-old",
   "version": "2.0.0",
   "description": "JBrowse 2 bed adapters, tracks, etc.",
   "main": "src/index.ts",
