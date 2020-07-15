@@ -11,7 +11,8 @@ const stateModel = types
     featureData: types.frozen({}),
   })
   .actions(self => ({
-    setFeatureData(data) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setFeatureData(data: Record<string, any>) {
       self.featureData = data
     },
     clearFeatureData() {

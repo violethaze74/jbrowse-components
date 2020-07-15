@@ -1,9 +1,9 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import Typography from '@material-ui/core/Typography'
-import { PileupTrackModel } from '../model'
 
-function TrackBlurb(props: { model: PileupTrackModel }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function TrackBlurb(props: { model: any }) {
   const { model } = props
   return (
     <div

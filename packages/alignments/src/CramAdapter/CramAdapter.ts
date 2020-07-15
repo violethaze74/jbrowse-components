@@ -10,7 +10,6 @@ import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { ObservableCreate } from '@gmod/jbrowse-core/util/rxjs'
 import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import { toArray } from 'rxjs/operators'
-import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import { AnyConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
 import { getSubAdapterType } from '@gmod/jbrowse-core/data_adapters/dataAdapterCache'
 import CramSlightlyLazyFeature from './CramSlightlyLazyFeature'
@@ -20,13 +19,13 @@ interface HeaderLine {
   value: string
 }
 
-interface Header {
+export interface Header {
   idToName?: string[]
   nameToId?: Record<string, number>
 }
 
-export default (pluginManager: PluginManager) => {
-  class CramAdapter extends BaseFeatureDataAdapter {
+export default () => {
+  return class CramAdapterClass extends BaseFeatureDataAdapter {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private cram: any
 
@@ -231,5 +230,4 @@ export default (pluginManager: PluginManager) => {
       return new CramSlightlyLazyFeature(record, this)
     }
   }
-  return CramAdapter
 }

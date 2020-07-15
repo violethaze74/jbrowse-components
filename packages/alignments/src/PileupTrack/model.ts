@@ -17,7 +17,6 @@ import { ContentCopy as ContentCopyIcon } from '@gmod/jbrowse-core/ui/Icons'
 import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types, Instance } from 'mobx-state-tree'
 import copy from 'copy-to-clipboard'
-import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import SortIcon from '@material-ui/icons/Sort'
@@ -32,10 +31,7 @@ const rendererTypes = new Map([
   ['snpcoverage', 'SNPCoverageRenderer'],
 ])
 
-const stateModelFactory = (
-  pluginManager: PluginManager,
-  configSchema: PileupConfigModel,
-) =>
+const stateModelFactory = (configSchema: PileupConfigModel) =>
   types
     .compose(
       'PileupTrack',

@@ -19,7 +19,7 @@ interface HeaderLine {
   tag: string
   value: string
 }
-interface Header {
+export interface Header {
   idToName?: string[]
   nameToId?: Record<string, number>
 }

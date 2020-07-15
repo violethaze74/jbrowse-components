@@ -7,7 +7,7 @@ import {
 import { ClassReturnedBy } from '@gmod/jbrowse-core/util'
 import CramAdapterF from './CramAdapter'
 
-type CramAdapter = ClassReturnedBy<typeof CramAdapterF>
+export type CramAdapterType = ClassReturnedBy<typeof CramAdapterF>
 
 export interface Mismatch {
   start: number
@@ -23,10 +23,10 @@ export default class CramSlightlyLazyFeature implements Feature {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private record: any
 
-  private _store: CramAdapter
+  private _store: CramAdapterType
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(record: any, store: CramAdapter) {
+  constructor(record: any, store: CramAdapterType) {
     this.record = record
     this._store = store
   }

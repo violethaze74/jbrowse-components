@@ -44,7 +44,7 @@ export default class AlignmentsPlugin extends Plugin {
         name: 'PileupTrack',
         compatibleView: 'LinearGenomeView',
         configSchema,
-        stateModel: pileupTrackModelFactory(pluginManager, configSchema),
+        stateModel: pileupTrackModelFactory(configSchema),
       })
     })
     pluginManager.addWidgetType(
