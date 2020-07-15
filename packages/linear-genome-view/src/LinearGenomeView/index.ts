@@ -20,7 +20,12 @@ import {
 import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
 import { doesIntersect2 } from '@gmod/jbrowse-core/util/range'
 import { transaction } from 'mobx'
-import { getSnapshot, types, cast, Instance } from 'mobx-state-tree'
+import {
+  getSnapshot,
+  types,
+  cast,
+  Instance,
+} from 'mobx-state-tree'
 
 import { AnyConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
@@ -42,7 +47,7 @@ export interface LGVMenuOption {
   checked?: boolean
   isCheckbox: boolean
 }
-interface BpOffset {
+export interface BpOffset {
   refName?: string
   index: number
   offset: number
@@ -50,7 +55,7 @@ interface BpOffset {
   end?: number
 }
 
-interface NavLocation {
+export interface NavLocation {
   refName: string
   start?: number
   end?: number

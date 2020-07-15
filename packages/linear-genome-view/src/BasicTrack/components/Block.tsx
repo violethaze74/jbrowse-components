@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { observer } from 'mobx-react'
 import PropTypes from 'prop-types'
 import React from 'react'
+import { BaseBlock } from '../util/blockTypes'
 
 const useStyles = makeStyles({
   block: {
@@ -13,7 +14,7 @@ const useStyles = makeStyles({
   },
 })
 
-function Block(props) {
+function Block(props: { block: BaseBlock; children: React.ReactNode }) {
   const { block, children } = props
   const classes = useStyles()
   return (
@@ -32,7 +33,7 @@ Block.defaultProps = {
   children: undefined,
 }
 Block.propTypes = {
-  block: PropTypes.shape().isRequired,
+  block: PropTypes.shape({}).isRequired,
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node),

@@ -103,7 +103,7 @@ const TrackLabel = React.forwardRef(
     }
 
     function handleMenuItemClick(
-      event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+      _: React.MouseEvent<HTMLLIElement, MouseEvent>,
       callback: Function,
     ) {
       callback()

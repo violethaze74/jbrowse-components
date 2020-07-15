@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export const ElidedBlockMarker = ({ width }) => {
+export const ElidedBlockMarker = ({ width }: { width: number }) => {
   const classes = useStyles()
   return <div className={classes.elidedBlock} style={{ width: `${width}px` }} />
 }
@@ -28,7 +28,15 @@ ElidedBlockMarker.propTypes = {
   width: ReactPropTypes.number.isRequired,
 }
 
-export const InterRegionPaddingBlockMarker = ({ boundary, width, style }) => {
+export const InterRegionPaddingBlockMarker = ({
+  boundary,
+  width,
+  style,
+}: {
+  boundary: boolean
+  width: number
+  style: React.CSSProperties
+}) => {
   const classes = useStyles()
   return (
     <div
@@ -47,7 +55,7 @@ export const InterRegionPaddingBlockMarker = ({ boundary, width, style }) => {
 InterRegionPaddingBlockMarker.propTypes = {
   boundary: ReactPropTypes.bool,
   width: ReactPropTypes.number.isRequired,
-  style: ReactPropTypes.shape(),
+  style: ReactPropTypes.shape({}),
 }
 
 InterRegionPaddingBlockMarker.defaultProps = {

@@ -42,7 +42,7 @@ function ZoomControls({ model }: { model: LGV }) {
         value={-Math.log2(model.bpPerPx)}
         min={-Math.log2(model.maxBpPerPx)}
         max={-Math.log2(model.minBpPerPx)}
-        onChange={(event, value) => model.zoomTo(2 ** -value)}
+        onChange={(_, value) => model.zoomTo(2 ** -value)}
       />
       <IconButton
         data-testid="zoom_in"

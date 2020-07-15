@@ -182,7 +182,7 @@ function RubberBand({
   const open = Boolean(anchorPosition)
 
   function handleMenuItemClick(
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    _: React.MouseEvent<HTMLLIElement, MouseEvent>,
     callback: Function,
   ) {
     callback()

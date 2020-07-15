@@ -1,13 +1,26 @@
 {
   "name": "@gmod/jbrowse-plugin-linear-genome-view",
-  "version": "2.0.0",
   "description": "JBrowse 2 linear genome view",
-  "main": "src/index.ts",
-  "scripts": {
-    "test": "cd ../..; jest packages/linear-genome-view"
-  },
-  "author": "Robert Buels",
+  "author": "JBrowse Team",
+  "version": "0.0.1",
   "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/jbrowse-plugin-linear-genome-view.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "prepare": "tsdx build",
+    "storybook": "start-storybook -s ./public -p 6006",
+    "build-storybook": "build-storybook"
+  },
   "dependencies": {
     "@material-ui/icons": "^4.9.1",
     "clone": "^2.1.2",
