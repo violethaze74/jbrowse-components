@@ -2,7 +2,7 @@ import { observer } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
 import TextField from '@material-ui/core/TextField'
 import { makeStyles } from '@material-ui/core/styles'
-import { ChromePicker, Color, ColorResult, RGBColor } from 'react-color'
+import { ChromePicker } from 'react-color'
 import React, { useState } from 'react'
 
 // this is needed because passing a entire color object into the react-color

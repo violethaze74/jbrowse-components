@@ -20,12 +20,7 @@ import {
 import { getParentRenderProps } from '@gmod/jbrowse-core/util/tracks'
 import { doesIntersect2 } from '@gmod/jbrowse-core/util/range'
 import { transaction } from 'mobx'
-import {
-  getSnapshot,
-  types,
-  cast,
-  Instance,
-} from 'mobx-state-tree'
+import { getSnapshot, types, cast, Instance } from 'mobx-state-tree'
 
 import { AnyConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
 import PluginManager from '@gmod/jbrowse-core/PluginManager'

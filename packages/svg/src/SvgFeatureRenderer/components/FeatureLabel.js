@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 
 export default function Label(props) {
@@ -36,4 +37,22 @@ export default function Label(props) {
         : text}
     </text>
   )
+}
+
+Label.propTypes = {
+  text: PropTypes.string.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  color: PropTypes.string,
+  fontHeight: PropTypes.number,
+  featureWidth: PropTypes.number.isRequired,
+  reversed: PropTypes.bool.isRequired,
+  allowedWidthExpansion: PropTypes.string.isRequired,
+  fontWidthScaleFactor: PropTypes.number,
+}
+
+Label.defaultProps = {
+  color: 'black',
+  fontHeight: 13,
+  fontWidthScaleFactor: 0.6,
 }

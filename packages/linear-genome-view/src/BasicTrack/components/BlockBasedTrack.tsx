@@ -41,7 +41,7 @@ const Tooltip = observer(
 )
 
 type Coord = [number, number]
-export function BlockBasedTrack(props: {
+export function BlockBasedTrackInternal(props: {
   model: BlockBasedTrackModel
   children: React.ReactNode
 }) {
@@ -109,14 +109,14 @@ export function BlockBasedTrack(props: {
   )
 }
 
-BlockBasedTrack.propTypes = {
+BlockBasedTrackInternal.propTypes = {
   model: MobxPropTypes.objectOrObservableObject.isRequired,
   children: PropTypes.node,
 }
 
-BlockBasedTrack.defaultProps = {
+BlockBasedTrackInternal.defaultProps = {
   children: null,
 }
 
-export default observer(BlockBasedTrack)
+export default observer(BlockBasedTrackInternal)
 export { Tooltip }
