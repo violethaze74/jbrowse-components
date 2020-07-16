@@ -3,13 +3,13 @@ import CompositeMap from '@gmod/jbrowse-core/util/compositeMap'
 
 import { MenuOption } from '@gmod/jbrowse-core/ui'
 import { getSession } from '@gmod/jbrowse-core/util'
-import { LinearGenomeViewStateModel } from '@gmod/jbrowse-plugin-linear-genome-view/src/LinearGenomeView'
+import { LinearGenomeViewStateModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types, Instance } from 'mobx-state-tree'
 import { transaction } from 'mobx'
 import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 
-import { BaseTrackStateModel } from '@gmod/jbrowse-plugin-linear-genome-view/src/BasicTrack/baseTrackModel'
+import { BaseTrackStateModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import LineStyleIcon from '@material-ui/icons/LineStyle'
 

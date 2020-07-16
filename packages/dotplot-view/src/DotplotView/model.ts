@@ -1,6 +1,6 @@
 // typescript only imports, runtime imports below loaded via pluginManager
 import { Instance, SnapshotIn } from 'mobx-state-tree'
-import { BaseTrackStateModel } from '@gmod/jbrowse-plugin-linear-genome-view/src/BasicTrack/baseTrackModel'
+import { BaseTrackStateModel } from '@gmod/jbrowse-plugin-linear-genome-view'
 import { Base1DViewModel } from '@gmod/jbrowse-core/util/Base1DViewModel'
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
 

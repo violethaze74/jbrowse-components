@@ -27,6 +27,15 @@ import {
   WiggleGetMultiRegionStats,
 } from './WiggleTrack/rpcMethods'
 
+export { default as WiggleBaseRenderer } from './WiggleBaseRenderer'
+export { default as WiggleRenderingReactComponent } from './WiggleRendering'
+export { default as wiggleStateModelFactory } from './WiggleTrack/model'
+export { default as WiggleTrackComponent } from './WiggleTrack/components/WiggleTrackComponent'
+export { getOrigin, getScale } from './util'
+export type { ScaleOpts } from './util'
+export { blankStats, rectifyStats, scoresToStats } from './statsUtil'
+export type { FeatureStats } from './statsUtil'
+
 export default class extends Plugin {
   install(pluginManager: PluginManager) {
     pluginManager.addTrackType(() => {

@@ -14,13 +14,15 @@ import {
 
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import { ContentCopy as ContentCopyIcon } from '@gmod/jbrowse-core/ui/Icons'
-import { blockBasedTrackModel } from '@gmod/jbrowse-plugin-linear-genome-view'
+import {
+  blockBasedTrackModel,
+  LinearGenomeViewStateModel,
+} from '@gmod/jbrowse-plugin-linear-genome-view'
 import { types, Instance } from 'mobx-state-tree'
 import copy from 'copy-to-clipboard'
 import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import SortIcon from '@material-ui/icons/Sort'
-import { LinearGenomeViewModel } from '@gmod/jbrowse-plugin-linear-genome-view/src/LinearGenomeView'
 import { PileupConfigModel } from './configSchema'
 import PileupTrackBlurb from './components/PileupTrackBlurb'
 
@@ -82,9 +84,9 @@ const stateModelFactory = (configSchema: PileupConfigModel) =>
 
       async sortSelected(selected: string) {
         const { rpcManager } = getSession(self)
-        const { centerLineInfo } = getContainingView(
-          self,
-        ) as LinearGenomeViewModel
+        const { centerLineInfo } = getContainingView(self) as Instance<
+          LinearGenomeViewStateModel
+        >
         if (!centerLineInfo) {
           return
         }

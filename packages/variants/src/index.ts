@@ -17,6 +17,8 @@ import {
   modelFactory as variantTrackModelFactory,
 } from './VariantTrack'
 
+export { default as VcfFeature } from './VcfTabixAdapter/VcfFeature'
+
 export default class VariantsPlugin extends Plugin {
   install(pluginManager: PluginManager) {
     pluginManager.addAdapterType(

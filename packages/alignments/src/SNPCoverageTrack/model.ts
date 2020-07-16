@@ -1,6 +1,8 @@
 import { types } from 'mobx-state-tree'
-import wiggleStateModelFactory from '@gmod/jbrowse-plugin-wiggle/src/WiggleTrack/model'
-import WiggleTrackComponent from '@gmod/jbrowse-plugin-wiggle/src/WiggleTrack/components/WiggleTrackComponent'
+import {
+  wiggleStateModelFactory,
+  WiggleTrackComponent,
+} from '@gmod/jbrowse-plugin-wiggle'
 import Tooltip from './Tooltip'
 
 // using a map because it preserves order
