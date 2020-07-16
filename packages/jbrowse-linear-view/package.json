@@ -21,7 +21,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@gmod/jbrowse-core": "^2.0.0",
+    "@gmod/jbrowse-core": "^0.0.1-beta.17",
     "@gmod/jbrowse-plugin-alignments": "^0.0.1",
     "@gmod/jbrowse-plugin-bed": "^0.0.1",
     "@gmod/jbrowse-plugin-config": "^0.0.1",
