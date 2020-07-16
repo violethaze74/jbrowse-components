@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@gmod/bam": "^1.0.37",
-    "@gmod/jbrowse-core": "^0.0.1-beta.17",
+    "@gmod/jbrowse-core": "^2.0.0",
     "@gmod/jbrowse-plugin-alignments": "^0.0.1",
     "@gmod/jbrowse-plugin-bed": "^0.0.1",
     "@gmod/jbrowse-plugin-breakpoint-split-view": "^2.0.0",
