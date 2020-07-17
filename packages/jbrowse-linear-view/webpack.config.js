@@ -51,6 +51,8 @@ module.exports = {
   output: {
     path: distDir,
     filename: 'jbrowse-linear-view.js',
+    publicPath:
+      '//s3.amazonaws.com/jbrowse.org/jb2_releases/jbrowse-linear-view/jbrowse-linear-view%40v0.0.1-beta.0/umd/',
     sourceMapFilename: 'jbrowse-linear-view.js.map',
     library: 'JBrowseLinearView',
     libraryExport: 'default',
