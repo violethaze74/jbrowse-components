@@ -22,6 +22,16 @@ export function generateHierarchy(trackConfigurations) {
   return hierarchy
 }
 
+function arraysIntersect(array1, array2) {
+  const set1 = new Set(array1)
+  const set2 = new Set(array2)
+  const intersection = new Set([...set1].filter(x => set2.has(x)))
+  if (intersection.size) {
+    return true
+  }
+  return false
+}
+
 export default pluginManager =>
   types
     .model('HierarchicalTrackSelectorWidget', {
@@ -51,12 +61,19 @@ export default pluginManager =>
       trackConfigurations(assemblyName) {
         if (!self.view) return []
         const session = getSession(self)
+        const assembly = session.assemblyManager.get(assemblyName)
+        if (!assembly) {
+          return []
+        }
         const trackConfigurations = session.tracks
 
         const relevantTrackConfigurations = trackConfigurations.filter(
           conf =>
             conf.viewType === self.view.type &&
-            readConfObject(conf, 'assemblyNames').includes(assemblyName),
+            arraysIntersect(readConfObject(conf, 'assemblyNames'), [
+              assemblyName,
+              ...assembly.aliases,
+            ]),
         )
         return relevantTrackConfigurations
       },
