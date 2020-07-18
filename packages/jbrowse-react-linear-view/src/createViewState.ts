@@ -24,21 +24,23 @@ interface ViewStateOptions {
   configuration?: Record<string, unknown>
   plugins?: PluginConstructor[]
   location?: string | Location
-  defaultSession: SessionSnapshot
+  defaultSession?: SessionSnapshot
   onChange?: (patch: IJsonPatch, reversePatch: IJsonPatch) => void
 }
 
 export default function createViewState(opts: ViewStateOptions) {
-  const {
-    assembly,
-    tracks,
-    configuration,
-    plugins,
-    location,
-    defaultSession,
-    onChange,
-  } = opts
+  const { assembly, tracks, configuration, plugins, location, onChange } = opts
   const { model, pluginManager } = createModel(plugins || [])
+  let { defaultSession } = opts
+  if (!defaultSession) {
+    defaultSession = {
+      name: 'this session',
+      view: {
+        id: 'linearGenomeView',
+        type: 'LinearGenomeView',
+      },
+    }
+  }
   const stateSnapshot = {
     config: {
       configuration: {
