@@ -1,6 +1,6 @@
 import { PluginConstructor } from '@gmod/jbrowse-core/Plugin'
 import { autorun } from 'mobx'
-import { SnapshotIn, onPatch, IJsonPatch } from 'mobx-state-tree'
+import { SnapshotIn, onPatch, IJsonPatch, getSnapshot } from 'mobx-state-tree'
 import createModel, {
   createSessionModel,
   createConfigModel,
@@ -63,6 +63,14 @@ export default function createViewState(opts: ViewStateOptions) {
         stateTree.assemblyManager.allPossibleRefNames &&
         stateTree.assemblyManager.allPossibleRefNames.length
       ) {
+        if (!stateTree.session.view.displayedRegions.length) {
+          const assemblyState = stateTree.assemblyManager.assemblies[0]
+          const region =
+            assemblyState && assemblyState.regions && assemblyState.regions[0]
+          if (region) {
+            stateTree.session.view.setDisplayedRegions([getSnapshot(region)])
+          }
+        }
         if (typeof location === 'string') {
           stateTree.session.view.navToLocString(location)
         } else {
