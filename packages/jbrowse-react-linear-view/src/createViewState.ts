@@ -38,7 +38,7 @@ export default function createViewState(opts: ViewStateOptions) {
     defaultSession,
     onChange,
   } = opts
-  const model = createModel(plugins || [])
+  const { model, pluginManager } = createModel(plugins || [])
   const stateSnapshot = {
     config: {
       configuration: {
@@ -53,6 +53,8 @@ export default function createViewState(opts: ViewStateOptions) {
     session: defaultSession,
   }
   const stateTree = model.create(stateSnapshot)
+  pluginManager.setRootModel(stateTree)
+  pluginManager.configure()
   if (location) {
     autorun(reaction => {
       if (

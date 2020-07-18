@@ -23,7 +23,7 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
     ...assemblyConfigSchemas,
   )
   const assemblyManagerType = assemblyManagerFactory(assemblyConfigSchemasType)
-  return types
+  const rootModel = types
     .model('LinearView', {
       config: createConfigModel(pluginManager, assemblyConfigSchemasType),
       session: Session,
@@ -44,6 +44,12 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
       setError(errorMessage: string) {
         self.error = errorMessage
       },
+      setDefaultSession() {},
+    }))
+    .views(self => ({
+      get jbrowse() {
+        return self.config
+      },
     }))
     .volatile(self => ({
       rpcManager: new RpcManager(
@@ -55,4 +61,5 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
         { MainThreadRpcDriver: {} },
       ),
     }))
+  return { model: rootModel, pluginManager }
 }
