@@ -44,6 +44,6 @@ export default class JBrowseLinearView {
   }
 
   get view() {
-    return this.state && this.state.view
+    return this.state && this.state.session.view
   }
 }
