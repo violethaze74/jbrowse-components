@@ -112,12 +112,13 @@ export function Loader() {
 
   useEffect(() => {
     async function fetchConfig() {
-      const configLocation = {
-        uri: configQueryParam || 'config.json',
-      }
       let configText = ''
       try {
-        const location = openLocation(configLocation)
+        // @ts-ignore
+        const location = openLocation({
+          uri: configQueryParam || 'config.json',
+          params: {},
+        })
         configText = (await location.readFile('utf8')) as string
       } catch (error) {
         if (configQueryParam && configQueryParam !== 'config.json') {

@@ -215,6 +215,33 @@
     },
 
     {
+      "type": "AlignmentsTrack",
+      "trackId": "volvox_alignments_private",
+      "name": "volvox-sorted.bam (private)",
+      "category": ["Integration test"],
+      "assemblyNames": ["volvox"],
+      "adapter": {
+        "type": "BamAdapter",
+        "bamLocation": {
+          "uri": "http://localhost:4000/volvox-sorted.bam",
+          "params": {
+            "username": "admin",
+            "password": "password"
+          }
+        },
+        "index": {
+          "location": {
+            "uri": "http://localhost:4000/volvox-sorted.bam.bai",
+            "params": {
+              "username": "admin",
+              "password": "password"
+            }
+          }
+        }
+      }
+    },
+
+    {
       "type": "SNPCoverageTrack",
       "trackId": "volvox_bam_snpcoverage",
       "name": "volvox-sorted.bam (contigA SNPCoverage)",

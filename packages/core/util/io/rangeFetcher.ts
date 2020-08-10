@@ -122,3 +122,31 @@ export function openUrl(url: string): GenericFilehandle {
     fetch: globalCacheFetch,
   })
 }
+
+interface Location {
+  uri: string
+  params?: {
+    username?: string
+    password?: string
+    [key: string]: string
+  }
+}
+export function openUrlLocation(location: Location): GenericFilehandle {
+  const { uri, params } = location
+  const { username, password, ...rest } = params
+  console.log(location)
+  let overrides
+  if (username) {
+    const auth = btoa(`${username}:${password}`)
+    overrides = {
+      headers: {
+        ...rest,
+        Authorization: `Basic ${auth}`,
+      },
+    }
+  }
+  return new RemoteFile(String(uri), {
+    fetch: globalThis.fetch.bind(globalThis),
+    overrides,
+  })
+}

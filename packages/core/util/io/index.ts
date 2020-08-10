@@ -1,7 +1,8 @@
+/* eslint curly:error */
 import { LocalFile, BlobFile, GenericFilehandle } from 'generic-filehandle'
 import ElectronLocalFile from './ElectronLocalFile'
 import ElectronRemoteFile from './ElectronRemoteFile'
-import { openUrl as rangeFetcherOpenUrl } from './rangeFetcher'
+import { openUrl, openUrlLocation } from './rangeFetcher'
 import {
   FileLocation,
   LocalPathLocation,
@@ -9,8 +10,7 @@ import {
   BlobLocation,
 } from '../types'
 
-export const openUrl = rangeFetcherOpenUrl
-
+export { openUrlLocation, openUrl }
 declare global {
   interface Window {
     electron?: import('electron').AllElectron
@@ -34,15 +34,26 @@ function isBlobLocation(location: FileLocation): location is BlobLocation {
 }
 
 export function openLocation(location: FileLocation): GenericFilehandle {
-  if (!location) throw new Error('must provide a location to openLocation')
-  if (isElectron) {
-    if (isUriLocation(location)) return new ElectronRemoteFile(location.uri)
-    if (isLocalPathLocation(location))
-      return new ElectronLocalFile(location.localPath)
-  } else {
-    if (isUriLocation(location)) return openUrl(location.uri)
-    if (isLocalPathLocation(location)) return new LocalFile(location.localPath)
+  if (!location) {
+    throw new Error('must provide a location to openLocation')
   }
-  if (isBlobLocation(location)) return new BlobFile(location.blob)
+  if (isElectron) {
+    if (isUriLocation(location)) {
+      return new ElectronRemoteFile(location.uri)
+    }
+    if (isLocalPathLocation(location)) {
+      return new ElectronLocalFile(location.localPath)
+    }
+  } else {
+    if (isUriLocation(location)) {
+      return openUrlLocation(location)
+    }
+    if (isLocalPathLocation(location)) {
+      return new LocalFile(location.localPath)
+    }
+  }
+  if (isBlobLocation(location)) {
+    return new BlobFile(location.blob)
+  }
   throw new Error('invalid fileLocation')
 }
