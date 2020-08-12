@@ -76,6 +76,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
       ),
       showTrackLabels: true,
       showCenterLine: false,
+      showNoTracksMessage: true
     })
     .volatile(() => ({
       volatileWidth: undefined as number | undefined,
@@ -410,6 +411,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
         transaction(() => shownTracks.forEach(t => self.tracks.remove(t)))
         return shownTracks.length
       },
+
+      setShowNoTracksMessage(value:boolean) {
+        self.showNoTracksMessage=value
+      }
     }))
     .actions(self => ({
       moveTrack(movingTrackId: string, targetTrackId: string) {
