@@ -1,10 +1,4 @@
 {
-  "configuration": {
-    "rpc": {
-      "defaultDriver": "MainThreadRpcDriver"
-    },
-    "useUrlSession": true
-  },
   "assemblies": [
     {
       "name": "grape",

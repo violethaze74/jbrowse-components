@@ -45,6 +45,7 @@ const Overlays = observer(({ model }: Props) => {
     <>
       {model.tracks.map(track => {
         const { ReactComponent } = track
+        console.log(getConf(track, 'trackId'), track)
         return ReactComponent ? (
           <div
             className={classes.overlay}

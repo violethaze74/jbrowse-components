@@ -57,9 +57,12 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
   public getFeatures(region: Region, opts: BaseOptions = {}) {
     const { refName, start, end } = region
     const { signal } = opts
+    console.log({ region })
     return ObservableCreate<Feature>(async observer => {
       try {
         const parser = await this.parser
+
+        console.log('here1')
         const ob = await this.bigbed.getFeatureStream(refName, start, end, {
           signal,
           basesPerSpan: end - start,
@@ -73,6 +76,7 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
               rest?: string
               uniqueId?: string
             }) => {
+              console.log(r)
               const data = parser.parseLine(
                 `${refName}\t${r.start}\t${r.end}\t${r.rest}`,
                 {
@@ -99,8 +103,10 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
                   })
                 }
               }
+
               if (r.uniqueId === undefined)
                 throw new Error('invalid bbi feature')
+
               const f = new SimpleFeature({
                 id: `${this.id}-${r.uniqueId}`,
                 data: {
@@ -110,6 +116,8 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
                   refName,
                 },
               })
+
+              console.log({ f })
               return f.get('thickStart') ? ucscProcessedTranscript(f) : f
             },
           ),

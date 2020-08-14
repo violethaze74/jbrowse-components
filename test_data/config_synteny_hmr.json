@@ -11,12 +11,12 @@
             {
               "type": "LinearSyntenyTrack",
               "height": 100,
-              "configurn6ion": "hg38_vs_mm10"
+              "configuration": "hg38_vs_mm10"
             },
             {
               "type": "LinearSyntenyTrack",
               "height": 100,
-              "configurn6ion": "mm10_vs_rat"
+              "configuration": "mm10_vs_rn6"
             }
           ],
           "height": 400,
@@ -25,6 +25,7 @@
           "views": [
             {
               "type": "LinearGenomeView",
+              "id": "t3",
               "offsetPx": 28249,
               "bpPerPx": 1000,
               "displayedRegions": [
@@ -39,6 +40,7 @@
             },
             {
               "type": "LinearGenomeView",
+              "id": "t2",
               "offsetPx": 0,
               "bpPerPx": 1000,
               "displayedRegions": [
@@ -53,6 +55,7 @@
             },
             {
               "type": "LinearGenomeView",
+              "id": "t1",
               "offsetPx": 0,
               "bpPerPx": 1000,
               "displayedRegions": [
@@ -87,7 +90,6 @@
   "assemblies": [
     {
       "name": "hg38",
-      "aliases": ["GRCh38"],
       "sequence": {
         "type": "ReferenceSequenceTrack",
         "trackId": "hg38_seq",
@@ -105,14 +107,6 @@
         },
         "rendering": {
           "type": "DivSequenceRenderer"
-        }
-      },
-      "refNameAliases": {
-        "adapter": {
-          "type": "RefNameAliasAdapter",
-          "location": {
-            "uri": "test_data/GRCh38_RefSeq2UCSC.txt"
-          }
         }
       }
     },
@@ -144,9 +138,15 @@
         "trackId": "rn6_seq",
         "type": "ReferenceSequenceTrack",
         "adapter": {
-          "type": "TwoBitAdapter",
-          "twoBitLocation": {
-            "uri": "https://hgdownload.soe.ucsc.edu/goldenPath/rn6/bigZips/rn6.2bit"
+          "type": "BgzipFastaAdapter",
+          "fastaLocation": {
+            "uri": "https://jbrowse.org/genomes/rn6/fasta/rn6.fa.gz"
+          },
+          "faiLocation": {
+            "uri": "https://jbrowse.org/genomes/rn6/fasta/rn6.fa.gz.fai"
+          },
+          "gziLocation": {
+            "uri": "https://jbrowse.org/genomes/rn6/fasta/rn6.fa.gz.gzi"
           }
         },
         "rendering": {
@@ -202,13 +202,13 @@
             }
           }
         ],
-        "assemblyNames": ["hg38", "mm10"],
+        "assemblyNames": ["mm10", "rn6"],
         "type": "PairwiseLookup"
       },
       "renderer": {
         "type": "LinearSyntenyRenderer"
       },
-      "name": "hg38 vs mm10 (pairwise liftover)"
+      "name": "mm10 vs rn6 (pairwise liftover)"
     }
   ]
 }
