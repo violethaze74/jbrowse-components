@@ -1,12 +1,4 @@
 {
-  "defaultSession": {
-    "name": "New Session",
-    "menuBars": [
-      {
-        "type": "MainMenuBar"
-      }
-    ]
-  },
   "savedSessions": [
     {
       "name": "Grape vs Peach Demo",
@@ -216,9 +208,5 @@
         "type": "SvgFeatureRenderer"
       }
     }
-  ],
-  "configuration": {
-    "useUrlSession": true,
-    "useLocalStorage": false
-  }
+  ]
 }
