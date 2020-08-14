@@ -84,11 +84,17 @@ function LinearSyntenyRendering(props: {
       }),
     [features],
   )
+  // console.log({
+  //   deserializedFeatures: deserializedFeatures.map(level =>
+  //     level.map(f => f.get('syntenyId')),
+  //   ),
+  // })
 
   const parentView = getContainingView(trackModel) as LinearSyntenyViewModel
   const { views } = parentView
   const matches = layoutMatches(deserializedFeatures)
   const offsets = views.map(view => view.offsetPx)
+  console.log({ matches })
 
   useEffect(() => {
     if (!ref.current) {

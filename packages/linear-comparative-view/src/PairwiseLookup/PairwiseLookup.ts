@@ -3,41 +3,16 @@ import {
   BaseFeatureDataAdapter,
   BaseOptions,
 } from '@gmod/jbrowse-core/data_adapters/BaseAdapter'
-import {
-  FileLocation,
-  NoAssemblyRegion,
-  Region,
-} from '@gmod/jbrowse-core/util/types'
-import { doesIntersect2 } from '@gmod/jbrowse-core/util/range'
-import { GenericFilehandle } from 'generic-filehandle'
-import { openLocation } from '@gmod/jbrowse-core/util/io'
+import { Region } from '@gmod/jbrowse-core/util/types'
 import { ObservableCreate } from '@gmod/jbrowse-core/util/rxjs'
-import SimpleFeature, { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
-import AbortablePromiseCache from 'abortable-promise-cache'
-import QuickLRU from '@gmod/jbrowse-core/util/QuickLRU'
+import { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
 import { Instance } from 'mobx-state-tree'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { getSubAdapterType } from '@gmod/jbrowse-core/data_adapters/dataAdapterCache'
+import { toArray } from 'rxjs/operators'
 import MyConfigSchema from './configSchema'
 
-interface PafRecord {
-  records: NoAssemblyRegion[]
-  extra: {
-    blockLen: number
-    mappingQual: number
-    numMatches: number
-    strand: string
-  }
-}
-
-export default class PairwiseLiftover extends BaseFeatureDataAdapter {
-  private cache = new AbortablePromiseCache({
-    cache: new QuickLRU({ maxSize: 1 }),
-    fill: (data: BaseOptions, signal?: AbortSignal) => {
-      return this.setup({ ...data, signal })
-    },
-  })
-
+export default class PairwiseLookup extends BaseFeatureDataAdapter {
   private assemblyNames: string[]
 
   private subadapters: BaseFeatureDataAdapter[]
@@ -72,32 +47,11 @@ export default class PairwiseLiftover extends BaseFeatureDataAdapter {
   getFeatures(region: Region, opts: BaseOptions = {}) {
     return ObservableCreate<Feature>(async observer => {
       const index = this.assemblyNames.indexOf(region.assemblyName)
+      console.log({ index, region })
       if (index !== -1) {
         const ob = this.subadapters[index].getFeatures(region, opts)
-        ob.subscribe(observer)
-        // for (let i = 0; i < pafRecords.length; i++) {
-        //   const { extra, records } = pafRecords[i]
-        //   const { start, end, refName } = records[index]
-        //   if (records[index].refName === region.refName) {
-        //     if (doesIntersect2(region.start, region.end, start, end)) {
-        //       observer.next(
-        //         new SimpleFeature({
-        //           uniqueId: `row_${i}`,
-        //           start,
-        //           end,
-        //           refName,
-        //           syntenyId: i,
-        //           mate: {
-        //             start: records[+!index].start,
-        //             end: records[+!index].end,
-        //             refName: records[+!index].refName,
-        //           },
-        //           ...extra,
-        //         }),
-        //       )
-        //     }
-        //   }
-        // }
+        const feats = await ob.pipe(toArray()).toPromise()
+        feats.forEach(feat => observer.next(feat))
       }
 
       observer.complete()

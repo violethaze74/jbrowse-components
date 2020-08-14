@@ -28,7 +28,7 @@
                   "refName": "chr1",
                   "assemblyName": "hg38",
                   "start": 0,
-                  "end": 100000000
+                  "end": 250000000
                 }
               ],
               "hideHeader": true
@@ -43,7 +43,7 @@
                   "refName": "chr1",
                   "assemblyName": "mm10",
                   "start": 0,
-                  "end": 100000000
+                  "end": 1000000000
                 }
               ],
               "hideHeader": true

@@ -9,7 +9,7 @@ import { Region, FileLocation } from '@gmod/jbrowse-core/util/types'
 import { openLocation } from '@gmod/jbrowse-core/util/io'
 import { ObservableCreate } from '@gmod/jbrowse-core/util/rxjs'
 import SimpleFeature, { Feature } from '@gmod/jbrowse-core/util/simpleFeature'
-import { map, mergeAll } from 'rxjs/operators'
+import { map, toArray, mergeAll } from 'rxjs/operators'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
 import { Instance } from 'mobx-state-tree'
 import configSchema from './configSchema'
@@ -24,6 +24,13 @@ interface BEDFeature {
 
 interface Parser {
   parseLine: (line: string, opts: { uniqueId: string | number }) => BEDFeature
+}
+
+interface RawFeature {
+  start: number
+  end: number
+  rest?: string
+  uniqueId?: string
 }
 
 export default class BigBedAdapter extends BaseFeatureDataAdapter {
@@ -59,74 +66,67 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
   public getFeatures(region: Region, opts: BaseOptions = {}) {
     const { refName, start, end } = region
     const { signal } = opts
-    console.log({ region })
     return ObservableCreate<Feature>(async observer => {
       try {
         const parser = await this.parser
 
-        console.log('here1')
         const ob = await this.bigbed.getFeatureStream(refName, start, end, {
           signal,
           basesPerSpan: end - start,
         })
-        ob.pipe(
-          mergeAll(),
-          map(
-            (r: {
-              start: number
-              end: number
-              rest?: string
-              uniqueId?: string
-            }) => {
-              console.log(r)
-              const data = parser.parseLine(
-                `${refName}\t${r.start}\t${r.end}\t${r.rest}`,
-                {
-                  uniqueId: r.uniqueId as string,
-                },
-              )
 
-              const { blockCount, blockSizes, blockStarts, chromStarts } = data
+        const feats = await ob.pipe(toArray()).toPromise()
+        const features = feats.flat()
 
-              if (blockCount) {
-                const starts = chromStarts || blockStarts || []
-                const sizes = blockSizes
-                const blocksOffset = r.start
-                data.subfeatures = []
-
-                for (let b = 0; b < blockCount; b += 1) {
-                  const bmin = (starts[b] || 0) + blocksOffset
-                  const bmax = bmin + (sizes[b] || 0)
-                  data.subfeatures.push({
-                    uniqueId: `${r.uniqueId}-${b}`,
-                    start: bmin,
-                    end: bmax,
-                    type: 'block',
-                  })
-                }
-              }
-
-              if (r.uniqueId === undefined)
-                throw new Error('invalid bbi feature')
-
-              const f = new SimpleFeature({
-                id: `${this.id}-${r.uniqueId}`,
-                data: {
-                  ...data,
-                  start: r.start,
-                  end: r.end,
-                  refName,
-                },
-              })
-
-              console.log({ f })
-              return f.get('thickStart') ? ucscProcessedTranscript(f) : f
+        features.map((r: RawFeature) => {
+          const data = parser.parseLine(
+            `${refName}\t${r.start}\t${r.end}\t${r.rest}`,
+            {
+              uniqueId: r.uniqueId as string,
             },
-          ),
-        ).subscribe(observer)
+          )
+
+          const { blockCount, blockSizes, blockStarts, chromStarts } = data
+
+          if (blockCount) {
+            const starts = chromStarts || blockStarts || []
+            const sizes = blockSizes
+            const blocksOffset = r.start
+            data.subfeatures = []
+
+            for (let b = 0; b < blockCount; b += 1) {
+              const bmin = (starts[b] || 0) + blocksOffset
+              const bmax = bmin + (sizes[b] || 0)
+              data.subfeatures.push({
+                uniqueId: `${r.uniqueId}-${b}`,
+                start: bmin,
+                end: bmax,
+                type: 'block',
+              })
+            }
+          }
+
+          if (r.uniqueId === undefined) {
+            throw new Error('invalid bbi feature')
+          }
+
+          const f = new SimpleFeature({
+            id: `${this.id}-${r.uniqueId}`,
+            data: {
+              ...data,
+              start: r.start,
+              end: r.end,
+              syntenyId: +data.name,
+              refName,
+            },
+          })
+
+          observer.next(f.get('thickStart') ? ucscProcessedTranscript(f) : f)
+        })
       } catch (e) {
         observer.error(e)
       }
+      observer.complete()
     }, opts.signal)
   }
 
