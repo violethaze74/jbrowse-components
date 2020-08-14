@@ -47,11 +47,13 @@ export default class BigBedAdapter extends BaseFeatureDataAdapter {
   }
 
   public async getRefNames() {
-    return Object.keys((await this.bigbed.getHeader()).refsByName)
+    const { refsByName } = await this.bigbed.getHeader()
+    return Object.keys(refsByName)
   }
 
   public async refIdToName(refId: number) {
-    return ((await this.bigbed.getHeader()).refsByNumber[refId] || {}).name
+    const { refsByNumber } = this.bigbed.getHeader()
+    return (refsByNumber[refId] || {}).name
   }
 
   public getFeatures(region: Region, opts: BaseOptions = {}) {
