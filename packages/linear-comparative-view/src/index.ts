@@ -1,8 +1,7 @@
-import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
-import AdapterType from '@gmod/jbrowse-core/pluggableElementTypes/AdapterType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import CalendarIcon from '@material-ui/icons/CalendarViewDay'
+import PluginManager from '@gmod/jbrowse-core/PluginManager'
 
 import {
   AbstractViewContainer,
@@ -16,10 +15,7 @@ import {
   configSchemaFactory as syntenyTrackConfigSchemaFactory,
   stateModelFactory as syntenyTrackStateModelFactory,
 } from './LinearSyntenyTrack'
-import {
-  configSchema as MCScanAnchorsConfigSchema,
-  AdapterClass as MCScanAnchorsAdapter,
-} from './MCScanAnchorsAdapter'
+
 import LinearSyntenyRenderer, {
   configSchema as linearSyntenyRendererConfigSchema,
   ReactComponent as LinearSyntenyRendererReactComponent,
@@ -34,6 +30,12 @@ export default class extends Plugin {
     )
     pluginManager.addViewType(() =>
       pluginManager.jbrequire(require('./LinearSyntenyView')),
+    )
+    pluginManager.addAdapterType(() =>
+      pluginManager.jbrequire(require('./PairwiseLookup')),
+    )
+    pluginManager.addAdapterType(() =>
+      pluginManager.jbrequire(require('./MCScanAnchorsAdapter')),
     )
 
     pluginManager.addTrackType(() => {
@@ -57,14 +59,7 @@ export default class extends Plugin {
         stateModel: syntenyTrackStateModelFactory(pluginManager, configSchema),
       })
     })
-    pluginManager.addAdapterType(
-      () =>
-        new AdapterType({
-          name: 'MCScanAnchorsAdapter',
-          configSchema: MCScanAnchorsConfigSchema,
-          AdapterClass: MCScanAnchorsAdapter,
-        }),
-    )
+
     pluginManager.addRendererType(
       () =>
         new LinearSyntenyRenderer({

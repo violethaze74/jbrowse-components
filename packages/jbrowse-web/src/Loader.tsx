@@ -69,6 +69,11 @@ function NoConfigMessage() {
               </a>
             </li>
             <li>
+              <a href="?config=test_data/config_synteny_hmr.json">
+                human vs mouse vs rat synteny
+              </a>
+            </li>
+            <li>
               <a href="?config=test_data/config_synteny_grape_peach.json">
                 Grape/Peach Syteny
               </a>

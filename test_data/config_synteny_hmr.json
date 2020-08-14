@@ -9,7 +9,7 @@
   },
   "savedSessions": [
     {
-      "name": "Grape vs Peach Demo",
+      "name": "Human vs Mouse vs Rat Demo",
       "drawerWidth": 384,
       "views": [
         {
@@ -19,10 +19,16 @@
             {
               "type": "LinearSyntenyTrack",
               "height": 100,
-              "configuration": "grape_peach_synteny_mcscan"
+              "configuration": "human_vs_mouse"
+            },
+            {
+              "type": "LinearSyntenyTrack",
+              "height": 100,
+              "configuration": "mouse_vs_rat"
             }
           ],
-          "displayName": "Grape vs Peach",
+          "height": 400,
+          "displayName": "Human vs Mouse vs Rat",
           "trackSelectorType": "hierarchical",
           "views": [
             {
@@ -33,7 +39,7 @@
               "displayedRegions": [
                 {
                   "refName": "Pp01",
-                  "assemblyName": "peach",
+                  "assemblyName": "human",
                   "start": 0,
                   "end": 100000000
                 }
@@ -98,14 +104,51 @@
   ],
   "assemblies": [
     {
-      "name": "grape",
+      "name": "hg38",
+      "aliases": ["GRCh38"],
       "sequence": {
-        "trackId": "grape_seq",
         "type": "ReferenceSequenceTrack",
+        "trackId": "hg38_seq",
         "adapter": {
-          "type": "ChromSizesAdapter",
-          "chromSizesLocation": {
-            "uri": "test_data/grape.chrom.sizes"
+          "type": "BgzipFastaAdapter",
+          "fastaLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz"
+          },
+          "faiLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.fai"
+          },
+          "gziLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.gzi"
+          }
+        },
+        "rendering": {
+          "type": "DivSequenceRenderer"
+        }
+      },
+      "refNameAliases": {
+        "adapter": {
+          "type": "RefNameAliasAdapter",
+          "location": {
+            "uri": "test_data/GRCh38_RefSeq2UCSC.txt"
+          }
+        }
+      }
+    },
+    {
+      "name": "mm10",
+      "sequence": {
+        "type": "ReferenceSequenceTrack",
+        "trackId": "mm10_seq",
+        "adapter": {
+          "type": "BgzipFastaAdapter",
+          "fastaLocation": {
+            "uri": "https://jbrowse.org/genomes/mm10/fasta/mm10.prefix.fa.gz"
+          },
+          "faiLocation": {
+            "uri": "https://jbrowse.org/genomes/mm10/fasta/mm10.prefix.fa.gz.fai"
+          },
+          "gziLocation": {
+            "uri": "https://jbrowse.org/genomes/mm10/fasta/mm10.prefix.fa.gz.gzi"
           }
         },
         "rendering": {
@@ -114,14 +157,14 @@
       }
     },
     {
-      "name": "peach",
+      "name": "rn6",
       "sequence": {
-        "trackId": "peach_seq",
+        "trackId": "rn6_seq",
         "type": "ReferenceSequenceTrack",
         "adapter": {
-          "type": "ChromSizesAdapter",
-          "chromSizesLocation": {
-            "uri": "test_data/peach.chrom.sizes"
+          "type": "TwoBitAdapter",
+          "twoBitLocation": {
+            "uri": "https://hgdownload.soe.ucsc.edu/goldenPath/rn6/bigZips/rn6.2bit"
           }
         },
         "rendering": {
@@ -132,89 +175,50 @@
   ],
   "tracks": [
     {
-      "trackId": "grape_peach_synteny_mcscan",
+      "trackId": "human_vs_mouse",
       "type": "LinearSyntenyTrack",
-      "assemblyNames": ["peach", "grape"],
-      "trackIds": [],
-      "renderDelay": 100,
+      "assemblyNames": ["human", "mouse"],
       "adapter": {
-        "mcscanAnchorsLocation": {
-          "uri": "test_data/grape.peach.anchors"
-        },
         "subadapters": [
           {
-            "type": "NCListAdapter",
-            "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/peach_gene/{refseq}/trackData.json"
+            "type": "BigBedAdapter",
+            "bigBedLocation": "https://s3.amazonaws.com/jbrowse.org/genomes/synteny/hg38.mm10.bigChain.bb"
           },
           {
-            "type": "NCListAdapter",
-            "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/grape_gene/{refseq}/trackData.json"
+            "type": "BigBedAdapter",
+            "rootUrlTemplate": "https://s3.amazonaws.com/jbrowse.org/genomes/synteny/mm10.hg38.bigChain.bb"
           }
         ],
-        "assemblyNames": ["peach", "grape"],
-        "type": "MCScanAnchorsAdapter"
+        "assemblyNames": ["human", "mouse"],
+        "type": "PairwiseLookup"
       },
       "renderer": {
         "type": "LinearSyntenyRenderer"
       },
-      "name": "Grape peach synteny (MCScan)",
-      "category": ["Annotation"]
+      "name": "Human vs mouse (pairwise liftover)"
     },
     {
-      "trackId": "peach_genes",
-      "type": "BasicTrack",
-      "assemblyNames": ["peach"],
-      "name": "mcscan",
-      "category": ["Annotation"],
+      "trackId": "mouse_vs_rat",
+      "type": "LinearSyntenyTrack",
+      "assemblyNames": ["mouse", "rat"],
       "adapter": {
-        "type": "NCListAdapter",
-        "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/peach_gene/{refseq}/trackData.json"
+        "subadapters": [
+          {
+            "type": "BigBedAdapter",
+            "bigBedLocation": "https://s3.amazonaws.com/jbrowse.org/genomes/synteny/mm10.rn6.bigChain.bb"
+          },
+          {
+            "type": "BigBedAdapter",
+            "rootUrlTemplate": "https://s3.amazonaws.com/jbrowse.org/genomes/synteny/rn6.mm10.bigChain.bb"
+          }
+        ],
+        "assemblyNames": ["human", "mouse"],
+        "type": "PairwiseLookup"
       },
       "renderer": {
-        "type": "PileupRenderer"
-      }
-    },
-    {
-      "trackId": "peach_genes2",
-      "type": "BasicTrack",
-      "assemblyNames": ["peach"],
-      "name": "mcscan2",
-      "category": ["Annotation"],
-      "adapter": {
-        "type": "NCListAdapter",
-        "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/peach_gene/{refseq}/trackData.json"
+        "type": "LinearSyntenyRenderer"
       },
-      "renderer": {
-        "type": "SvgFeatureRenderer"
-      }
-    },
-    {
-      "trackId": "grape_genes",
-      "type": "BasicTrack",
-      "name": "mcscan",
-      "assemblyNames": ["grape"],
-      "category": ["Annotation"],
-      "adapter": {
-        "type": "NCListAdapter",
-        "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/grape_gene/{refseq}/trackData.json"
-      },
-      "renderer": {
-        "type": "PileupRenderer"
-      }
-    },
-    {
-      "trackId": "grape_genes2",
-      "type": "BasicTrack",
-      "name": "mcscan2",
-      "category": ["Annotation"],
-      "assemblyNames": ["grape"],
-      "adapter": {
-        "type": "NCListAdapter",
-        "rootUrlTemplate": "https://jbrowse.org/genomes/synteny/grape_gene/{refseq}/trackData.json"
-      },
-      "renderer": {
-        "type": "SvgFeatureRenderer"
-      }
+      "name": "Human vs mouse (pairwise liftover)"
     }
   ],
   "configuration": {

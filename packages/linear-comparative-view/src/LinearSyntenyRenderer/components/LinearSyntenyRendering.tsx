@@ -28,8 +28,10 @@ function layoutMatches(features: Feature[][]) {
   for (let i = 0; i < features.length; i++) {
     for (let j = i; j < features.length; j++) {
       if (i !== j) {
-        for (const [f1, f2] of generateMatches(features[i], features[j], feat =>
-          feat.get('syntenyId'),
+        for (const [f1, f2] of generateMatches(
+          features[i],
+          features[j],
+          feat => feat.get('syntenyId') || feat.get('name'),
         )) {
           matches.push([
             {
