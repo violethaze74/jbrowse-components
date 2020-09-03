@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "cross-env NODE_ENV=production lerna run build",
+    "build": "cross-env NODE_ENV=production lerna run build --stream",
     "lerna-publish": "cross-env lerna publish",
     "lint": "eslint --report-unused-disable-directives --max-warnings 0 --ext .js,.ts,.jsx,.tsx .",
     "runprettier": "prettier --write \"./**/*.{css,scss,md}\"",
