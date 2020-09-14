@@ -1,0 +1,27 @@
+name: Website
+
+on:
+  push
+  # push:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - products/website/**
+  #     - products/jbrowse-cli/README.md
+
+jobs:
+  website:
+    name: Update website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: Install deps and build (with cache)
+        uses: bahmutov/npm-install@v1
+      - name: Install website deps
+        run: sudo apt install make pandoc texlive-latex-extra
+      - name: Build website
+        run: cd products/website/ && yarn build
