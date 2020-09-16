@@ -522,6 +522,23 @@
     },
     {
       "type": "AlignmentsTrack",
+      "trackId": "skbr3_bam",
+      "name": "SKRBR3 starfusion",
+      "assemblyNames": ["hg38"],
+      "adapter": {
+        "type": "BamAdapter",
+        "bamLocation": {
+          "uri": "test_data/Aligned.out.sort.bam"
+        },
+        "index": {
+          "location": {
+            "uri": "test_data/Aligned.out.sort.bam.bai"
+          }
+        }
+      }
+    },
+    {
+      "type": "AlignmentsTrack",
       "trackId": "deep_hg19_bam",
       "name": "Deep sequence chr17:41195312..41276764",
       "assemblyNames": ["hg19"],
