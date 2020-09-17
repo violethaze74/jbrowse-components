@@ -1708,6 +1708,38 @@
           "indexType": "TBI"
         }
       }
+    },
+    {
+      "type": "AlignmentsTrack",
+      "trackId": "SKBR3-rnaseq",
+      "name": "SKBR3-rnaseq",
+      "assemblyNames": ["hg19"],
+      "category": ["SKBR3"],
+      "metadata": {
+        "source": "https://data.broadinstitute.org/Trinity/STAR_FUSION_PAPER/SupplementaryData/cancer_cell_lines/FASTQ/",
+        "aligner": "HISAT2"
+      },
+      "adapter": {
+        "type": "CramAdapter",
+        "cramLocation": {
+          "uri": "https://s3.amazonaws.com/jbrowse.org/genomes/hg19/skbr3/SKBR3-rnaseq.cram"
+        },
+        "craiLocation": {
+          "uri": "https://s3.amazonaws.com/jbrowse.org/genomes/hg19/skbr3/SKBR3-rnaseq.cram.crai"
+        },
+        "sequenceAdapter": {
+          "type": "BgzipFastaAdapter",
+          "fastaLocation": {
+            "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz"
+          },
+          "faiLocation": {
+            "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.fai"
+          },
+          "gziLocation": {
+            "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.gzi"
+          }
+        }
+      }
     }
   ],
   "connections": [],
