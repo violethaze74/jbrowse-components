@@ -299,7 +299,7 @@ export default pluginManager => {
               // these are installed into the child SpreadsheetView using an autorun below
               [
                 {
-                  label: 'Open split detail view',
+                  label: 'Open breakpoint split view',
                   icon: OpenInNewIcon,
                   disabled(spreadsheetView, spreadsheet, rowNumber, row) {
                     return !canOpenBreakpointSplitViewFromTableRow(
