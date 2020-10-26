@@ -13,6 +13,7 @@ import {
   blockBasedTrackModel,
   LinearGenomeViewModel,
 } from '@jbrowse/plugin-linear-genome-view'
+import { MenuItem } from '@jbrowse/core/ui'
 import { autorun, observable } from 'mobx'
 import {
   addDisposer,
@@ -63,30 +64,33 @@ const stateModelFactory = (configSchema: ReturnType<typeof ConfigSchemaF>) =>
           ready: false,
           message: undefined as undefined | string,
           stats: observable({ scoreMin: 0, scoreMax: 50 }),
+          resolution: 1,
           statsFetchInProgress: undefined as undefined | AbortController,
         })),
     )
-    .actions(self => {
-      return {
-        updateStats(stats: { scoreMin: number; scoreMax: number }) {
-          self.stats.scoreMin = stats.scoreMin
-          self.stats.scoreMax = stats.scoreMax
-          self.ready = true
-        },
+    .actions(self => ({
+      updateStats(stats: { scoreMin: number; scoreMax: number }) {
+        self.stats.scoreMin = stats.scoreMin
+        self.stats.scoreMax = stats.scoreMax
+        self.ready = true
+      },
 
-        setLoading(aborter: AbortController) {
-          if (
-            self.statsFetchInProgress !== undefined &&
-            !self.statsFetchInProgress.signal.aborted
-          ) {
-            self.statsFetchInProgress.abort()
-          }
-          self.statsFetchInProgress = aborter
-        },
-      }
-    })
+      setLoading(aborter: AbortController) {
+        if (
+          self.statsFetchInProgress !== undefined &&
+          !self.statsFetchInProgress.signal.aborted
+        ) {
+          self.statsFetchInProgress.abort()
+        }
+        self.statsFetchInProgress = aborter
+      },
+      setResolution(num: number) {
+        self.resolution = num
+      },
+    }))
     .views(self => {
       let oldDomain: [number, number] = [0, 0]
+      const { trackMenuItems } = self
       return {
         get TooltipComponent(): React.FC {
           return (Tooltip as unknown) as React.FC
@@ -120,6 +124,24 @@ const stateModelFactory = (configSchema: ReturnType<typeof ConfigSchemaF>) =>
             oldDomain = ret
           }
           return oldDomain
+        },
+
+        get trackMenuItems(): MenuItem[] {
+          return [
+            ...trackMenuItems,
+            {
+              label: 'Increase bigwig resolution',
+              onClick: () => {
+                self.setResolution(self.resolution / 2)
+              },
+            },
+            {
+              label: 'Decrease bigwig resolution',
+              onClick: () => {
+                self.setResolution(self.resolution * 2)
+              },
+            },
+          ]
         },
 
         get needsScalebar() {
