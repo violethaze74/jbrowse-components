@@ -12,7 +12,7 @@
             "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz"
           },
           "faiLocation": {
-            "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.fai"
+            "uri": "hg19_core_chr.fa.gz.fai"
           },
           "gziLocation": {
             "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.gzi"

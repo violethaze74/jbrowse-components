@@ -13,7 +13,7 @@
             "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz"
           },
           "faiLocation": {
-            "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.fai"
+            "uri": "hg19_core_chr.fa.gz.fai"
           },
           "gziLocation": {
             "uri": "https://jbrowse.org/genomes/hg19/fasta/hg19.fa.gz.gzi"
@@ -44,7 +44,7 @@
             "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz"
           },
           "faiLocation": {
-            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.fai"
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix_core_chr.fa.gz.fai"
           },
           "gziLocation": {
             "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.gzi"
