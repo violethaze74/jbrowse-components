@@ -32,7 +32,7 @@ import JBrowse from './JBrowse'
 import JBrowseRootModelFactory from './rootModel'
 import packagedef from '../package.json'
 import factoryReset from './factoryReset'
-import StartScreen from './StartScreen'
+// import StartScreen from './StartScreen'
 
 if (!window.TextEncoder) {
   window.TextEncoder = TextEncoder
@@ -407,27 +407,14 @@ const Renderer = observer(
                 pasting their URL`,
               )
             }
-            console.log(rootModel?.session)
-            if (rootModel.session?.views.length === 0) {
-              console.log(rootModel?.session)
-              setDefaultScreen(true)
-            }
-            console.log('screen?', defaultScreen)
+            setDefaultScreen(true)
           } else if (sessionSnapshot) {
             rootModel.setSession(loader.sessionSnapshot)
             setDefaultScreen(false)
-            console.log('screen?', defaultScreen)
+          } else {
+            rootModel.setDefaultSession()
+            setDefaultScreen(true)
           }
-          // else {
-          //   rootModel.setDefaultSession()
-          //   console.log(rootModel?.session)
-
-          //   if (rootModel.session?.views.length === 0) {
-          //     console.log(rootModel?.session)
-          //     setDefaultScreen(true)
-          //   }
-          //   console.log('screen?', defaultScreen)
-          // }
           // } else {
           //   // we want to default to the splash screen when there are default views
           //   if (rootModel.session?.views.length === 0) {
@@ -502,22 +489,21 @@ const Renderer = observer(
     if (pm) {
       // will need to account for when a session is not loaded
       // if (sessionError) or if (pm.rootModel?.session === undefined)
-      console.log('screen?', defaultScreen)
-      if (
-        sessionError ||
-        pm.rootModel?.session === undefined ||
-        defaultScreen
-      ) {
-        return (
-          <StartScreen
-            root={pm.rootModel}
-            pluginManager={pm}
-            bypass
-            onFactoryReset={factoryReset}
-          />
-        )
-      }
-      return <JBrowse pluginManager={pm} />
+      // if (
+      //   sessionError ||
+      //   pm.rootModel?.session === undefined ||
+      //   defaultScreen
+      // ) {
+      //   return (
+      //     <StartScreen
+      //       root={pm.rootModel}
+      //       pluginManager={pm}
+      //       bypass
+      //       onFactoryReset={factoryReset}
+      //     />
+      //   )
+      // }
+      return <JBrowse pluginManager={pm} defaultScreen={defaultScreen} />
     }
     return <Loading />
   },

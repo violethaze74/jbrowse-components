@@ -7,8 +7,8 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import { observer } from 'mobx-react'
 import { onSnapshot } from 'mobx-state-tree'
 import ShareButton from './ShareButton'
-// import StartScreen from './StartScreen'
-// import factoryReset from './factoryReset'
+import StartScreen from './StartScreen'
+import factoryReset from './factoryReset'
 
 function deleteBaseUris(config) {
   if (typeof config === 'object') {
@@ -22,24 +22,29 @@ function deleteBaseUris(config) {
   }
 }
 
-const JBrowse = observer(({ pluginManager }) => {
+const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   const [adminKey] = useQueryParam('adminKey', StringParam)
   const [adminServer] = useQueryParam('adminServer', StringParam)
   const [, setSessionId] = useQueryParam('session', StringParam)
-  const [firstLoad, setFirstLoad] = useState(true)
+  const [firstLoad, setFirstLoad] = useState(false)
 
   const { rootModel } = pluginManager
   const { error, jbrowse, session } = rootModel || {}
   const { id: currentSessionId } = session
-  if (firstLoad && session) setFirstLoad(false)
-
+  const viewsLen = session?.views?.length
   console.log('pm', pluginManager)
-  console.log('rootModel', pluginManager.rootModel)
-  console.log('session', pluginManager.rootModel.session)
+  console.log('defaultScreen', defaultScreen)
+  console.log(firstLoad)
 
   useEffect(() => {
     setSessionId(`local-${currentSessionId}`)
-  }, [currentSessionId, setSessionId])
+    if (defaultScreen) {
+      if (viewsLen === 0) {
+        console.log('I have no views')
+        setFirstLoad(true)
+      }
+    }
+  }, [currentSessionId, defaultScreen, viewsLen, setSessionId])
 
   useEffect(() => {
     onSnapshot(jbrowse, async snapshot => {
@@ -78,9 +83,10 @@ const JBrowse = observer(({ pluginManager }) => {
   return (
     <ThemeProvider theme={createJBrowseTheme(theme)}>
       <CssBaseline />
-      {/* {defaultScreen ? (
+      {defaultScreen && session?.views.length === 0 ? (
         <StartScreen
           root={rootModel}
+          pluginManager={pluginManager}
           bypass={firstLoad}
           onFactoryReset={factoryReset}
         />
@@ -89,11 +95,11 @@ const JBrowse = observer(({ pluginManager }) => {
           session={session}
           HeaderButtons={<ShareButton session={session} />}
         />
-      )} */}
-      <App
+      )}
+      {/* <App
         session={session}
         HeaderButtons={<ShareButton session={session} />}
-      />
+      /> */}
       {adminKey ? (
         <AssemblyManager
           rootModel={rootModel}
