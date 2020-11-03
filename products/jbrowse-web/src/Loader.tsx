@@ -407,13 +407,21 @@ const Renderer = observer(
                 pasting their URL`,
               )
             }
-            setDefaultScreen(true)
+            if (rootModel.session?.views.length === 0) {
+              if (defaultScreen !== true) {
+                setDefaultScreen(true)
+              }
+            }
           } else if (sessionSnapshot) {
             rootModel.setSession(loader.sessionSnapshot)
             setDefaultScreen(false)
           } else {
             rootModel.setDefaultSession()
-            setDefaultScreen(true)
+            if (rootModel.session?.views.length === 0) {
+              if (defaultScreen !== true) {
+                setDefaultScreen(true)
+              }
+            }
           }
           // } else {
           //   // we want to default to the splash screen when there are default views

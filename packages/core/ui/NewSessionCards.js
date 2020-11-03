@@ -98,12 +98,20 @@ ProceedEmptySession.propTypes = {
 
 export function AddLinearGenomeViewToSession({ root }) {
   const launchLGV = () => {
-    console.log('Add LGV', root)
+    // console.log('Add LGV', root)
+    // root.session.addView('LinearGenomeView', {})
+    // const snapshot = getSnapshot(root?.session)
+    // console.log(snapshot)
+    // root.addSavedSession({ name: snapshot.name })
+    // root.setSession(snapshot)
+    // sessionStorage.setItem('current', JSON.stringify({ session: snapshot }))
+    // root.loadAutosaveSession()
+    console.log('add lgv', root)
     root.session.addView('LinearGenomeView', {})
     const snapshot = getSnapshot(root?.session)
     console.log(snapshot)
     root.addSavedSession({ name: snapshot.name })
-    root.setSession(snapshot)
+
     localStorage.setItem(
       `autosave-${root.configPath}`,
       JSON.stringify({
@@ -113,8 +121,8 @@ export function AddLinearGenomeViewToSession({ root }) {
         },
       }),
     )
-    sessionStorage.setItem('current', JSON.stringify({ session: snapshot }))
-    root.loadAutosaveSession()
+    sessionStorage.setItem('current', JSON.stringify({ session: root.session }))
+    root.setSession(snapshot)
   }
 
   return (

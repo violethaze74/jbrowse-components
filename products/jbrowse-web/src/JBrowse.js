@@ -27,6 +27,7 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   const [adminServer] = useQueryParam('adminServer', StringParam)
   const [, setSessionId] = useQueryParam('session', StringParam)
   const [firstLoad, setFirstLoad] = useState(false)
+  const [once, setOnce] = useState(1)
 
   const { rootModel } = pluginManager
   const { error, jbrowse, session } = rootModel || {}
@@ -35,13 +36,19 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   console.log('defaultScreen', defaultScreen)
   console.log('fistload', firstLoad)
   console.log('views === 0 ?', session.views.length === 0)
-  if (!firstLoad && defaultScreen && session.views.length === 0) {
-    setFirstLoad(true)
+  if (defaultScreen && !firstLoad) {
+    if (once === 1) {
+      if (session.views.length === 0) {
+        setFirstLoad(true)
+      }
+      setOnce(0)
+    } else {
+      setFirstLoad(false)
+    }
   }
 
   useEffect(() => {
     setSessionId(`local-${currentSessionId}`)
-    setFirstLoad(false)
   }, [currentSessionId, setSessionId])
 
   useEffect(() => {
@@ -78,6 +85,8 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   const { AssemblyManager } = pluginManager.getPlugin(
     'DataManagementPlugin',
   ).exports
+
+  console.log(session)
   return (
     <ThemeProvider theme={createJBrowseTheme(theme)}>
       <CssBaseline />
