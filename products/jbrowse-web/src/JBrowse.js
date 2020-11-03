@@ -31,20 +31,18 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   const { rootModel } = pluginManager
   const { error, jbrowse, session } = rootModel || {}
   const { id: currentSessionId } = session
-  const viewsLen = session?.views?.length
   console.log('pm', pluginManager)
   console.log('defaultScreen', defaultScreen)
-  console.log(firstLoad)
+  console.log('fistload', firstLoad)
+  console.log('views === 0 ?', session.views.length === 0)
+  if (!firstLoad && defaultScreen && session.views.length === 0) {
+    setFirstLoad(true)
+  }
 
   useEffect(() => {
     setSessionId(`local-${currentSessionId}`)
-    if (defaultScreen) {
-      if (viewsLen === 0) {
-        console.log('I have no views')
-        setFirstLoad(true)
-      }
-    }
-  }, [currentSessionId, defaultScreen, viewsLen, setSessionId])
+    setFirstLoad(false)
+  }, [currentSessionId, setSessionId])
 
   useEffect(() => {
     onSnapshot(jbrowse, async snapshot => {
@@ -83,7 +81,7 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   return (
     <ThemeProvider theme={createJBrowseTheme(theme)}>
       <CssBaseline />
-      {defaultScreen && session?.views.length === 0 ? (
+      {firstLoad ? (
         <StartScreen
           root={rootModel}
           pluginManager={pluginManager}

@@ -4,6 +4,7 @@ import Container from '@material-ui/core/Container'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import { PropTypes as MobxPropTypes } from 'mobx-react'
+import { getSnapshot } from 'mobx-state-tree'
 import PropTypes from 'prop-types'
 import React, { useState } from 'react'
 import emptyIcon from './emptyIcon.png'
@@ -83,7 +84,11 @@ NewEmptySession.propTypes = {
 export function ProceedEmptySession({ root }) {
   function onClick() {
     console.log('proceed Empty session', root)
-    // root.session.
+    const snapshot = getSnapshot(root?.session)
+    root.addSavedSession({ name: snapshot.name })
+    root.setSession(snapshot)
+    root.saveSessionToLocalStorage()
+    sessionStorage.setItem('current', JSON.stringify({ session: snapshot }))
   }
   return <NewSessionCard name="Empty" onClick={onClick} image={emptyIcon} />
 }
@@ -93,9 +98,23 @@ ProceedEmptySession.propTypes = {
 
 export function AddLinearGenomeViewToSession({ root }) {
   const launchLGV = () => {
-    console.log('add LGV', root.session.toJSON())
-    root.setDefaultSession()
+    console.log('Add LGV', root)
     root.session.addView('LinearGenomeView', {})
+    const snapshot = getSnapshot(root?.session)
+    console.log(snapshot)
+    root.addSavedSession({ name: snapshot.name })
+    root.setSession(snapshot)
+    localStorage.setItem(
+      `autosave-${root.configPath}`,
+      JSON.stringify({
+        session: {
+          ...snapshot,
+          name: `${snapshot.name}-autosaved`,
+        },
+      }),
+    )
+    sessionStorage.setItem('current', JSON.stringify({ session: snapshot }))
+    root.loadAutosaveSession()
   }
 
   return (
@@ -162,9 +181,12 @@ NewSVInspectorSession.propTypes = {
 
 export function AddSVInspectorToSession({ root }) {
   const launchSVSession = () => {
-    // console.log('add svi', root)
-    // root.setDefaultSession()
     root.session.addView('SvInspectorView', {})
+    const snapshot = getSnapshot(root?.session)
+    root.addSavedSession({ name: snapshot.name })
+    root.setSession(snapshot)
+    root.saveSessionToLocalStorage()
+    sessionStorage.setItem('current', JSON.stringify({ session: snapshot }))
   }
   return (
     <NewSessionCard
