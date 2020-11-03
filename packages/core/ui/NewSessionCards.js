@@ -123,6 +123,7 @@ export function AddLinearGenomeViewToSession({ root }) {
     )
     sessionStorage.setItem('current', JSON.stringify({ session: root.session }))
     root.setSession(snapshot)
+    root.activateSession(snapshot.name)
   }
 
   return (
