@@ -27,7 +27,7 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   const [adminServer] = useQueryParam('adminServer', StringParam)
   const [, setSessionId] = useQueryParam('session', StringParam)
   const [firstLoad, setFirstLoad] = useState(false)
-  const [once, setOnce] = useState(1)
+  const [once, setOnce] = useState(0)
 
   const { rootModel } = pluginManager
   const { error, jbrowse, session } = rootModel || {}
@@ -36,14 +36,12 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
   console.log('defaultScreen', defaultScreen)
   console.log('fistload', firstLoad)
   console.log('views === 0 ?', session.views.length === 0)
-  if (defaultScreen && !firstLoad) {
-    if (once === 1) {
-      if (session.views.length === 0) {
+  if (defaultScreen && firstLoad === false) {
+    if (pluginManager.rootModel.session.views.length === 0 && once === 0) {
+      if (once === 0) {
         setFirstLoad(true)
+        setOnce(1)
       }
-      setOnce(0)
-    } else {
-      setFirstLoad(false)
     }
   }
 
@@ -86,11 +84,20 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
     'DataManagementPlugin',
   ).exports
 
-  console.log(session)
+  if (firstLoad && pluginManager.rootModel.session.views.length === 0) {
+    return (
+      <StartScreen
+        root={rootModel}
+        pluginManager={pluginManager}
+        bypass={firstLoad}
+        onFactoryReset={factoryReset}
+      />
+    )
+  }
   return (
     <ThemeProvider theme={createJBrowseTheme(theme)}>
       <CssBaseline />
-      {firstLoad ? (
+      {/* {firstLoad && pluginManager.rootModel.session.views.length === 0 ? (
         <StartScreen
           root={rootModel}
           pluginManager={pluginManager}
@@ -102,11 +109,11 @@ const JBrowse = observer(({ pluginManager, defaultScreen }) => {
           session={session}
           HeaderButtons={<ShareButton session={session} />}
         />
-      )}
-      {/* <App
+      )} */}
+      <App
         session={session}
         HeaderButtons={<ShareButton session={session} />}
-      /> */}
+      />
       {adminKey ? (
         <AssemblyManager
           rootModel={rootModel}
