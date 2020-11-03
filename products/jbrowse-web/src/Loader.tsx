@@ -413,6 +413,7 @@ const Renderer = observer(
               }
             }
           } else if (sessionSnapshot) {
+            console.log(sessionSnapshot)
             rootModel.setSession(loader.sessionSnapshot)
             setDefaultScreen(false)
           } else {
