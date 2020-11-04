@@ -131,11 +131,11 @@ function BlockError({
           >
             Reload
           </Button>
-          {error.message}
+          {`${error}`}
         </>
       ) : (
         <Typography color="error" variant="body2">
-          {error.message}
+          {`${error}`}
         </Typography>
       )}
     </div>

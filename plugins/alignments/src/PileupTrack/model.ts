@@ -15,16 +15,20 @@ import {
   blockBasedTrackModel,
   LinearGenomeViewModel,
 } from '@jbrowse/plugin-linear-genome-view'
-import { types, addDisposer, Instance } from 'mobx-state-tree'
+import { types, addDisposer, cast, Instance } from 'mobx-state-tree'
 import copy from 'copy-to-clipboard'
 import PluginManager from '@jbrowse/core/PluginManager'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import SortIcon from '@material-ui/icons/Sort'
+import PaletteIcon from '@material-ui/icons/Palette'
+
 import { autorun } from 'mobx'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { PileupConfigModel } from './configSchema'
 import PileupTrackBlurb from './components/PileupTrackBlurb'
+import ColorByTagDlg from './components/ColorByTag'
+import SortByTagDlg from './components/SortByTag'
 
 // using a map because it preserves order
 const rendererTypes = new Map([
@@ -46,12 +50,21 @@ const stateModelFactory = (
         type: types.literal('PileupTrack'),
         configuration: ConfigurationReference(configSchema),
         showSoftClipping: false,
+        viewAsPairs: false,
+        linkSuppReads: false,
         sortedBy: types.maybe(
           types.model({
             type: types.string,
             pos: types.number,
+            tag: types.maybe(types.string),
             refName: types.string,
             assemblyName: types.string,
+          }),
+        ),
+        colorBy: types.maybe(
+          types.model({
+            type: types.string,
+            tag: types.maybe(types.string),
           }),
         ),
       }),
@@ -141,11 +154,19 @@ const stateModelFactory = (
         self.showSoftClipping = !self.showSoftClipping
       },
 
+      toggleViewAsPairs() {
+        self.viewAsPairs = !self.viewAsPairs
+      },
+
+      toggleLinkSuppReads() {
+        self.linkSuppReads = !self.linkSuppReads
+      },
+
       setConfig(configuration: AnyConfigurationModel) {
         self.configuration = configuration
       },
 
-      async sortSelected(type: string) {
+      setSortedBy(type: string, tag?: string) {
         const { centerLineInfo } = getContainingView(self) as LGV
         if (!centerLineInfo) {
           return
@@ -158,21 +179,17 @@ const stateModelFactory = (
           return
         }
 
-        this.setSortedBy({
+        self.sortedBy = {
           type,
           pos: centerBp,
           refName: centerRefName,
           assemblyName,
-        })
-      },
-      setSortedBy(sort: {
-        type: string
-        pos: number
-        refName: string
-        assemblyName: string
-      }) {
-        self.sortedBy = sort
+          tag,
+        }
         self.ready = false
+      },
+      setColorScheme(colorScheme: { type: string; tag?: string }) {
+        self.colorBy = cast(colorScheme)
       },
     }))
     .actions(self => {
@@ -231,19 +248,15 @@ const stateModelFactory = (
           return contextMenuItems
         },
 
-        get sortOptions() {
-          return ['Start location', 'Read strand', 'Base pair', 'Clear sort']
-        },
-
         get TrackBlurb() {
           return PileupTrackBlurb
         },
 
         get renderProps() {
-          const view = getContainingView(self) as LGV
           const config = self.rendererType.configSchema.create(
             getConf(self, ['renderers', self.rendererTypeName]) || {},
           )
+          const view = getContainingView(self) as LGV
           return {
             ...self.composedRenderProps,
             ...getParentRenderProps(self),
@@ -252,7 +265,10 @@ const stateModelFactory = (
               (self.sortedBy && self.currBpPerPx !== view.bpPerPx),
             trackModel: self,
             sortedBy: self.sortedBy,
+            colorBy: self.colorBy,
             showSoftClip: self.showSoftClipping,
+            viewAsPairs: self.viewAsPairs,
+            linkSuppReads: self.linkSuppReads,
             config,
           }
         },
@@ -274,19 +290,86 @@ const stateModelFactory = (
               },
             },
             {
+              label: 'View as pairs',
+              icon: VisibilityIcon,
+              type: 'checkbox',
+              checked: self.viewAsPairs,
+              onClick: () => {
+                self.toggleViewAsPairs()
+              },
+            },
+            {
+              label: 'Link supplementary reads',
+              icon: VisibilityIcon,
+              type: 'checkbox',
+              checked: self.linkSuppReads,
+              onClick: () => {
+                self.toggleLinkSuppReads()
+              },
+            },
+            {
               label: 'Sort by',
               icon: SortIcon,
               disabled: self.showSoftClipping,
-              subMenu: this.sortOptions.map((option: string) => {
-                return {
-                  label: option,
-                  onClick() {
-                    option === 'Clear sort'
-                      ? self.clearSelected()
-                      : self.sortSelected(option)
+              subMenu: ['Start location', 'Read strand', 'Base pair']
+                .map(option => {
+                  return {
+                    label: option,
+                    onClick: () => self.setSortedBy(option),
+                  }
+                })
+                .concat([
+                  {
+                    label: 'Sort by tag',
+                    onClick: () => self.setDialogComponent(SortByTagDlg),
                   },
-                }
-              }),
+                  {
+                    label: 'Clear sort',
+                    onClick: () => self.clearSelected(),
+                  },
+                ]),
+            },
+            {
+              label: 'Color scheme',
+              icon: PaletteIcon,
+              subMenu: [
+                {
+                  label: 'Normal',
+                  onClick: () => {
+                    self.setColorScheme({ type: 'normal' })
+                  },
+                },
+                {
+                  label: 'Mapping quality',
+                  onClick: () => {
+                    self.setColorScheme({ type: 'mappingQuality' })
+                  },
+                },
+                {
+                  label: 'Strand',
+                  onClick: () => {
+                    self.setColorScheme({ type: 'strand' })
+                  },
+                },
+                {
+                  label: 'Pair orientation',
+                  onClick: () => {
+                    self.setColorScheme({ type: 'pairOrientation' })
+                  },
+                },
+                {
+                  label: 'Insert size',
+                  onClick: () => {
+                    self.setColorScheme({ type: 'insertSize' })
+                  },
+                },
+                {
+                  label: 'Color by tag',
+                  onClick: () => {
+                    self.setDialogComponent(ColorByTagDlg)
+                  },
+                },
+              ],
             },
           ]
         },

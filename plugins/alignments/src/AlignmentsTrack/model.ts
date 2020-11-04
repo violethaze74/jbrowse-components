@@ -1,14 +1,12 @@
-import { getConf, ConfigurationReference } from '@jbrowse/core/configuration'
-
 import deepEqual from 'deep-equal'
-import { BaseTrack } from '@jbrowse/plugin-linear-genome-view'
 import { types, addDisposer, getSnapshot, Instance } from 'mobx-state-tree'
 import { autorun } from 'mobx'
+import { BaseTrack } from '@jbrowse/plugin-linear-genome-view'
+import { getConf, ConfigurationReference } from '@jbrowse/core/configuration'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import PluginManager from '@jbrowse/core/PluginManager'
-
-import VisibilityIcon from '@material-ui/icons/Visibility'
 import { MenuItem } from '@jbrowse/core/ui'
+import VisibilityIcon from '@material-ui/icons/Visibility'
 import AlignmentsTrackComponent from './components/AlignmentsTrack'
 import { AlignmentsConfigModel } from './configSchema'
 
@@ -127,6 +125,11 @@ const stateModelFactory = (
       }
     })
     .actions(self => ({
+      setDialogComponent(dlg: unknown) {
+        self.DialogComponent = dlg
+        self.PileupTrack.setDialogComponent(dlg)
+        self.SNPCoverageTrack.setDialogComponent(dlg)
+      },
       afterAttach() {
         addDisposer(
           self,
@@ -152,6 +155,15 @@ const stateModelFactory = (
             ) {
               self.PileupTrack.setConfig(self.pileupTrackConfig)
             }
+          }),
+        )
+        addDisposer(
+          self,
+          autorun(() => {
+            self.setDialogComponent(
+              self.PileupTrack.DialogComponent ||
+                self.SNPCoverageTrack.DialogComponent,
+            )
           }),
         )
       },
