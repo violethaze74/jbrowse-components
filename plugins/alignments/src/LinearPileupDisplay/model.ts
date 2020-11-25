@@ -201,6 +201,7 @@ const stateModelFactory = (
       },
       setColorScheme(colorScheme: { type: string; tag?: string }) {
         self.colorBy = cast(colorScheme)
+        self.ready = false
       },
       setFilterBy(filter: { flagInclude: number; flagExclude: number }) {
         self.filterBy = filter

@@ -21,6 +21,10 @@ const useStyles = makeStyles(theme => ({
     top: theme.spacing(1),
     color: theme.palette.grey[500],
   },
+  formFields: {
+    width: '20%',
+    paddingRight: 2,
+  },
 }))
 
 export default function ColorByTagDlg(props: {
@@ -30,6 +34,19 @@ export default function ColorByTagDlg(props: {
   const classes = useStyles()
   const { model, handleClose } = props
   const [tag, setTag] = useState('')
+  const [customName, setCustomName] = useState('')
+  const [defaultColor, setDefaultColor] = useState('')
+  const uniqueTags = new Set()
+  const presetTags = new Set(['', 'HP', 'XS', 'TS', 'YC'])
+  const colors = ['red', 'yellow', 'blue', 'green', 'orange'] // randomly selected, need to change
+
+  // there should be a better way of accessing this
+  model.displays[0].features.submaps[0].forEach(feature =>
+    feature.tags().forEach(featureTag => {
+      uniqueTags.add(featureTag)
+    }),
+  )
+
   return (
     <Dialog
       open
@@ -58,13 +75,48 @@ export default function ColorByTagDlg(props: {
               onChange={event => {
                 setTag(event.target.value)
               }}
+              className={classes.formFields}
             >
               <MenuItem value="" />
-              <MenuItem value="HP">HP (haplotype)</MenuItem>
-              <MenuItem value="XS">XS (RNA-seq strandedness)</MenuItem>
-              <MenuItem value="TS">TS (RNA-seq strandedness)</MenuItem>
-              <MenuItem value="YC">YC (color encoded)</MenuItem>
+              {Array.from(uniqueTags).map(uniqueTag => (
+                <MenuItem key={uniqueTag} value={uniqueTag}>
+                  {uniqueTag}
+                </MenuItem>
+              ))}
+              <MenuItem value="customTag"> Custom Tag </MenuItem>
             </TextField>
+            {!presetTags.has(tag) && tag === 'customTag' && (
+              <TextField
+                id="custom-name"
+                onBlur={event => {
+                  setCustomName(event.target.value)
+                }}
+                placeholder="Set Custom Name"
+                className={classes.formFields}
+              />
+            )}
+            {/* confusing, need a way to tell user to select color here */}
+            {!presetTags.has(tag) && (
+              <TextField
+                id="default-color"
+                select
+                value={defaultColor}
+                onChange={event => {
+                  setDefaultColor(event.target.value)
+                }}
+                className={classes.formFields}
+              >
+                <MenuItem value="" disabled selected>
+                  Select default color
+                </MenuItem>
+                {colors.map(color => (
+                  <MenuItem key={color} value={color}>
+                    {color}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+            {/* TODOCOLOR: add value buttons */}
             <Button
               onClick={() => {
                 const display = model.displays[0]
