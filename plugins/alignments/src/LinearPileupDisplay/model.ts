@@ -67,6 +67,15 @@ const stateModelFactory = (
           types.model({
             type: types.string,
             tag: types.maybe(types.string),
+            color: types.maybe(types.string),
+            values: types.maybe(
+              types.array(
+                types.model({
+                  value: types.number,
+                  color: types.string,
+                }),
+              ),
+            ),
           }),
         ),
         filterBy: types.optional(
@@ -199,7 +208,17 @@ const stateModelFactory = (
         }
         self.ready = false
       },
-      setColorScheme(colorScheme: { type: string; tag?: string }) {
+      setColorScheme(colorScheme: {
+        type: string
+        tag?: string
+        color?: string
+        values?: [
+          {
+            value: number
+            color: string
+          },
+        ]
+      }) {
         self.colorBy = cast(colorScheme)
         self.ready = false
       },

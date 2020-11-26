@@ -36,16 +36,45 @@ export default function ColorByTagDlg(props: {
   const [tag, setTag] = useState('')
   const [customName, setCustomName] = useState('')
   const [defaultColor, setDefaultColor] = useState('')
+
+  const emptyValue = { value: '', color: '' }
+  const [valueState, setValueState] = useState([])
   const uniqueTags = new Set()
   const presetTags = new Set(['', 'HP', 'XS', 'TS', 'YC'])
   const colors = ['red', 'yellow', 'blue', 'green', 'orange'] // randomly selected, need to change
 
   // there should be a better way of accessing this
+  // not sure if right tags
   model.displays[0].features.submaps[0].forEach(feature =>
     feature.tags().forEach(featureTag => {
       uniqueTags.add(featureTag)
     }),
   )
+
+  // do value stuff last, still need to draw out how it will work
+  // How I think value will work:
+  // Currently colorBy temp has a color field that is the default color
+  // and everything associated to the tag has that color regardless of value
+  // What it should be is that it returns a color and colorMap
+  // if value does not exist in the colorMap, then fillStyle is color
+  // else if user adds value and color (selected default at first), then it is added to map and returned
+
+  // it should look something like
+  // const ([valueMap, setValueMap] = useState(new Map()))
+  // value selected onChange if color is selected
+  // on submit being pressed read all the value color pairs and push to map
+  // then return the color map
+  // using array of objects right now
+  const addValueRow = () => {
+    setValueState([...valueState, { ...emptyValue }])
+  }
+
+  const handleValueChange = (e, idx) => {
+    const updatedValues = [...valueState]
+    updatedValues[idx][e.target.name] =
+      e.target.name === 'value' ? parseInt(e.target.value, 10) : e.target.value
+    setValueState(updatedValues)
+  }
 
   return (
     <Dialog
@@ -116,13 +145,51 @@ export default function ColorByTagDlg(props: {
                 ))}
               </TextField>
             )}
-            {/* TODOCOLOR: add value buttons */}
+            {!presetTags.has(tag) && (
+              <Button onClick={() => addValueRow()}> Add Value</Button>
+            )}
+            {valueState.map((val, idx) => {
+              const valueId = `value-${idx}`
+              const colorId = `color-${idx}`
+              return (
+                <div key={valueId}>
+                  <TextField
+                    id={valueId}
+                    placeholder="Set Value"
+                    name="value"
+                    className={classes.formFields}
+                    value={valueState[idx].value}
+                    onChange={e => handleValueChange(e, idx)}
+                    data-idx={idx}
+                  />
+                  <TextField
+                    select
+                    id={colorId}
+                    label="Color for Value"
+                    name="color"
+                    className={classes.formFields}
+                    value={valueState[idx].color}
+                    onChange={e => handleValueChange(e, idx)}
+                    data-idx={idx}
+                  >
+                    <MenuItem value="" />
+                    {colors.map(color => (
+                      <MenuItem key={color} value={color}>
+                        {color}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              )
+            })}
             <Button
               onClick={() => {
                 const display = model.displays[0]
                 ;(display.PileupDisplay || display).setColorScheme({
                   type: 'tag',
-                  tag,
+                  tag: tag !== 'customTag' ? tag : customName,
+                  color: defaultColor,
+                  values: valueState,
                 })
                 handleClose()
               }}

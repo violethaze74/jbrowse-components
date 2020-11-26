@@ -34,6 +34,13 @@ export interface PileupRenderProps {
   colorBy: {
     type: string
     tag?: string
+    color?: string
+    values?: [
+      {
+        value: number
+        color: string
+      },
+    ]
   }
   height: number
   width: number
@@ -365,6 +372,7 @@ export default class PileupRenderer extends BoxRendererType {
         // [value] [color for value] [add value button]
         // add ellipses to end of Color by tag... menu option name to indicate something will open
         const tag = colorBy.tag as string
+        const defaultColor = colorBy.color as string | undefined
         const isCram = feature.get('tags')
         if (tag === 'HP') {
           const val = isCram ? feature.get('tags')[tag] : feature.get(tag)
@@ -376,6 +384,17 @@ export default class PileupRenderer extends BoxRendererType {
           }
           const val = isCram ? feature.get('tags')[tag] : feature.get(tag)
           ctx.fillStyle = alignmentColoring[map[val] || 'color_nostrand']
+        }
+        // tag is not predetermined, has a color that comes with it
+        else {
+          // will need val when they determine the val of the feature
+          const val = isCram ? feature.get('tags')[tag] : feature.get(tag)
+          const { values } = colorBy
+
+          const foundColor = values.find(setVal => setVal.value === val)
+          ctx.fillStyle = foundColor
+            ? foundColor.color || defaultColor
+            : 'color_nostrand'
         }
         break
       }
