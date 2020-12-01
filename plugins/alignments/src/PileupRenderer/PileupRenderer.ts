@@ -387,7 +387,6 @@ export default class PileupRenderer extends BoxRendererType {
         }
         // tag is not predetermined, has a color that comes with it
         else {
-          // will need val when they determine the val of the feature
           const val = isCram ? feature.get('tags')[tag] : feature.get(tag)
           const { values } = colorBy
 

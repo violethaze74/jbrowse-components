@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import IconButton from '@material-ui/core/IconButton'
+import AddIcon from '@material-ui/icons/Add'
 import CloseIcon from '@material-ui/icons/Close'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 
@@ -22,8 +23,8 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.grey[500],
   },
   formFields: {
-    width: '20%',
-    paddingRight: 2,
+    width: '30%',
+    marginRight: 5,
   },
 }))
 
@@ -51,20 +52,6 @@ export default function ColorByTagDlg(props: {
     }),
   )
 
-  // do value stuff last, still need to draw out how it will work
-  // How I think value will work:
-  // Currently colorBy temp has a color field that is the default color
-  // and everything associated to the tag has that color regardless of value
-  // What it should be is that it returns a color and colorMap
-  // if value does not exist in the colorMap, then fillStyle is color
-  // else if user adds value and color (selected default at first), then it is added to map and returned
-
-  // it should look something like
-  // const ([valueMap, setValueMap] = useState(new Map()))
-  // value selected onChange if color is selected
-  // on submit being pressed read all the value color pairs and push to map
-  // then return the color map
-  // using array of objects right now
   const addValueRow = () => {
     setValueState([...valueState, { ...emptyValue }])
   }
@@ -103,8 +90,10 @@ export default function ColorByTagDlg(props: {
               value={tag}
               onChange={event => {
                 setTag(event.target.value)
+                setValueState([])
               }}
               className={classes.formFields}
+              label="Select Tag"
             >
               <MenuItem value="" />
               {Array.from(uniqueTags).map(uniqueTag => (
@@ -120,7 +109,7 @@ export default function ColorByTagDlg(props: {
                 onBlur={event => {
                   setCustomName(event.target.value)
                 }}
-                placeholder="Set Custom Name"
+                label="Set Custom Name"
                 className={classes.formFields}
               />
             )}
@@ -134,6 +123,7 @@ export default function ColorByTagDlg(props: {
                   setDefaultColor(event.target.value)
                 }}
                 className={classes.formFields}
+                label="Default Color"
               >
                 <MenuItem value="" disabled selected>
                   Select default color
@@ -146,7 +136,15 @@ export default function ColorByTagDlg(props: {
               </TextField>
             )}
             {!presetTags.has(tag) && (
-              <Button onClick={() => addValueRow()}> Add Value</Button>
+              <Button
+                startIcon={<AddIcon />}
+                variant="contained"
+                color="primary"
+                style={{ marginRight: 5 }}
+                onClick={() => addValueRow()}
+              >
+                Add Value
+              </Button>
             )}
             {valueState.map((val, idx) => {
               const valueId = `value-${idx}`
@@ -155,7 +153,7 @@ export default function ColorByTagDlg(props: {
                 <div key={valueId}>
                   <TextField
                     id={valueId}
-                    placeholder="Set Value"
+                    label="Set Value"
                     name="value"
                     className={classes.formFields}
                     value={valueState[idx].value}
@@ -183,6 +181,8 @@ export default function ColorByTagDlg(props: {
               )
             })}
             <Button
+              variant="contained"
+              color="primary"
               onClick={() => {
                 const display = model.displays[0]
                 ;(display.PileupDisplay || display).setColorScheme({

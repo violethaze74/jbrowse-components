@@ -391,7 +391,7 @@ const stateModelFactory = (
                   },
                 },
                 {
-                  label: 'Color by tag',
+                  label: 'Color by tag...',
                   onClick: () => {
                     getParent(self, 3).setDialogComponent(ColorByTagDlg)
                   },
