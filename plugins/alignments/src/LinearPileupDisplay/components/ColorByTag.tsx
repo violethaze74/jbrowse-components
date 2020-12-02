@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
@@ -10,11 +11,16 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import IconButton from '@material-ui/core/IconButton'
 import AddIcon from '@material-ui/icons/Add'
 import CloseIcon from '@material-ui/icons/Close'
+import { ChromePicker, Color, ColorResult, RGBColor } from 'react-color'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: 600,
+  },
+  colorPicker: {
+    width: 225,
+    height: 250,
   },
   closeButton: {
     position: 'absolute',
@@ -26,8 +32,62 @@ const useStyles = makeStyles(theme => ({
     width: '30%',
     marginRight: 5,
   },
+  popover: {
+    position: 'absolute',
+    zIndex: 2,
+  },
 }))
 
+// this is needed because passing a entire color object into the react-color
+// for alpha, can't pass in an rgba string for example
+function serializeColor(color: Color) {
+  if (color instanceof Object) {
+    const { r, g, b, a } = color as RGBColor
+    return `rgb(${r},${g},${b},${a})`
+  }
+  return color
+}
+
+export function ColorPicker(props: {
+  color: Color
+  onChange: (color: ColorResult) => void
+  handleClose: () => void
+}) {
+  const { color, onChange, handleClose } = props
+  const classes = useStyles()
+
+  return (
+    <Dialog
+      open
+      onClose={handleClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">
+        Color Picker
+        <IconButton
+          aria-label="close"
+          className={classes.closeButton}
+          onClick={handleClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <div className={classes.colorPicker}>
+          <div className={classes.popover}>
+            <div
+              role="presentation"
+              className={classes.cover}
+              onClick={handleClose}
+            />
+            <ChromePicker color={color} onChange={onChange} />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
 export default function ColorByTagDlg(props: {
   model: AnyConfigurationModel
   handleClose: () => void
@@ -42,14 +102,27 @@ export default function ColorByTagDlg(props: {
   const [valueState, setValueState] = useState([])
   const uniqueTags = new Set()
   const presetTags = new Set(['', 'HP', 'XS', 'TS', 'YC'])
-  const colors = ['red', 'yellow', 'blue', 'green', 'orange'] // randomly selected, need to change
+  const [colors, setColors] = useState([
+    'red',
+    'yellow',
+    'blue',
+    'green',
+    'orange',
+    'Custom Color',
+  ]) // randomly selected, need to change
+
+  const [defaultDisplayed, setDefaultDisplayed] = useState(false)
+  const [valueDisplayed, setValueDisplayed] = useState(false)
 
   // there should be a better way of accessing this
   // not sure if right tags
   model.displays[0].features.submaps[0].forEach(feature =>
-    feature.tags().forEach(featureTag => {
-      uniqueTags.add(featureTag)
-    }),
+    feature
+      .tags()
+      .filter(featTag => featTag.length === 2)
+      .forEach(featureTag => {
+        uniqueTags.add(featureTag)
+      }),
   )
 
   const addValueRow = () => {
@@ -61,6 +134,23 @@ export default function ColorByTagDlg(props: {
     updatedValues[idx][e.target.name] =
       e.target.name === 'value' ? parseInt(e.target.value, 10) : e.target.value
     setValueState(updatedValues)
+  }
+
+  const handleColorPickerChange = (e, idx?) => {
+    const colorChosen = serializeColor(e.rgb)
+    if (!colors.includes(colorChosen)) setColors([colorChosen, ...colors])
+    if (idx !== undefined) {
+      const updatedValues = [...valueState]
+      updatedValues[idx].color = colorChosen
+      setValueState(updatedValues)
+    } else setDefaultColor(colorChosen)
+  }
+
+  const handleColorPickerClose = () => {
+    // if open and close color picker without choice, reset
+    if (defaultColor === 'Custom Color') setDefaultColor('')
+    setDefaultDisplayed(false)
+    setValueDisplayed(false)
   }
 
   return (
@@ -93,7 +183,7 @@ export default function ColorByTagDlg(props: {
                 setValueState([])
               }}
               className={classes.formFields}
-              label="Select Tag"
+              helperText="Select Tag"
             >
               <MenuItem value="" />
               {Array.from(uniqueTags).map(uniqueTag => (
@@ -109,32 +199,51 @@ export default function ColorByTagDlg(props: {
                 onBlur={event => {
                   setCustomName(event.target.value)
                 }}
-                label="Set Custom Name"
+                helperText="Set Custom Name"
                 className={classes.formFields}
               />
             )}
-            {/* confusing, need a way to tell user to select color here */}
-            {!presetTags.has(tag) && (
+            {!presetTags.has(tag) ? (
               <TextField
                 id="default-color"
                 select
                 value={defaultColor}
-                onChange={event => {
-                  setDefaultColor(event.target.value)
+                onChange={e => {
+                  setDefaultColor(e.target.value)
+                  if (e.target.value === 'Custom Color')
+                    setDefaultDisplayed(true)
                 }}
                 className={classes.formFields}
-                label="Default Color"
+                helperText="Default Color"
               >
                 <MenuItem value="" disabled selected>
                   Select default color
                 </MenuItem>
                 {colors.map(color => (
-                  <MenuItem key={color} value={color}>
+                  <MenuItem
+                    key={color}
+                    value={color}
+                    style={{ backgroundColor: color || 'none' }}
+                  >
                     {color}
                   </MenuItem>
                 ))}
               </TextField>
-            )}
+            ) : tag ? (
+              <TextField
+                id="preset-color"
+                disabled
+                placeholder="Using Preset Colors"
+                helperText="Default Color"
+              />
+            ) : null}
+            {defaultDisplayed ? (
+              <ColorPicker
+                color={defaultColor}
+                onChange={e => handleColorPickerChange(e)}
+                handleClose={handleColorPickerClose}
+              />
+            ) : null}
             {!presetTags.has(tag) && (
               <Button
                 startIcon={<AddIcon />}
@@ -153,7 +262,7 @@ export default function ColorByTagDlg(props: {
                 <div key={valueId}>
                   <TextField
                     id={valueId}
-                    label="Set Value"
+                    helperText="Set Value"
                     name="value"
                     className={classes.formFields}
                     value={valueState[idx].value}
@@ -163,20 +272,37 @@ export default function ColorByTagDlg(props: {
                   <TextField
                     select
                     id={colorId}
-                    label="Color for Value"
+                    helperText="Color for Value"
                     name="color"
                     className={classes.formFields}
                     value={valueState[idx].color}
-                    onChange={e => handleValueChange(e, idx)}
+                    onChange={e => {
+                      handleValueChange(e, idx)
+                      if (e.target.value === 'Custom Color')
+                        setValueDisplayed(true)
+                    }}
                     data-idx={idx}
                   >
-                    <MenuItem value="" />
+                    <MenuItem value="" disabled selected>
+                      Select value color
+                    </MenuItem>
                     {colors.map(color => (
-                      <MenuItem key={color} value={color}>
+                      <MenuItem
+                        key={color}
+                        value={color}
+                        style={{ backgroundColor: color || 'none' }}
+                      >
                         {color}
                       </MenuItem>
                     ))}
                   </TextField>
+                  {valueDisplayed ? (
+                    <ColorPicker
+                      color={valueState[idx].color}
+                      onChange={e => handleColorPickerChange(e, idx)}
+                      handleClose={handleColorPickerClose}
+                    />
+                  ) : null}
                 </div>
               )
             })}
@@ -193,6 +319,7 @@ export default function ColorByTagDlg(props: {
                 })
                 handleClose()
               }}
+              disabled={!tag || (!presetTags.has(tag) && !defaultColor)}
             >
               Submit
             </Button>

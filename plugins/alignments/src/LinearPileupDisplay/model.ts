@@ -71,7 +71,7 @@ const stateModelFactory = (
             values: types.maybe(
               types.array(
                 types.model({
-                  value: types.number,
+                  value: types.union(types.number, types.string),
                   color: types.string,
                 }),
               ),

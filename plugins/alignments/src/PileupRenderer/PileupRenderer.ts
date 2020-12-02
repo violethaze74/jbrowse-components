@@ -399,6 +399,7 @@ export default class PileupRenderer extends BoxRendererType {
       }
       // doesnt exist yet
       case 'insertSizeAndPairOrientation':
+        // first color by pair, then in the pairs color by insert size
         break
       case 'normal':
       default:
