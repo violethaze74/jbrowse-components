@@ -12,7 +12,6 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     zIndex: theme.zIndex.drawer,
     outline: 'none',
-    background: theme.palette.background.default,
   },
   resizeHandle: {
     width: 4,
@@ -27,14 +26,14 @@ function Drawer({ children, open, session }) {
 
   return (
     <Slide in={open} direction="left">
-      <Paper className={classes.paper} elevation={16} square>
+      <div className={classes.paper}>
         <ResizeHandle
           onDrag={session.resizeDrawer}
           className={classes.resizeHandle}
           vertical
         />
         {children}
-      </Paper>
+      </div>
     </Slide>
   )
 }
