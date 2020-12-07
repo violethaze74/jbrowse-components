@@ -993,10 +993,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
         const assembly = assemblyManager.get(assemblyName)
         if (assembly) {
           const { regions } = getSnapshot(assembly)
-          if(regions) {
-          this.setDisplayedRegions(regions)
-          self.zoomTo(self.maxBpPerPx)
-          this.center()
+          if (regions) {
+            this.setDisplayedRegions(regions)
+            self.zoomTo(self.maxBpPerPx)
+            this.center()
           }
         }
       },
