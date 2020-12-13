@@ -1,18 +1,24 @@
 import { types } from 'mobx-state-tree'
 import { getConf } from '@jbrowse/core/configuration'
 import { linearWiggleDisplayModelFactory } from '@jbrowse/plugin-wiggle'
-import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
+import {
+  AnyConfigurationSchemaType,
+  AnyConfigurationModel,
+} from '@jbrowse/core/configuration/configurationSchema'
+import PluginManager from '@jbrowse/core/PluginManager'
 import Tooltip from '../components/Tooltip'
 
 // using a map because it preserves order
 const rendererTypes = new Map([['snpcoverage', 'SNPCoverageRenderer']])
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const stateModelFactory = (configSchema: any) =>
+const stateModelFactory = (
+  pluginManager: PluginManager,
+  configSchema: AnyConfigurationSchemaType,
+) =>
   types
     .compose(
       'LinearSNPCoverageDisplay',
-      linearWiggleDisplayModelFactory(configSchema),
+      linearWiggleDisplayModelFactory(pluginManager, configSchema),
       types.model({ type: types.literal('LinearSNPCoverageDisplay') }),
     )
     .actions(self => ({
