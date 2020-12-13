@@ -25,6 +25,7 @@ import {
   cast,
   Instance,
   getRoot,
+  isStateTreeNode,
   resolveIdentifier,
   addDisposer,
 } from 'mobx-state-tree'
@@ -138,7 +139,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         const assembliesInitialized = this.assemblyNames.every(assemblyName => {
           if (
             assemblyManager.assemblyList
-              .map((asm: { name: string }) => asm.name)
+              ?.map((asm: { name: string }) => asm.name)
               .includes(assemblyName)
           ) {
             return (assemblyManager.get(assemblyName) || {}).initialized
@@ -977,22 +978,29 @@ export function stateModelFactory(pluginManager: PluginManager) {
         this.center()
       },
 
-      showAllRegionsInAssembly() {
+      showAllRegionsInAssembly(assemblyName?: string) {
         const session = getSession(self)
         const { assemblyManager } = session
-        const assemblyNames = [
-          ...new Set(self.displayedRegions.map(region => region.assemblyName)),
-        ]
-        if (assemblyNames.length > 1) {
-          session.notify(
-            `Can't perform this with multiple assemblies currently`,
-          )
-          return
+        if (!assemblyName) {
+          const assemblyNames = [
+            ...new Set(
+              self.displayedRegions.map(region => region.assemblyName),
+            ),
+          ]
+          if (assemblyNames.length > 1) {
+            session.notify(
+              `Can't perform this with multiple assemblies currently`,
+            )
+            return
+          }
+          ;[assemblyName] = assemblyNames
         }
-        const [assemblyName] = assemblyNames
         const assembly = assemblyManager.get(assemblyName)
         if (assembly) {
-          const { regions } = getSnapshot(assembly)
+          // isStateTreeNode is used in test where assembly is not an STN
+          const { regions } = isStateTreeNode(assembly)
+            ? getSnapshot(assembly)
+            : assembly
           if (regions) {
             this.setDisplayedRegions(regions)
             self.zoomTo(self.maxBpPerPx)

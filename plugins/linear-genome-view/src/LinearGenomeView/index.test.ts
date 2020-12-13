@@ -614,3 +614,23 @@ test('can perform bpToPx in a way that makes sense on things that happen outside
   model.setError(Error('pxToBp failed to map to a region'))
   expect(model.error?.message).toEqual('pxToBp failed to map to a region')
 })
+
+test('can showAllRegionsInAssembly', async () => {
+  const session = Session.create({
+    configuration: {},
+  })
+  const width = 800
+  const model = session.setView(
+    LinearGenomeModel.create({
+      id: 'test4',
+      type: 'LinearGenomeView',
+      tracks: [{ name: 'foo track', type: 'FeatureTrack' }],
+    }),
+  )
+  model.setWidth(width)
+  model.showAllRegionsInAssembly('volvox')
+  expect(model.displayedRegions.map(reg => reg.refName)).toEqual([
+    'ctgA',
+    'ctgB',
+  ])
+})
