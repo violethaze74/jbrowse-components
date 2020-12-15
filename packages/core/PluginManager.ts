@@ -278,7 +278,7 @@ export default class PluginManager {
     this.getElementTypeRecord(typeGroup)
       .all()
       .forEach(t => {
-        const thing = t[fieldName]
+        const thing = t[String(fieldName)]
         if (isType(thing) && isModelType(thing)) {
           pluggableTypes.push(thing)
         }
@@ -286,7 +286,9 @@ export default class PluginManager {
     // try to smooth over the case when no types are registered, mostly encountered in tests
     if (pluggableTypes.length === 0) {
       console.warn(
-        `No JBrowse pluggable types found matching ('${typeGroup}','${fieldName}')`,
+        `No JBrowse pluggable types found matching ('${typeGroup}','${String(
+          fieldName,
+        )}')`,
       )
       return fallback
     }

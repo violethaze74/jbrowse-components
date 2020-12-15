@@ -4,8 +4,6 @@ import { isStateTreeNode, getSnapshot } from 'mobx-state-tree'
 import { ObservableCreate } from '../util/rxjs'
 import { checkAbortSignal, observeAbortSignal } from '../util'
 import { Feature } from '../util/simpleFeature'
-import { AnyConfigurationModel } from '../configuration/configurationSchema'
-import { getSubAdapterType } from './dataAdapterCache'
 import { Region, NoAssemblyRegion } from '../util/types'
 
 export interface BaseOptions {
@@ -17,11 +15,8 @@ export interface BaseOptions {
   [key: string]: unknown
 }
 
-export interface AdapterConstructor {
-  new (
-    config: AnyConfigurationModel,
-    getSubAdapter?: getSubAdapterType,
-  ): AnyDataAdapter
+export class BaseDataAdapter {
+  static capabilities: string[]
 }
 
 export type AnyDataAdapter = BaseFeatureDataAdapter | BaseRefNameAliasAdapter
@@ -49,12 +44,13 @@ function idMaker(args: any, id = '') {
  * Base class for feature adapters to extend. Defines some methods that
  * subclasses must implement.
  */
-export abstract class BaseFeatureDataAdapter {
+export abstract class BaseFeatureDataAdapter extends BaseDataAdapter {
   public id: string
 
   static capabilities = [] as string[]
 
   constructor(args: unknown = {}) {
+    super()
     // note: we use switch on jest here for more simple feature IDs
     // in test environment
     if (typeof jest === 'undefined') {
@@ -212,10 +208,10 @@ export interface Alias {
   refName: string
   aliases: string[]
 }
-export interface BaseRefNameAliasAdapter {
-  getRefNameAliases(opts: BaseOptions): Promise<Alias[]>
+export abstract class BaseRefNameAliasAdapter extends BaseDataAdapter {
+  abstract getRefNameAliases(opts: BaseOptions): Promise<Alias[]>
 
-  freeResources(): Promise<void>
+  abstract freeResources(): Promise<void>
 }
 export function isRefNameAliasAdapter(
   thing: object,
