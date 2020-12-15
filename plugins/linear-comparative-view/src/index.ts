@@ -298,6 +298,7 @@ export default class extends Plugin {
                   0,
                 )
 
+                // push branch again
                 session.addView('LinearSyntenyView', {
                   type: 'LinearSyntenyView',
                   views: [
