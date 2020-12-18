@@ -396,7 +396,18 @@ const Renderer = observer(
               )
             }
           } else if (sessionSnapshot) {
-            rootModel.setSession(loader.sessionSnapshot)
+            try {
+              rootModel.setSession(loader.sessionSnapshot)
+            } catch (error) {
+              console.error(error)
+              rootModel.setDefaultSession()
+              const errorMessage = (error.message || '')
+                .replace('[mobx-state-tree] ', '')
+                .replace(/\(.+/, '')
+              rootModel.session?.notify(
+                `Session could not be loaded. ${errorMessage}`,
+              )
+            }
           } else {
             const defaultJBrowseSession = rootModel.jbrowse.defaultSession
             if (defaultJBrowseSession?.views) {
