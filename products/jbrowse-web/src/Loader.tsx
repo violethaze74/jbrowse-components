@@ -401,10 +401,10 @@ const Renderer = observer(
             } else if (sessionSnapshot) {
               try {
                 rootModel.setSession(loader.sessionSnapshot)
-              } catch (error) {
-                console.error(error)
+              } catch (err) {
+                console.error(err)
                 rootModel.setDefaultSession()
-                const errorMessage = (error.message || '')
+                const errorMessage = (err.message || '')
                   .replace('[mobx-state-tree] ', '')
                   .replace(/\(.+/, '')
                 rootModel.session?.notify(
