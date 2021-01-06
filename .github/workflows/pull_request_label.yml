@@ -1,3 +1,4 @@
+# Labels pull requests with "needs label triage" if it doesn't have a changelog label
 name: 'Pull Request Labeler'
 on:
   - pull_request_target
