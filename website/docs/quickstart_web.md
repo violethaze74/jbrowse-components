@@ -2,7 +2,12 @@
 id: quickstart_web
 title: JBrowse web quick start
 toplevel: true
+hide_table_of_contents: true
 ---
+
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
 
 In this guide, we'll get an instance of JBrowse running on your computer.
 

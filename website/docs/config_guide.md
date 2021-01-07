@@ -4,6 +4,10 @@ title: Config guide
 toplevel: true
 ---
 
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
+
 ## Intro to the config.json
 
 A JBrowse 2 configuration file, a config.json, is structured as follows

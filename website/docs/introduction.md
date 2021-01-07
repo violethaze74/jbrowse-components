@@ -3,7 +3,12 @@ slug: /
 id: introduction
 title: Introduction
 toplevel: true
+hide_table_of_contents: true
 ---
+
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
 
 Welcome to the JBrowse 2 documentation.
 

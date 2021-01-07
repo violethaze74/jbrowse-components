@@ -2,7 +2,12 @@
 id: user_guide
 toplevel: true
 title: User guide
+hide_table_of_contents: true
 ---
+
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
 
 ## Navigating the UI
 

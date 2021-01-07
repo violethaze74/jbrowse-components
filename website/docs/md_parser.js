@@ -32,8 +32,10 @@ let topLevel = false
       continue
     }
     if (readingHeader === false) {
+      // extra # added
       if (line.startsWith('#')) console.log(`#${line}`)
-      else console.log(line)
+      // normal
+      else if (!line.includes('TOCInline')) console.log(line)
     }
   }
 })()

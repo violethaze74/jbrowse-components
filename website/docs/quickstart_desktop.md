@@ -2,7 +2,12 @@
 id: quickstart_desktop
 title: Quick start for JBrowse desktop
 toplevel: true
+hide_table_of_contents: true
 ---
+
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
 
 **_Important note on JBrowse desktop_**
 

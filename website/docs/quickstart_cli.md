@@ -2,7 +2,12 @@
 id: quickstart_cli
 title: Config editing quick start — command-line interface
 toplevel: true
+hide_table_of_contents: true
 ---
+
+import TOCInline from '@theme/TOCInline';
+
+<TOCInline toc={toc} />
 
 In order to display your data, JBrowse 2 needs to know about the reference
 genome for your organism of interest and needs to have tracks created that
