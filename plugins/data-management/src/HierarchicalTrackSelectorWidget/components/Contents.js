@@ -7,24 +7,14 @@ import React from 'react'
 import Category from './Category'
 import TrackEntry from './TrackEntry'
 
-const useStyles = makeStyles(theme => ({
-  divider: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}))
-
 function Contents({
   model,
   path,
   filterPredicate,
   disabled,
   connection,
-  top,
   assemblyName,
 }) {
-  const classes = useStyles()
-
   let hierarchy = connection
     ? model.connectionHierarchy(connection, assemblyName)
     : model.hierarchy(assemblyName)
@@ -45,23 +35,8 @@ function Contents({
       }
     })
 
-  const refSeqTrackConf = model.getRefSeqTrackConf(assemblyName)
-  const showRefSeqTrack = top && !connection && refSeqTrackConf
-
   return (
     <>
-      {showRefSeqTrack ? (
-        <>
-          <FormGroup>
-            <TrackEntry
-              model={model}
-              trackConf={refSeqTrackConf}
-              assemblyName={assemblyName}
-            />
-          </FormGroup>
-          <Divider className={classes.divider} />
-        </>
-      ) : null}
       <FormGroup>
         {trackConfigurations.filter(filterPredicate).map(trackConf => {
           return (

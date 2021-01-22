@@ -33,14 +33,18 @@ export default (pluginManager: PluginManager) => {
     { baseConfiguration: BaseAssemblyConfigSchema },
   )
 
-  function dispatcher(
-    snapshot:
-      | SnapshotIn<typeof BaseAssemblyConfigSchema>
-      | SnapshotIn<typeof AssemblyConfigSchema>,
-  ) {
-    if (!snapshot) return BaseAssemblyConfigSchema
+  type AssemblySnap =
+    | SnapshotIn<typeof BaseAssemblyConfigSchema>
+    | SnapshotIn<typeof AssemblyConfigSchema>
+
+  function dispatcher(snapshot: AssemblySnap) {
+    if (!snapshot) {
+      return BaseAssemblyConfigSchema
+    }
     const { refNameAliases } = snapshot
-    if (refNameAliases) return AssemblyConfigSchema
+    if (refNameAliases) {
+      return AssemblyConfigSchema
+    }
     return BaseAssemblyConfigSchema
   }
 

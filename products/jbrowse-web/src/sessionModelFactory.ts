@@ -102,7 +102,34 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
         return getParent(self).jbrowse.assemblyNames
       },
       get tracks() {
-        return [...self.sessionTracks, ...getParent(self).jbrowse.tracks]
+        // @ts-ignore
+        const refSeqTracks = this.assemblies.map(assembly => ({
+          ...assembly.sequence,
+          assemblyNames: [assembly.name],
+          categories: ['Reference sequence'],
+          name: `Reference sequence (${assembly.name})`,
+        }))
+        // @ts-ignore
+        const gcContent = this.assemblies.map(assembly => ({
+          type: 'QuantitativeTrack',
+          adapter: {
+            type: 'GCContentAdapter',
+            sequenceAdapter: {
+              ...assembly.sequence.adapter,
+            },
+          },
+          assemblyNames: [assembly.name],
+          categories: ['Reference sequence'],
+          name: `GC content (${assembly.name})`,
+          displays: [{ type: 'LinearWiggleDisplay', displayId: 'testing' }],
+          trackId: `gccontent_${assembly.name}`,
+        }))
+        return [
+          ...self.sessionTracks,
+          ...getParent(self).jbrowse.tracks,
+          ...refSeqTracks,
+          ...gcContent,
+        ]
       },
       get connections() {
         return [

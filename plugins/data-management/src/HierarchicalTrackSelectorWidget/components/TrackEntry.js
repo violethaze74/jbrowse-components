@@ -75,7 +75,9 @@ function TrackEntry({ model, disabled, trackConf, assemblyName }) {
             label={
               assemblyName ? `Reference Sequence (${assemblyName})` : trackName
             }
-            checked={model.view.tracks.some(t => t.configuration === trackConf)}
+            checked={model.view.tracks.some(
+              t => t.configuration.trackId === trackConf.trackId,
+            )}
             onChange={() => model.view.toggleTrack(trackConf.trackId)}
             disabled={disabled || unsupported}
           />
