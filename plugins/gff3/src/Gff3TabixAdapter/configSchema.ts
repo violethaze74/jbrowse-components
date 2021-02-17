@@ -23,6 +23,10 @@ export default ConfigurationSchema(
       type: 'stringArray',
       defaultValue: ['chromosome', 'region'],
     },
+    excludeFeatures: {
+      type: 'stringArray',
+      defaultValue: ['chromosome', 'region'],
+    },
   },
   { explicitlyTyped: true },
 )

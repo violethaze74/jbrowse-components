@@ -85,6 +85,7 @@
       },
       "adapter": {
         "type": "Gff3TabixAdapter",
+        "excludeFeatures": ["chromosome", "region", "match"],
         "gffGzLocation": {
           "uri": "https://s3.amazonaws.com/jbrowse.org/genomes/hg19/ncbi_refseq/GRCh37_latest_genomic.sort.gff.gz"
         },

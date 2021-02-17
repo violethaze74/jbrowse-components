@@ -39,10 +39,13 @@ interface LineFeature {
 export default class extends BaseFeatureDataAdapter {
   protected gff: TabixIndexedFile
 
+  protected config: any
+
   protected dontRedispatch: string[]
 
   public constructor(config: Instance<typeof MyConfigSchema>) {
     super(config)
+    this.config = config
     const gffGzLocation = readConfObject(config, 'gffGzLocation')
     const indexType = readConfObject(config, ['index', 'indexType'])
     const location = readConfObject(config, ['index', 'location'])
@@ -83,6 +86,7 @@ export default class extends BaseFeatureDataAdapter {
   ) {
     try {
       const lines: LineFeature[] = []
+      const excludeFeatures = readConfObject(this.config, 'excludeFeatures')
 
       await this.gff.getLines(
         query.refName,
@@ -157,7 +161,9 @@ export default class extends BaseFeatureDataAdapter {
               originalQuery.end,
             )
           ) {
-            observer.next(f)
+            if (!excludeFeatures.includes(f.get('type'))) {
+              observer.next(f)
+            }
           }
         }),
       )
