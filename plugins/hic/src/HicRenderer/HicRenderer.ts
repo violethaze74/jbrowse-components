@@ -1,6 +1,7 @@
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import Color from 'color'
-import ServerSideRendererType, {
+import {
+  rendererFactory,
   RenderArgsDeserialized,
   RenderArgs,
   ResultsDeserialized,
@@ -42,7 +43,7 @@ export interface PileupRenderProps {
   }
 }
 
-export default class HicRenderer extends ServerSideRendererType {
+export default class HicRenderer extends rendererFactory() {
   async makeImageData(props: PileupRenderProps) {
     const {
       features,

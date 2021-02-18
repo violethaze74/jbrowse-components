@@ -4,7 +4,8 @@ import {
   getAdapter,
 } from '../data_adapters/dataAdapterCache'
 import RpcMethodType from '../pluggableElementTypes/RpcMethodType'
-import ServerSideRendererType, {
+import {
+  rendererFactory,
   RenderArgsSerialized as RendererTypeRenderArgsSerialized,
 } from '../pluggableElementTypes/renderers/ServerSideRendererType'
 import { RemoteAbortSignal } from './remoteAbortSignals'
@@ -189,6 +190,9 @@ function validateRendererType<T>(rendererType: string, RendererType: T) {
     )
   }
 
+  const ServerSideRendererType = rendererFactory()
+
+  console.log(typeof ServerSideRendererType)
   if (!(RendererType instanceof ServerSideRendererType)) {
     throw new Error(
       'CoreRender requires a renderer that is a subclass of ServerSideRendererType',

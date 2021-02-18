@@ -5,7 +5,7 @@ import {
 import { Feature } from '@jbrowse/core/util/simpleFeature'
 import { Region } from '@jbrowse/core/util/types'
 import { BaseFeatureDataAdapter } from '@jbrowse/core/data_adapters/BaseAdapter'
-import ServerSideRendererType from '@jbrowse/core/pluggableElementTypes/renderers/ServerSideRendererType'
+import { rendererFactory } from '@jbrowse/core/pluggableElementTypes/renderers/ServerSideRendererType'
 import React from 'react'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { ScaleOpts } from './util'
@@ -27,7 +27,7 @@ export interface WiggleBaseRendererProps {
   displayModel: unknown
 }
 
-export default abstract class extends ServerSideRendererType {
+export default abstract class extends rendererFactory() {
   async makeImageData(props: WiggleBaseRendererProps) {
     const { height, regions, bpPerPx, highResolutionScaling = 1 } = props
     const [region] = regions

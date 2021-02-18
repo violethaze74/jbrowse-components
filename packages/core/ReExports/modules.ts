@@ -59,7 +59,7 @@ import TrackType from '../pluggableElementTypes/TrackType'
 import WidgetType from '../pluggableElementTypes/WidgetType'
 
 import * as pluggableElementTypeModels from '../pluggableElementTypes/models'
-import ServerSideRendererType from '../pluggableElementTypes/renderers/ServerSideRendererType'
+import { rendererFactory } from '../pluggableElementTypes/renderers/ServerSideRendererType'
 import CircularChordRendererType from '../pluggableElementTypes/renderers/CircularChordRendererType'
 import BoxRendererType from '../pluggableElementTypes/renderers/BoxRendererType'
 
@@ -77,6 +77,7 @@ import * as mstTypes from '../util/types/mst'
 
 import ReExportsList from './list'
 
+const ServerSideRendererType = rendererFactory()
 const libs = {
   mobx,
   'mobx-state-tree': mst,

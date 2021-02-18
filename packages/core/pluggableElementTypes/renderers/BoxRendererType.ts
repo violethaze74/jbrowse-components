@@ -4,7 +4,8 @@ import GranularRectLayout from '../../util/layouts/GranularRectLayout'
 import MultiLayout from '../../util/layouts/MultiLayout'
 import PrecomputedLayout from '../../util/layouts/PrecomputedLayout'
 import { Feature } from '../../util/simpleFeature'
-import ServerSideRendererType, {
+import {
+  rendererFactory,
   ResultsSerialized as BaseResultsSerialized,
   RenderArgs,
   RenderArgsSerialized,
@@ -104,7 +105,7 @@ type ResultsSerialized = BaseResultsSerialized & {
   layout: SerializedLayout
 }
 
-export default class BoxRendererType extends ServerSideRendererType {
+export default class BoxRendererType extends rendererFactory() {
   sessions: { [sessionId: string]: LayoutSession } = {}
 
   getWorkerSession(props: LayoutSessionProps & { sessionId: string }) {

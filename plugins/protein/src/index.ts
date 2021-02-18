@@ -1,4 +1,4 @@
-import ServerSideRendererType from '@jbrowse/core/pluggableElementTypes/renderers/ServerSideRendererType'
+import { rendererFactory } from '@jbrowse/core/pluggableElementTypes/renderers/ServerSideRendererType'
 import Plugin from '@jbrowse/core/Plugin'
 import PluginManager from '@jbrowse/core/PluginManager'
 import {
@@ -10,6 +10,7 @@ export default class extends Plugin {
   name = 'ProteinsPlugin'
 
   install(pluginManager: PluginManager) {
+    const ServerSideRendererType = rendererFactory(pluginManager)
     pluginManager.addRendererType(
       () =>
         new ServerSideRendererType({
