@@ -23,6 +23,7 @@ export default class extends WiggleBaseRenderer {
     const height = unadjustedHeight - offset * 2
     const clipColor = readConfObject(config, 'clipColor')
     const highlightColor = readConfObject(config, 'highlightColor')
+    const lineWidth = readConfObject(config, 'lineWidth')
     const scale = getScale({ ...scaleOpts, range: [0, height] })
     const [niceMin, niceMax] = scale.domain()
     const toY = rawscore => height - scale(rawscore) + offset
@@ -31,6 +32,7 @@ export default class extends WiggleBaseRenderer {
         ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
           feature => 'grey'
         : feature => readConfObject(config, 'color', [feature])
+    ctx.lineWidth = lineWidth
 
     let lastVal
     for (const feature of features.values()) {
