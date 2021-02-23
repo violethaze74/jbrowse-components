@@ -10,6 +10,7 @@ exports[`<LinearGenomeView /> renders one track, one region 1`] = `
     >
       <div
         class="makeStyles-rubberBandControl"
+        data-testid="overview_rubberBand_controls"
         role="presentation"
       >
         <div
@@ -751,6 +752,7 @@ exports[`<LinearGenomeView /> renders two tracks, two regions 1`] = `
     >
       <div
         class="makeStyles-rubberBandControl"
+        data-testid="overview_rubberBand_controls"
         role="presentation"
       >
         <div

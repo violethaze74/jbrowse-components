@@ -83,6 +83,7 @@ exports[`<JBrowseLinearGenomeView /> renders successfully 1`] = `
           >
             <div
               class="makeStyles-rubberBandControl"
+              data-testid="overview_rubberBand_controls"
               role="presentation"
             >
               <div
