@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { types, getParent, isAlive, cast, Instance } from 'mobx-state-tree'
-import { Component } from 'react'
+import { Component, ReactElement } from 'react'
 import { readConfObject } from '@jbrowse/core/configuration'
 import { Region } from '@jbrowse/core/util/types/mst'
+import SerializableFilterChain from '@jbrowse/core/pluggableElementTypes/renderers/util/serializableFilterChain'
 
 import {
   assembleLocString,
@@ -33,6 +34,7 @@ const blockState = types
     html: '',
     status: '',
     error: undefined as Error | undefined,
+    element: undefined as ReactElement | undefined,
     message: undefined as string | undefined,
     maxHeightReached: false,
     ReactComponent: ServerSideRenderedBlockContent,
@@ -70,6 +72,7 @@ const blockState = types
         self.filled = false
         self.message = undefined
         self.html = ''
+        self.element = undefined
         self.data = undefined
         self.error = undefined
         self.maxHeightReached = false
@@ -84,6 +87,7 @@ const blockState = types
         self.filled = false
         self.message = messageText
         self.html = ''
+        self.element = undefined
         self.data = undefined
         self.error = undefined
         self.maxHeightReached = false
@@ -95,7 +99,8 @@ const blockState = types
         props:
           | {
               data: any
-              html: any
+              html?: string
+              element?: ReactElement
               maxHeightReached: boolean
               renderingComponent: Component
               renderProps: any
@@ -108,13 +113,15 @@ const blockState = types
         const {
           data,
           html,
+          element,
           maxHeightReached,
           renderingComponent,
           renderProps,
         } = props
         self.filled = true
         self.message = undefined
-        self.html = html
+        self.html = html || ''
+        self.element = element
         self.data = data
         self.error = undefined
         self.maxHeightReached = maxHeightReached
@@ -131,6 +138,7 @@ const blockState = types
         self.filled = false
         self.message = undefined
         self.html = ''
+        self.element = undefined
         self.data = undefined
         self.maxHeightReached = false
         self.error = error
@@ -143,6 +151,7 @@ const blockState = types
         self.filled = false
         self.data = undefined
         self.html = ''
+        self.element = undefined
         self.error = undefined
         self.message = undefined
         self.maxHeightReached = false
@@ -190,6 +199,7 @@ function renderBlockData(self: Instance<BlockStateModel>) {
     rendererType,
     error: displayError,
     parentTrack,
+    ssr,
   } = display
   const assemblyNames = getTrackAssemblyNames(parentTrack)
   const regionAsm = self.region.assemblyName
@@ -216,6 +226,7 @@ function renderBlockData(self: Instance<BlockStateModel>) {
     renderProps,
     cannotBeRenderedReason,
     displayError,
+    ssr,
     renderArgs: {
       statusCallback: (message: string) => {
         if (isAlive(self)) {
@@ -235,6 +246,7 @@ function renderBlockData(self: Instance<BlockStateModel>) {
 
 interface RenderProps {
   displayError: Error
+  ssr: boolean
   rendererType: any
   renderProps: { [key: string]: any }
   rpcManager: { call: Function }
@@ -258,6 +270,7 @@ async function renderBlockEffect(
     renderArgs,
     cannotBeRenderedReason,
     displayError,
+    ssr,
   } = props as RenderProps
   if (!isAlive(self)) {
     return undefined
@@ -276,17 +289,41 @@ async function renderBlockEffect(
     return undefined
   }
 
-  const { html, maxHeightReached, ...data } = await rendererType.renderInClient(
-    rpcManager,
-    {
+  let data
+  let html
+  let element
+  let maxHeightReached
+
+  console.log(ssr)
+  if (ssr) {
+    ;({ html, maxHeightReached, ...data } = await rendererType.renderInClient(
+      rpcManager,
+      {
+        ...renderArgs,
+        ...renderProps,
+        signal,
+      },
+    ))
+  } else {
+    const dataAdapterType = getSession(self).pluginManager.getAdapterType(
+      renderArgs.adapterConfig.type,
+    )
+    const config = dataAdapterType.configSchema.create(renderArgs.adapterConfig)
+    const dataAdapter = new dataAdapterType.AdapterClass(config)
+    if (renderProps.filters) {
+      renderProps.filters = new SerializableFilterChain(renderProps.filters)
+    }
+    ;({ element, maxHeightReached, ...data } = await rendererType.render({
       ...renderArgs,
       ...renderProps,
       signal,
-    },
-  )
+      dataAdapter,
+    }))
+  }
   return {
     data,
     html,
+    element,
     maxHeightReached,
     renderingComponent: rendererType.ReactComponent,
     renderProps,

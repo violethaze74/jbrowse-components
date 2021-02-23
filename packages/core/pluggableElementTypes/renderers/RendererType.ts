@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { getDefaultValue } from '../../util/mst-reflection'
 import PluggableElementBase from '../PluggableElementBase'
 import { AnyConfigurationSchemaType } from '../../configuration/configurationSchema'
@@ -28,8 +28,10 @@ export default class RendererType extends PluggableElementBase {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async render(props: Record<string, any>): Promise<Record<string, any>> {
+  async render(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    props: Record<string, any>,
+  ): Promise<{ element: ReactElement } | { html: string }> {
     return { element: React.createElement(this.ReactComponent, props, null) }
   }
 

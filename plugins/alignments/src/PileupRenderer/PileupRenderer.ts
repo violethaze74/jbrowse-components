@@ -692,6 +692,17 @@ export default class PileupRenderer extends BoxRendererType {
   }
 
   async render(renderProps: PileupRenderProps) {
+    if (!renderProps.layout) {
+      const { sessionId, regions } = renderProps
+      const features = await this.getFeatures(renderProps)
+      renderProps.features = features
+      if (!this.sessions[sessionId])
+        this.sessions[sessionId] = this.createSession(renderProps)
+      const session = this.sessions[sessionId]
+      session.update(renderProps)
+      const subLayout = session.layout.getSublayout(regions[0].refName)
+      renderProps.layout = subLayout
+    }
     const {
       height,
       width,

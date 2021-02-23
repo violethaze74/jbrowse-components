@@ -228,4 +228,22 @@ export default class BoxRendererType extends ServerSideRendererType {
     serialized.maxHeightReached = serialized.layout.maxHeightReached
     return serialized
   }
+
+  async render(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    renderProps: Record<string, any>,
+  ) {
+    if (!renderProps.layout) {
+      const { sessionId, regions } = renderProps
+      const features = await this.getFeatures(renderProps)
+      renderProps.features = features
+      if (!this.sessions[sessionId])
+        this.sessions[sessionId] = this.createSession(renderProps)
+      const session = this.sessions[sessionId]
+      session.update(renderProps)
+      const subLayout = session.layout.getSublayout(regions[0].refName)
+      renderProps.layout = subLayout
+    }
+    return super.render(renderProps)
+  }
 }

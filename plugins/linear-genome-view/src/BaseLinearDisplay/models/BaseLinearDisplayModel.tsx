@@ -48,6 +48,7 @@ export const BaseLinearDisplay = types
         defaultDisplayHeight,
       ),
       blockState: types.map(BlockState),
+      ssr: true,
       userBpPerPxLimit: types.maybe(types.number),
     }),
   )
@@ -223,6 +224,9 @@ export const BaseLinearDisplay = types
       })
 
       addDisposer(self, blockWatchDisposer)
+    },
+    setSSR(ssr: boolean) {
+      self.ssr = ssr
     },
     setHeight(displayHeight: number) {
       if (displayHeight > minDisplayHeight) self.height = displayHeight

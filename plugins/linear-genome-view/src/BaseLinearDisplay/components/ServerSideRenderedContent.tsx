@@ -16,6 +16,9 @@ function ServerSideRenderedContent(props: { model: BlockModel }) {
   const theme = createJBrowseTheme(getConf(session, 'theme'))
 
   useEffect(() => {
+    if (model.element) {
+      return () => {}
+    }
     const domNode = ssrContainerNode.current
     function doHydrate() {
       const {
@@ -76,6 +79,10 @@ function ServerSideRenderedContent(props: { model: BlockModel }) {
       }
     }
   }, [model, theme])
+
+  if (model.element) {
+    return model.element
+  }
 
   return (
     <div

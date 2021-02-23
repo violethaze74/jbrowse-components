@@ -149,6 +149,14 @@ export default class ServerSideRenderer extends RendererType {
     return serialized
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async render(args: RenderArgs, rpcManager?: RpcManager) {
+    if (rpcManager) {
+      return this.renderInClient(rpcManager, args)
+    }
+    return super.render(args)
+  }
+
   /**
    * Render method called on the client. Serializes args, then
    * calls `render` with the RPC manager.
@@ -248,15 +256,18 @@ export default class ServerSideRenderer extends RendererType {
     statusCallback('Rendering plot')
     const results = await this.render({ ...deserializedArgs, features })
     checkAbortSignal(signal)
-    const html = renderToString(
-      React.createElement(
-        ThemeProvider,
-        // @ts-ignore
-        { theme: createJBrowseTheme(args.theme) },
-        results.element,
-      ),
-    )
-    delete results.element
+    let html = ''
+    if ('element' in results) {
+      html = renderToString(
+        React.createElement(
+          ThemeProvider,
+          // @ts-ignore
+          { theme: createJBrowseTheme(args.theme) },
+          results.element,
+        ),
+      )
+      delete results.element
+    }
 
     // serialize the results for passing back to the main thread.
     // these will be transmitted to the main process, and will come out
