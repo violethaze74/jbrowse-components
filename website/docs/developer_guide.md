@@ -68,6 +68,8 @@ tracks, renderers, and so forth.
 Pluggable elements are basic "extension points" that you can customize in
 JBrowse 2 plugins
 
+<!-- could we add more to this description -->
+
 The pluggable types that we have in JBrowse 2 are
 
 - Adapters
@@ -778,6 +780,8 @@ discussed below) and freeResources (optional)
 
 ### Example feature adapter
 
+<!-- Example of data adapter already added -->
+
 To take this a little slow let's look at each function individually
 
 This is a more complete description of the class interface that you can implement
@@ -904,6 +908,8 @@ This is uncommonly used, so most adapters make this an empty function
 
 Most adapters in fact use an LRU cache to make resources go away over time
 instead of manually cleaning up resources
+
+<!-- Could add a section here on how to separate, compile and customize one of our core plugins  -->
 
 ## Creating a new plugin
 
