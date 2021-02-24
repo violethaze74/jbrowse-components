@@ -89,21 +89,6 @@ describe('valid file tests', () => {
     expect(state.session.views[0].bpPerPx).toBeCloseTo(11.72)
   })
 
-  it('click and drag overview rubber band horizontally flipped', async () => {
-    const pluginManager = getPluginManager()
-    const state = pluginManager.rootModel
-    const { findByTestId } = render(<JBrowse pluginManager={pluginManager} />)
-    const overviewRubberBand = await findByTestId(
-      'overview_rubberBand_controls',
-    )
-
-    expect(state.session.views[0].bpPerPx).toEqual(0.05)
-    fireEvent.mouseDown(overviewRubberBand, { clientX: 250, clientY: 0 })
-    fireEvent.mouseMove(overviewRubberBand, { clientX: 100, clientY: 0 })
-    fireEvent.mouseUp(overviewRubberBand, { clientX: 100, clientY: 0 })
-    expect(state.session.views[0].bpPerPx).toBeCloseTo(11.72)
-  })
-
   it('click and drag rubberBand, click get sequence to open sequenceDialog', async () => {
     const pluginManager = getPluginManager()
     const state = pluginManager.rootModel

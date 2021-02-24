@@ -147,4 +147,28 @@ describe('<LinearGenomeView />', () => {
     await findByText('798 bp')
     expect(container.firstChild).toMatchSnapshot()
   })
+
+  it('hides header and uses mini controls', async () => {
+    const session = createTestSession()
+    session.addAssemblyConf(assemblyConf)
+    session.addView('LinearGenomeView', {
+      id: 'lgv',
+      offsetPx: 0,
+      bpPerPx: 1,
+      displayedRegions: [
+        { assemblyName: 'volMyt1', refName: 'ctgA', start: 0, end: 100 },
+      ],
+    })
+    const model = session.views[0]
+    model.setWidth(800)
+    const { findByTestId } = render(<LinearGenomeView model={model} />)
+    model.toggleHeader()
+    model.toggleHeaderOverview()
+    expect(model.hideHeaderOverview).toEqual(true)
+    expect(model.bpPerPx).toEqual(1)
+    const zoomIn = await findByTestId('zoom_in')
+    zoomIn.click()
+    // zooming in should half the bp per px
+    expect(model.bpPerPx).toBeLessThan(1)
+  })
 })
