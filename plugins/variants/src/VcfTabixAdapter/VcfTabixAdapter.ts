@@ -47,10 +47,11 @@ export default class extends BaseFeatureDataAdapter {
       chunkCacheSize: 50 * 2 ** 20,
       chunkSizeLimit: 1000000000,
     })
+  }
 
-    this.parser = this.vcf
-      .getHeader()
-      .then((header: string) => new VcfParser({ header }))
+  public async setup() {
+    const header = await this.vcf.getHeader()
+    return new VcfParser({ header })
   }
 
   public async getRefNames(opts: BaseOptions = {}) {
@@ -62,13 +63,13 @@ export default class extends BaseFeatureDataAdapter {
   }
 
   async getMetadata() {
-    const parser = await this.parser
+    const parser = await this.setup()
     return parser.getMetadata()
   }
 
   public getFeatures(query: NoAssemblyRegion, opts: BaseOptions = {}) {
     return ObservableCreate<Feature>(async observer => {
-      const parser = await this.parser
+      const parser = await this.setup()
       await this.vcf.getLines(query.refName, query.start, query.end, {
         lineCallback: (line: string, fileOffset: number) => {
           const variant = parser.parseLine(line)
