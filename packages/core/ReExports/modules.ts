@@ -47,6 +47,7 @@ import MUITypography from '@material-ui/core/Typography'
 import ToggleButton from '@material-ui/lab/ToggleButton'
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
 
+import * as BGZFFilehandle from '@gmod/bgzf-filehandle'
 import * as BaseAdapterExports from '../data_adapters/BaseAdapter'
 
 import * as BaseFeatureDetail from '../BaseFeatureWidget/BaseFeatureDetail'
@@ -67,6 +68,7 @@ import * as Configuration from '../configuration'
 import Plugin from '../Plugin'
 import * as coreUi from '../ui'
 import * as coreUtil from '../util'
+import * as coreQuickLRU from '../util/QuickLRU'
 import * as coreColor from '../util/color'
 import * as trackUtils from '../util/tracks'
 import * as coreIo from '../util/io'
@@ -92,6 +94,7 @@ const libs = {
   '@material-ui/core/utils': MUIUtils,
   // end special case
   '@material-ui/lab': MUILab,
+  '@gmod/bgzf-filehandle': BGZFFilehandle,
 
   // material-ui subcomponents, should get rid of these
   '@material-ui/core/colors': MUIColors,
@@ -145,6 +148,7 @@ const libs = {
   '@jbrowse/core/util/types/mst': mstTypes,
   '@jbrowse/core/ui': coreUi,
   '@jbrowse/core/util': coreUtil,
+  '@jbrowse/core/util/QuickLRU': coreQuickLRU,
   '@jbrowse/core/util/color': coreColor,
   '@jbrowse/core/util/tracks': trackUtils,
   '@jbrowse/core/util/Base1DViewModel': Base1DView,
