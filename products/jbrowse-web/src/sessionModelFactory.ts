@@ -176,9 +176,7 @@ export default function sessionModelFactory(
       setName(str: string) {
         self.name = str
       },
-      addAssembly(assemblyConfig: any) {
-        self.sessionAssemblies.push(assemblyConfig)
-      },
+
       removeAssembly(assemblyName: string) {
         const index = self.sessionAssemblies.findIndex(
           asm => asm.name === assemblyName,
@@ -348,7 +346,10 @@ export default function sessionModelFactory(
       },
 
       addAssemblyConf(assemblyConf: AnyConfigurationModel) {
-        return getParent(self).jbrowse.addAssemblyConf(assemblyConf)
+        const root = getParent(self)
+        return self.adminMode
+          ? root.jbrowse.addAssemblyConf(assemblyConf)
+          : self.sessionAssemblies.push(assemblyConf)
       },
 
       addTrackConf(trackConf: AnyConfigurationModel) {

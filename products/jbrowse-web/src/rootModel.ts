@@ -334,33 +334,29 @@ export default function RootModel(
             },
           ],
         },
-        ...(adminMode
-          ? [
-              {
-                label: 'Admin',
-                menuItems: [
-                  {
-                    label: 'Open assembly manager',
-                    icon: SettingsIcon,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onClick: (session: any) => {
-                      const rootModel = getParent(session)
-                      rootModel.setAssemblyEditing(true)
-                    },
-                  },
-                  {
-                    label: 'Set default session',
-                    icon: SettingsIcon,
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onClick: (session: any) => {
-                      const rootModel = getParent(session)
-                      rootModel.setDefaultSessionEditing(true)
-                    },
-                  },
-                ],
+        {
+          label: 'Edit',
+          menuItems: [
+            {
+              label: 'Open assembly manager',
+              icon: SettingsIcon,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onClick: (session: any) => {
+                const rootModel = getParent(session)
+                rootModel.setAssemblyEditing(true)
               },
-            ]
-          : []),
+            },
+            {
+              label: 'Set default session',
+              icon: SettingsIcon,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onClick: (session: any) => {
+                const rootModel = getParent(session)
+                rootModel.setDefaultSessionEditing(true)
+              },
+            },
+          ],
+        },
       ] as Menu[],
       rpcManager: new RpcManager(
         pluginManager,

@@ -116,3 +116,5 @@ export default class extends Plugin {
     }
   }
 }
+
+export { AssemblyManager, SetDefaultSession }

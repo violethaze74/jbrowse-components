@@ -6,6 +6,10 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { observer } from 'mobx-react'
 import { onSnapshot } from 'mobx-state-tree'
+import {
+  AssemblyManager,
+  SetDefaultSession,
+} from '@jbrowse/plugin-data-management'
 import ShareButton from './ShareButton'
 
 function deleteBaseUris(config) {
@@ -67,9 +71,6 @@ const JBrowse = observer(({ pluginManager }) => {
   }
 
   const theme = getConf(rootModel.jbrowse, 'theme')
-  const { AssemblyManager, SetDefaultSession } = pluginManager.getPlugin(
-    'DataManagementPlugin',
-  ).exports
   return (
     <ThemeProvider theme={createJBrowseTheme(theme)}>
       <CssBaseline />
@@ -77,15 +78,15 @@ const JBrowse = observer(({ pluginManager }) => {
         session={session}
         HeaderButtons={<ShareButton session={session} />}
       />
+      <AssemblyManager
+        rootModel={rootModel}
+        open={rootModel.isAssemblyEditing}
+        onClose={() => {
+          rootModel.setAssemblyEditing(false)
+        }}
+      />
       {adminKey ? (
         <>
-          <AssemblyManager
-            rootModel={rootModel}
-            open={rootModel.isAssemblyEditing}
-            onClose={() => {
-              rootModel.setAssemblyEditing(false)
-            }}
-          />
           <SetDefaultSession
             rootModel={rootModel}
             open={rootModel.isDefaultSessionEditing}
