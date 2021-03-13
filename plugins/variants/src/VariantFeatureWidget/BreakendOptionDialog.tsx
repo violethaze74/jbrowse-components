@@ -12,7 +12,6 @@ import {
   IconButton,
   FormControlLabel,
   Checkbox,
-  Typography,
   TextField,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
@@ -68,7 +67,6 @@ export default observer(
         <Divider />
 
         <DialogContent>
-          <Typography>Options for breakend split view</Typography>
           <FormControlLabel
             className={classes.block}
             control={
@@ -101,12 +99,13 @@ export default observer(
             }
             label="Create a side-by-side view (as opposed to vertically stacked?)"
           />
-          <TextField
-            value={windowSize}
-            onChange={event => setWindowSize(event.target.value)}
-            name="Window size for side-by-side view"
-            disabled={!sideBySide}
-          />
+          {sideBySide ? (
+            <TextField
+              value={windowSize}
+              onChange={event => setWindowSize(event.target.value)}
+              name="Window size to add to either side of the breakend for side-by-side view"
+            />
+          ) : null}
         </DialogContent>
         <DialogActions>
           <Button
