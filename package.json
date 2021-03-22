@@ -17,7 +17,7 @@
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test-ci": "jest --ci --coverage",
+    "test-ci": "xvfb-maybe --server-args=\"-screen 0 1024x768x24\" -- jest --ci --coverage",
     "built-test-ci": "jest --ci integration.test.js",
     "test": "DEBUG_PRINT_LIMIT=0 jest"
   },
@@ -147,7 +147,8 @@
     "wait-on": "^5.0.0",
     "webpack-cli": "^3.3.11",
     "whatwg-fetch": "^3.0.0",
-    "worker-loader": "^2.0.0"
+    "worker-loader": "^2.0.0",
+    "xvfb-maybe": "^0.2.1"
   },
   "version": "0.0.0"
 }
