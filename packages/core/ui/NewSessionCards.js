@@ -40,7 +40,11 @@ function NewSessionCard({ name, onClick, image }) {
       >
         <CardMedia className={classes.media} image={image} />
       </Card>
-      <Typography variant="subtitle2" className={classes.name}>
+      <Typography
+        variant="subtitle2"
+        className={classes.name}
+        onClick={onClick}
+      >
         {name}
       </Typography>
     </Container>
