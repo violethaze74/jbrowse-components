@@ -15,17 +15,18 @@ beforeAll(() => {
   app = new Application({
     path: electronPath,
     args: [dir],
+    waitTimeout: 60000,
   })
 
   return app.start()
-})
+}, 60000)
 
 afterAll(() => {
   if (app && app.isRunning()) {
     return app.stop()
   }
   return undefined
-})
+}, 60000)
 
 test('Click on LGV', async () => {
   const count = await app.client.getWindowCount()
@@ -37,4 +38,4 @@ test('Click on LGV', async () => {
   ;(await app.client.$('//h6[text()="Linear Genome View"]')).click()
   // at lgv import form
   await app.client.$('//span[text()="Show all regions in assembly"]')
-}, 50000)
+}, 60000)
