@@ -90,6 +90,7 @@ async function getPluginManager() {
   const runtimePlugins = await pluginLoader.load()
   const plugins = [...corePlugins, ...runtimePlugins]
   const pluginManager = new PluginManager(plugins.map(P => new P()))
+  console.log({ pluginManager })
 
   pluginManager.createPluggableElements()
   pluginManager.configure()

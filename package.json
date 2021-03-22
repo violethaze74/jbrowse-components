@@ -137,6 +137,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.0.0",
     "semver": "^7.3.4",
+    "spectron": "11",
     "standard-changelog": "^2.0.7",
     "ts-loader": "^7.0.5",
     "ts-node": "^8",
