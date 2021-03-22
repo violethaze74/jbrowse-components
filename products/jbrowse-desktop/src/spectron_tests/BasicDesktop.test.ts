@@ -8,7 +8,6 @@ const electronPath = path.resolve(
   '../../../../node_modules/.bin/electron',
 )
 
-jest.setTimeout(10000) // increase to 50000 on low spec laptop
 let app = null
 
 beforeAll(() => {
@@ -38,4 +37,4 @@ test('Click on LGV', async () => {
   ;(await app.client.$('//h6[text()="Linear Genome View"]')).click()
   // at lgv import form
   await app.client.$('//span[text()="Show all regions in assembly"]')
-})
+}, 50000)
