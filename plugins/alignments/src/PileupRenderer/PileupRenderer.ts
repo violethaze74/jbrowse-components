@@ -111,7 +111,11 @@ export default class PileupRenderer extends BoxRendererType {
       for (let i = 0; i < mismatches.length; i += 1) {
         const { type, start, cliplen = 0 } = mismatches[i]
         if (type === 'softclip') {
-          start === 0 ? (expansionBefore = cliplen) : (expansionAfter = cliplen)
+          if (start === 0) {
+            expansionBefore = cliplen
+          } else {
+            expansionAfter = cliplen
+          }
         }
       }
     }
@@ -408,15 +412,15 @@ export default class PileupRenderer extends BoxRendererType {
     colorForBase: { [key: string]: string },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     theme: any,
+    minSubfeatureWidth: number,
   ) {
-    const { config, bpPerPx, regions } = props
+    const { bpPerPx, regions } = props
     const { heightPx, topPx, feature } = feat
     const { charWidth, charHeight } = this.getCharWidthHeight(ctx)
     const [region] = regions
     const start = feature.get('start')
-    const minFeatWidth = readConfObject(config, 'minSubfeatureWidth')
     const pxPerBp = Math.min(1 / bpPerPx, 2)
-    const w = Math.max(minFeatWidth, pxPerBp)
+    const w = Math.max(minSubfeatureWidth, pxPerBp)
     const mismatches: Mismatch[] = feature.get('mismatches')
     const heightLim = charHeight - 2
 
@@ -431,7 +435,7 @@ export default class PileupRenderer extends BoxRendererType {
         bpPerPx,
       )
       const mismatchWidthPx = Math.max(
-        minFeatWidth,
+        minSubfeatureWidth,
         Math.abs(mismatchLeftPx - mismatchRightPx),
       )
 
@@ -637,6 +641,8 @@ export default class PileupRenderer extends BoxRendererType {
         ? sortFeature(features, sortedBy)
         : null
     const featureMap = sortedFeatures || features
+
+    const minSubfeatureWidth = readConfObject(config, 'minSubfeatureWidth')
     const layoutRecords = iterMap(
       featureMap.values(),
       feature =>
@@ -677,6 +683,7 @@ export default class PileupRenderer extends BoxRendererType {
         colorBy.type === 'mismatchQuality',
         colorForBase,
         theme,
+        minSubfeatureWidth,
       )
       if (showSoftClip) {
         this.drawSoftClipping(ctx, feat, props, config, theme)

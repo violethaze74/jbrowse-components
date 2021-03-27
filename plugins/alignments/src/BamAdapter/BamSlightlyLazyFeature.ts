@@ -21,6 +21,8 @@ export default class BamSlightlyLazyFeature implements Feature {
 
   private ref?: string
 
+  private mismatches?: Mismatch[]
+
   constructor(record: BamRecord, adapter: BamAdapter, ref?: string) {
     this.record = record
     this.adapter = adapter
@@ -196,40 +198,43 @@ export default class BamSlightlyLazyFeature implements Feature {
     cigarAttributeName?: string
     mdAttributeName?: string
   } = {}): Mismatch[] {
-    let mismatches: Mismatch[] = []
-    let cigarOps: string[] = []
+    if (!this.mismatches) {
+      let mismatches: Mismatch[] = []
+      let cigarOps: string[] = []
 
-    // parse the CIGAR tag if it has one
-    const cigarString = this.get(cigarAttributeName)
-    if (cigarString) {
-      cigarOps = parseCigar(cigarString)
-      mismatches = mismatches.concat(
-        cigarToMismatches(cigarOps, this.get('seq'), this.qualRaw()),
-      )
+      // parse the CIGAR tag if it has one
+      const cigarString = this.get(cigarAttributeName)
+      if (cigarString) {
+        cigarOps = parseCigar(cigarString)
+        mismatches = mismatches.concat(
+          cigarToMismatches(cigarOps, this.get('seq'), this.qualRaw()),
+        )
+      }
+
+      // now let's look for CRAM or MD mismatches
+      const mdString = this.get(mdAttributeName)
+      if (mdString) {
+        mismatches = mismatches.concat(
+          mdToMismatches(
+            mdString,
+            cigarOps,
+            mismatches,
+            this.get('seq'),
+            this.qualRaw(),
+          ),
+        )
+      }
+
+      // uniqify the mismatches
+      const seen: { [index: string]: boolean } = {}
+      this.mismatches = mismatches.filter(m => {
+        const key = `${m.type},${m.start},${m.length}`
+        const s = seen[key]
+        seen[key] = true
+        return !s
+      })
     }
-
-    // now let's look for CRAM or MD mismatches
-    const mdString = this.get(mdAttributeName)
-    if (mdString) {
-      mismatches = mismatches.concat(
-        mdToMismatches(
-          mdString,
-          cigarOps,
-          mismatches,
-          this.get('seq'),
-          this.qualRaw(),
-        ),
-      )
-    }
-
-    // uniqify the mismatches
-    const seen: { [index: string]: boolean } = {}
-    return mismatches.filter(m => {
-      const key = `${m.type},${m.start},${m.length}`
-      const s = seen[key]
-      seen[key] = true
-      return !s
-    })
+    return this.mismatches
   }
 
   _get_clipPos() {
