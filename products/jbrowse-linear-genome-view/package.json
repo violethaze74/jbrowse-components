@@ -1,0 +1,20 @@
+{
+  "name": "@jbrowse/linear-genome-view",
+  "version": "1.0.3",
+  "author": "JBrowse Team",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "build:dev": "cross-env NODE_ENV=development webpack",
+    "develop": "cross-env NODE_ENV=development webpack-dev-server"
+  },
+  "dependencies": {
+    "@jbrowse/react-linear-genome-view": "1.1.0"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
+  },
+  "private": true
+}
