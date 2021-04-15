@@ -1,6 +1,7 @@
 module.exports = api => {
   api.cache(false)
   return {
+    sourceType: 'unambiguous',
     babelrcRoots: ['.', './packages/*', './products/*', './plugins/*'],
     comments: true,
     presets: [
