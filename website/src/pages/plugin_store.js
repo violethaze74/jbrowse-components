@@ -7,28 +7,21 @@ import Layout from '@theme/Layout'
 // eslint-disable-next-line import/no-unresolved
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 
-import { makeStyles } from '@material-ui/core/styles'
-import Link from '@material-ui/core/Link'
-import Typography from '@material-ui/core/Typography'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Link,
+  Typography,
+  makeStyles,
+} from '@material-ui/core'
 
 import PersonIcon from '@material-ui/icons/Person'
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance'
 import GitHubIcon from '@material-ui/icons/GitHub'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn'
-import HelpIcon from '@material-ui/icons/Help'
-import CodeIcon from '@material-ui/icons/Code'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-
-import { DialogContent } from '@material-ui/core'
 
 // eslint-disable-next-line import/no-unresolved
 import { plugins } from '../../plugins.json'
@@ -57,36 +50,46 @@ const useStyles = makeStyles(theme => ({
     },
     margin: '5em',
   },
+  cardContent: {
+    display: 'flex',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
+  },
+
+  flexDetails: {
+    display: 'flex',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
+  },
+  flexDetailChild: {
+    paddingLeft: '1em',
+    [theme.breakpoints.down('md')]: {
+      paddingLeft: 0,
+    },
+  },
 
   topLinks: {
     margin: '0 auto',
     display: 'flex',
     alignItems: 'space-between',
     justifyContent: 'center',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
   },
 
   card: {
     margin: '1em auto',
-    width: 800,
   },
 
   cardMedia: {
-    height: 200,
-    width: 800,
-  },
-
-  '@media (max-width: 800px)': {
-    cardMedia: {
-      display: 'none',
-    },
-
-    card: {
-      width: 'auto',
-    },
+    maxWidth: 400,
   },
 
   icon: {
-    marginLeft: '0.5em',
+    height: '1em',
     marginRight: '0.5em',
   },
 
@@ -100,6 +103,7 @@ const useStyles = makeStyles(theme => ({
     top: 5,
     right: 0,
   },
+  spacer: { flex: 1 },
 
   dataField: {
     display: 'flex',
@@ -115,88 +119,44 @@ const useStyles = makeStyles(theme => ({
 }))
 
 function TopDocumentation() {
-  const classes = useStyles()
-  const [aboutSectionOpen, setAboutSectionOpen] = useState(false)
-  const [developerSectionOpen, setDeveloperSectionOpen] = useState(false)
+  const [showMoreInfo, setShowMoreInfo] = useState(false)
 
   return (
-    <>
-      <div className={classes.topLinks}>
-        <Button
-          color="primary"
-          variant="contained"
-          size="medium"
-          className={classes.topButton}
-          onClick={() => setAboutSectionOpen(true)}
-          disableRipple
-        >
-          <HelpIcon style={{ marginRight: '0.5em' }} /> About the plugin store
-        </Button>
-        <Button
-          color="primary"
-          variant="contained"
-          size="medium"
-          className={classes.topButton}
-          onClick={() => setDeveloperSectionOpen(true)}
-          disableRipple
-        >
-          <CodeIcon style={{ marginRight: '0.5em' }} /> Developer information
-        </Button>
-      </div>
-      <Dialog
-        open={aboutSectionOpen}
-        onClose={() => setAboutSectionOpen(false)}
-      >
-        <DialogTitle className={classes.dialogTitleBox}>
-          About
-          <IconButton
-            aria-label="close"
-            className={classes.closeButton}
-            onClick={() => setAboutSectionOpen(false)}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
+    <div style={{ width: '75%' }}>
+      <Typography>
+        This page contains a list of JBrowse 2 plugins that are available for
+        use. Plugins can add custom data adapters, track types, or other
+        features.
+      </Typography>
+      <Typography style={{ marginTop: '0.2em' }}>
+        The app has a plugin store (similar to this page) built-into the app
+        (File-&gt;Plugin store), so both admin or non-admin users can
+        interactively add the plugin from inside the app.
+      </Typography>
+
+      {showMoreInfo ? (
+        <>
           <Typography>
-            Welcome to the plugin store!
-            <br />
-            <br />
-            This store contains the current list of white-listed JBrowse 2
-            plugins that are available for use. Plugins can add functionality
-            that doesn&apos;t exist in the core application, such as a new data
-            adapter, or a custom track type.
-            <br />
-            <br />
-            The configuration that is specified for each plugin can be added to
-            the <code>plugins</code> array as a top-level entry. For example:
-            <br />
-            <br />
+            As noted above, user's can use the File-&gt;Plugin store. Non-admin
+            users get the plugin added to their session, while if the
+            admin-server is used, it adds it directly to the config file. Admin
+            users can also use the "Show configuration" button to get a snippet
+            that they can paste in their config.json file. For example a
+            config.json plugin section might look like this:
           </Typography>
           <pre>
-            <code>{configExample}</code>
+            <code>
+              {`
+          {
+            plugins: [
+              {
+                "name": "MsaView",
+                "url": "https://unpkg.com/jbrowse-plugin-msaview/dist/jbrowse-plugin-msaview.umd.production.min.js"
+              }
+            ]
+          }`}
+            </code>
           </pre>
-          <Typography>
-            These plugins can also be added directly from inside the application
-            via the File menu.
-          </Typography>
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={developerSectionOpen}
-        onClose={() => setDeveloperSectionOpen(false)}
-      >
-        <DialogTitle className={classes.dialogTitleBox}>
-          Developer info
-          <IconButton
-            aria-label="close"
-            className={classes.closeButton}
-            onClick={() => setDeveloperSectionOpen(false)}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
           <Typography>
             We welcome developers who want to create a new JBrowse 2 plugin. The
             primary resource for getting started creating a new plugin is the{' '}
@@ -206,10 +166,18 @@ function TopDocumentation() {
               rel="noopener"
             >
               plugin template
+            </Link>{' '}
+            and also see the{' '}
+            <Link
+              href="https://jbrowse.org/jb2/docs/developer_guide"
+              target="_blank"
+              rel="noopener"
+            >
+              developer guide
             </Link>
             .
-            <br />
-            <br />
+          </Typography>
+          <Typography>
             If you build a plugin that you would like to be featured in this
             store, please follow the instructions found{' '}
             <Link
@@ -221,9 +189,17 @@ function TopDocumentation() {
             </Link>
             .
           </Typography>
-        </DialogContent>
-      </Dialog>
-    </>
+        </>
+      ) : null}
+      <Button
+        onClick={() => setShowMoreInfo(!showMoreInfo)}
+        variant="outlined"
+        size="small"
+        color="primary"
+      >
+        {!showMoreInfo ? 'Click for more info...' : 'Hide more info'}
+      </Button>
+    </div>
   )
 }
 
@@ -235,31 +211,43 @@ function PluginCard(props) {
 
   return (
     <Card variant="outlined" key={plugin.name} className={classes.card}>
-      {plugin.image ? (
-        <CardMedia
-          className={classes.cardMedia}
-          image={plugin.image}
-          title={plugin.name}
-        />
-      ) : null}
       <CardContent>
-        <div className={classes.dataField}>
-          <Typography variant="h4">{plugin.name}</Typography>
+        <div className={classes.cardContent}>
+          <div>
+            <div className={classes.dataField}>
+              <Typography variant="h6">{plugin.name}</Typography>
+            </div>
+            <div className={classes.flexDetails}>
+              <div className={classes.flexDetailChild}>
+                <PersonIcon className={classes.icon} />
+                <Typography display="inline">
+                  {plugin.authors.join(', ')}
+                </Typography>
+              </div>
+              <div className={classes.flexDetailChild}>
+                <AccountBalanceIcon className={classes.icon} />
+                <Typography display="inline">
+                  {plugin.license === 'NONE' ? 'No license' : plugin.license}
+                </Typography>
+              </div>
+              <div className={classes.flexDetailChild}>
+                <GitHubIcon className={classes.icon} />
+                <Link href={plugin.location} target="_blank" rel="noopener">
+                  {plugin.location}
+                </Link>
+              </div>
+            </div>
+            <Typography>{plugin.description}</Typography>
+          </div>
+          <div className={classes.spacer} />
+          {plugin.image ? (
+            <img
+              src={plugin.image}
+              title={plugin.name}
+              className={classes.cardMedia}
+            />
+          ) : null}
         </div>
-        <div className={classes.dataField}>
-          <PersonIcon style={{ marginRight: '0.5em' }} />
-          <Typography>{plugin.authors.join(', ')}</Typography>
-          <AccountBalanceIcon className={classes.icon} />
-          <Typography>
-            {plugin.license === 'NONE' ? 'No license' : plugin.license}
-          </Typography>
-          <GitHubIcon className={classes.icon} />
-          <Link href={plugin.location} target="_blank" rel="noopener">
-            <Typography>{plugin.location}</Typography>
-          </Link>
-        </div>
-        <Typography variant="h6">Description:</Typography>
-        <Typography>{plugin.description}</Typography>
       </CardContent>
       <CardActions>
         <Button
@@ -281,20 +269,12 @@ function PluginCard(props) {
 function ConfigBlock(props) {
   const { plugin } = props
   const [clickedCopy, setClickedCopy] = useState(false)
-
-  const configString = JSON.stringify(
-    {
-      name: plugin.name,
-      url: plugin.url,
-    },
-    null,
-    4,
-  )
+  const config = JSON.stringify({ name: plugin.name, url: plugin.url }, 0, 4)
 
   return (
     <CardContent>
       <pre>
-        <code>{configString}</code>
+        <code>{config}</code>
       </pre>
       <Button
         color="primary"
@@ -328,11 +308,10 @@ function PluginStore() {
           <h1 style={{ textAlign: 'center' }}>JBrowse 2 Plugin Store</h1>
         </div>
         <TopDocumentation />
-        <div style={{ flexBasis: '50%' }}>
-          {plugins.map(plugin => (
-            <PluginCard plugin={plugin} key={plugin.name} />
-          ))}
-        </div>
+
+        {plugins.map(plugin => (
+          <PluginCard plugin={plugin} key={plugin.name} />
+        ))}
       </div>
     </Layout>
   )
