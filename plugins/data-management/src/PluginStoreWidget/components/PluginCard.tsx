@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import { observer } from 'mobx-react'
 import { getEnv, getParent } from 'mobx-state-tree'
 
-import { makeStyles } from '@material-ui/core/styles'
-import Link from '@material-ui/core/Link'
-import Typography from '@material-ui/core/Typography'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
+import {
+  Link,
+  Typography,
+  Card,
+  CardActions,
+  CardContent,
+  Button,
+  makeStyles,
+} from '@material-ui/core'
 
 import PersonIcon from '@material-ui/icons/Person'
 import AddIcon from '@material-ui/icons/Add'
@@ -61,7 +63,7 @@ function PluginCard({
     <Card variant="outlined" key={plugin.name} className={classes.card}>
       <CardContent>
         <div className={classes.dataField}>
-          <Typography variant="h5">
+          <Typography variant="h6">
             <Link
               href={`${plugin.location}#readme`}
               target="_blank"

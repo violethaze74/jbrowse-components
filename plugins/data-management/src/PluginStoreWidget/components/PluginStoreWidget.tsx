@@ -133,7 +133,7 @@ function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon className={classes.expandIcon} />}
         >
-          <Typography variant="h5">Installed plugins</Typography>
+          <Typography>Installed plugins</Typography>
         </AccordionSummary>
         <div style={{ margin: '1em' }}>
           <InstalledPluginsList pluginManager={pluginManager} model={model} />
@@ -143,7 +143,7 @@ function PluginStoreWidget({ model }: { model: PluginStoreModel }) {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon className={classes.expandIcon} />}
         >
-          <Typography variant="h5">Available plugins</Typography>
+          <Typography>Available plugins</Typography>
         </AccordionSummary>
         {pluginArray
           .filter((plugin: BasePlugin) => {
