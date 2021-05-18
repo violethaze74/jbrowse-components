@@ -3163,6 +3163,54 @@
           "uri": "https://jbrowse.org/genomes/GRCh38/methylation/modified_bases.5mC.bb"
         }
       }
+    },
+    {
+      "type": "AlignmentsTrack",
+      "trackId": "1d.sorted.mod",
+      "name": "1d.sorted.mod",
+      "assemblyNames": ["hg38"],
+      "adapter": {
+        "type": "BamAdapter",
+        "bamLocation": {
+          "uri": "https://kero.hgc.jp/cgi-bin/download/CLCL/bam/RERF-LC-KJ/minimap2/1d.sorted.mod.bam"
+        },
+        "index": {
+          "location": {
+            "uri": "1d.sorted.mod.bam.bai"
+          },
+          "indexType": "BAI"
+        },
+        "sequenceAdapter": {
+          "type": "BgzipFastaAdapter",
+          "fastaLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz"
+          },
+          "faiLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.fai"
+          },
+          "gziLocation": {
+            "uri": "https://jbrowse.org/genomes/GRCh38/fasta/hg38.prefix.fa.gz.gzi"
+          }
+        }
+      }
+    },
+    {
+      "type": "VariantTrack",
+      "trackId": "human.vcf",
+      "name": "human.vcf",
+      "assemblyNames": ["hg38"],
+      "adapter": {
+        "type": "VcfTabixAdapter",
+        "vcfGzLocation": {
+          "uri": "human.vcf.gz"
+        },
+        "index": {
+          "location": {
+            "uri": "human.vcf.gz.tbi"
+          },
+          "indexType": "TBI"
+        }
+      }
     }
   ],
   "connections": [],

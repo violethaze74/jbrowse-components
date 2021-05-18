@@ -343,6 +343,24 @@
           "indexType": "TBI"
         }
       }
+    },
+    {
+      "type": "VariantTrack",
+      "trackId": "human.vcf",
+      "name": "human.vcf",
+      "assemblyNames": ["hg38"],
+      "adapter": {
+        "type": "VcfTabixAdapter",
+        "vcfGzLocation": {
+          "uri": "human.vcf.gz"
+        },
+        "index": {
+          "location": {
+            "uri": "human.vcf.gz.tbi"
+          },
+          "indexType": "TBI"
+        }
+      }
     }
   ],
   "connections": [

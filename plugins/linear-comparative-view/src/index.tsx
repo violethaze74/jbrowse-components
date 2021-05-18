@@ -239,13 +239,20 @@ function WindowSizeDlg(props: {
         const SA: string = getTag(preFeature, 'SA') || ''
         const primaryAln = SA.split(';')[0]
         const [saRef, saStart] = primaryAln.split(',')
-        const { rpcManager } = getSession(track)
+        const { rpcManager, assemblyManager } = getSession(track)
         const adapterConfig = getConf(track, 'adapter')
         const sessionId = getRpcSessionId(track)
+        const [trackAssembly] = getConf(track, 'assemblyNames')
+        const assembly = assemblyManager.get(trackAssembly)
         const feats = (await rpcManager.call(sessionId, 'CoreGetFeatures', {
           adapterConfig,
           sessionId,
-          region: { refName: saRef, start: +saStart - 1, end: +saStart },
+          region: {
+            refName: saRef,
+            start: +saStart - 1,
+            end: +saStart,
+            originalRefName: assembly?.getCanonicalRefName(saRef) || saRef,
+          },
         })) as any[]
         const primaryFeat = feats.find(
           f =>
@@ -273,6 +280,7 @@ function WindowSizeDlg(props: {
       const cigar = feature.get('CIGAR')
       const clipPos = getClip(cigar, 1)
       const flags = feature.get('flags')
+      const strand = feature.get('strand')
       const qual = feature.get('qual') as string
       const SA: string = getTag(feature, 'SA') || ''
       const readName = feature.get('name')
@@ -299,9 +307,15 @@ function WindowSizeDlg(props: {
           const saLengthOnRef = getLengthOnRef(saCigar)
           const saLength = getLength(saCigar)
           const saLengthSansClipping = getLengthSansClipping(saCigar)
-          const saStrandNormalized = saStrand === '-' ? -1 : 1
+          const saStrandNormalized = (saStrand === '-' ? -1 : 1) * strand
+
           const saClipPos = getClip(saCigar, 1)
           const saRealStart = +saStart - 1
+          console.log({
+            saStrandNormalized,
+            saStart: saRealStart,
+            saEnd: saRealStart + saLengthOnRef,
+          })
           return {
             refName: saRef,
             start: saRealStart,
@@ -320,6 +334,8 @@ function WindowSizeDlg(props: {
           }
         })
 
+      console.log({ supplementaryAlignments })
+
       const feat = feature.toJSON()
       feat.clipPos = clipPos
 
@@ -337,15 +353,16 @@ function WindowSizeDlg(props: {
           ? getLength(supplementaryAlignments[0].CIGAR)
           : getLength(cigar)
 
-      const features = [feat, ...supplementaryAlignments] as ReducedFeature[]
+      const features = ([feat, ...supplementaryAlignments] as ReducedFeature[])
+        .map((f, index) => ({
+          ...f,
+          refName: assembly?.getCanonicalRefName(f.refName) || f.refName,
+          syntenyId: index,
+          mate: { ...f.mate, syntenyId: index, uniqueId: `${f.uniqueId}_mate` },
+        }))
+        .sort((a, b) => a.clipPos - b.clipPos)
 
-      features.forEach((f, index) => {
-        f.refName = assembly?.getCanonicalRefName(f.refName) || f.refName
-        f.syntenyId = index
-        f.mate.syntenyId = index
-        f.mate.uniqueId = `${f.uniqueId}_mate`
-      })
-      features.sort((a, b) => a.clipPos - b.clipPos)
+      console.log({ features })
 
       const featSeq = feature.get('seq')
 
@@ -373,7 +390,7 @@ function WindowSizeDlg(props: {
             assemblyName: trackAssembly,
           }
         }),
-      ).sort((a, b) => a.clipPos - b.clipPos)
+      ).sort((a, b) => a.start - b.start)
 
       session.addAssembly?.({
         name: `${readAssembly}`,
