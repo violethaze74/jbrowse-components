@@ -35,8 +35,9 @@ export default class JBrowseLinearGenomeView {
       plugins: loadedPlugins,
     })
     this.state = state
+    const theme = configuration && configuration.theme
     ReactDOM.render(
-      <ThemeProvider theme={createJBrowseTheme()}>
+      <ThemeProvider theme={createJBrowseTheme(theme)}>
         <JBrowseReactLinearGenomeView viewState={state} />
       </ThemeProvider>,
       container,
