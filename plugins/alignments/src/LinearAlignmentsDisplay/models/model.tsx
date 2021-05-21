@@ -330,6 +330,21 @@ const stateModelFactory = (
                   self.PileupDisplay.setDisplayMode(displayMode)
                 }
               }
+            if (
+              !deepEqual(
+                self.SNPCoverageDisplay.modificationTagMap,
+                JSON.parse(
+                  JSON.stringify(self.PileupDisplay.modificationTagMap),
+                ),
+              )
+            ) {
+              self.SNPCoverageDisplay.setModificationTagMap(
+                JSON.parse(
+                  JSON.stringify(self.PileupDisplay.modificationTagMap),
+                ),
+              )
+            }
+          }),
             }),
           )
           addDisposer(

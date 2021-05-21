@@ -9,6 +9,7 @@ import { AnyConfigurationModel } from '@jbrowse/core/configuration/configuration
 
 const ColorByTagDlg = lazy(() => import('./components/ColorByTag'))
 const FilterByTagDlg = lazy(() => import('./components/FilterByTag'))
+const ModificationsDlg = lazy(() => import('./components/ModificationsDlg'))
 
 const colorByModel = types.maybe(
   types.model({
@@ -63,6 +64,20 @@ const colorSchemeMenu = (
       label: 'Per-base quality',
       onClick: () => {
         self.setColorScheme({ type: 'perBaseQuality' })
+      },
+    },
+    {
+      label: 'Base modifications (MM+MP/ML)',
+      onClick: () => {
+        getSession(self).setDialogComponent(ModificationsDlg, {
+          model: self,
+        })
+      },
+    },
+    {
+      label: 'Methylation (specialized MM+MP/ML)',
+      onClick: () => {
+        self.setColorScheme({ type: 'methylation' })
       },
     },
     {

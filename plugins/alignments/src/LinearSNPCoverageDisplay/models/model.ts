@@ -46,7 +46,9 @@ const stateModelFactory = (
       }) {
         self.filterBy = cast(filter)
       },
-      setColorScheme() {},
+      setColorBy(colorBy?: { type: string; tag?: string }) {
+        self.colorBy = cast(colorBy)
+      },
     }))
     .views(self => ({
       get rendererConfig() {
@@ -77,6 +79,29 @@ const stateModelFactory = (
         return self.drawIndicators !== undefined
           ? self.drawIndicators
           : readConfObject(this.rendererConfig, 'drawIndicators')
+      },
+      get renderProps() {
+        return {
+          ...self.composedRenderProps,
+          ...getParentRenderProps(self),
+          notReady: !self.ready,
+          rpcDriverName: self.rpcDriverName,
+          displayModel: self,
+          config: self.rendererConfig,
+          scaleOpts: self.scaleOpts,
+          resolution: self.resolution,
+          height: self.height,
+          ticks: self.ticks,
+          displayCrossHatches: self.displayCrossHatches,
+          filters: self.filters,
+          modificationTagMap: JSON.parse(
+            JSON.stringify(self.modificationTagMap),
+          ),
+
+          // must use getSnapshot because otherwise changes to e.g. just the
+          // colorBy.type are not read
+          colorBy: self.colorBy ? getSnapshot(self.colorBy) : undefined,
+        }
       },
     }))
     .actions(self => ({
