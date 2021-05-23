@@ -114,8 +114,6 @@ export function mdToMismatches(
     ),
   ]
 
-  console.log({ readPositions })
-
   const ret = []
   for (let i = 0; i < refPositions.length; i++) {
     ret.push({
@@ -124,6 +122,7 @@ export function mdToMismatches(
       base: seq[readPositions[i]],
       length: 1,
       type: 'mismatch',
+      ...(qual && { qual: qual[readPositions[i]] }),
     })
   }
   return ret
