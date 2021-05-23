@@ -192,19 +192,15 @@ const stateModelFactory = (
         return self.scale || getConf(self, 'scaleType')
       },
       get filled() {
-        return typeof self.fill !== 'undefined'
-          ? self.fill
-          : readConfObject(this.rendererConfig, 'filled')
+        return self.fill ?? readConfObject(this.rendererConfig, 'filled')
       },
 
       get maxScore() {
-        const { max } = self.constraints
-        return max !== undefined ? max : getConf(self, 'maxScore')
+        return self.constraints.max ?? getConf(self, 'maxScore')
       },
 
       get minScore() {
-        const { min } = self.constraints
-        return min !== undefined ? min : getConf(self, 'minScore')
+        return self.constraints.min ?? getConf(self, 'minScore')
       },
 
       get rendererConfig() {

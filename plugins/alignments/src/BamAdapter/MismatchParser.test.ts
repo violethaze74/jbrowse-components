@@ -3,6 +3,8 @@ import {
   getMismatches,
   cigarToMismatches,
   parseCigar,
+  parseMD,
+  getMDPositions,
   mdToMismatches,
   getNextRefPos,
   getModificationPositions,
@@ -22,9 +24,7 @@ test('cigar to mismatches', () => {
 
 test('md to mismatches', () => {
   const cigarMismatches = cigarToMismatches(parseCigar('56M1D45M'), seq)
-  expect(
-    mdToMismatches('10A80', parseCigar('56M1D45M'), cigarMismatches, seq),
-  ).toEqual([
+  expect(mdToMismatches('10A80', parseCigar('56M1D45M'), seq)).toEqual([
     { start: 10, type: 'mismatch', base: 'C', altbase: 'A', length: 1 },
   ])
 })
@@ -494,4 +494,16 @@ test('getModificationPositions', () => {
     'AGCTCTCCAGAGTCGNACGCCATYCGCGCGCCACCA',
   )
   expect(positions[0]).toEqual({ type: 'm', positions: [6, 17, 20, 31, 34] })
+})
+
+test('get ref pos from MD with SNPs', () => {
+  const md = '10A3T0T10'
+  const pos = getMDPositions(md)
+  console.log({ pos })
+})
+
+test('get ref pos from MD with deletions', () => {
+  const md = '56^AA45'
+  const pos = getMDPositions(md)
+  console.log({ pos })
 })
