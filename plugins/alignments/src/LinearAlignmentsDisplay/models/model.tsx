@@ -110,6 +110,7 @@ const stateModelFactory = (
       },
 
       updateGroups(groups: string[]) {
+        console.log({ groups })
         for (let i = 0; i < groups.length; i++) {
           if (!self.groups.includes(groups[i])) {
             self.groups = groups
@@ -271,6 +272,8 @@ const stateModelFactory = (
                 self.setSNPCoverageDisplay(self.snpCoverageDisplayConfig)
               }
 
+              console.log(self.groups, getSnapshot(self.groupBy))
+
               // initialize pileup sub-display at startup
               if (
                 self.groups.length &&
@@ -330,21 +333,6 @@ const stateModelFactory = (
                   self.PileupDisplay.setDisplayMode(displayMode)
                 }
               }
-            if (
-              !deepEqual(
-                self.SNPCoverageDisplay.modificationTagMap,
-                JSON.parse(
-                  JSON.stringify(self.PileupDisplay.modificationTagMap),
-                ),
-              )
-            ) {
-              self.SNPCoverageDisplay.setModificationTagMap(
-                JSON.parse(
-                  JSON.stringify(self.PileupDisplay.modificationTagMap),
-                ),
-              )
-            }
-          }),
             }),
           )
           addDisposer(
@@ -363,12 +351,16 @@ const stateModelFactory = (
 
                 // continually generate the vc pairing, set and rerender if any
                 // new values seen
+                //
+                console.log(groupBy.tag)
                 if (groupBy?.tag) {
                   const uniqueTagSet = await getUniqueTagValues(
                     self,
+                    getConf(self.parentTrack, ['adapter']),
                     view.staticBlocks.contentBlocks,
                     groupBy.tag,
                   )
+                  console.log({ uniqueTagSet })
                   self.updateGroups(uniqueTagSet)
                 }
                 self.setReady(true)

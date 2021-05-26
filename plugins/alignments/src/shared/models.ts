@@ -2,23 +2,23 @@ import { lazy } from 'react'
 import { types, IAnyStateTreeNode } from 'mobx-state-tree'
 import { getSession } from '@jbrowse/core/util'
 import { getRpcSessionId } from '@jbrowse/core/util/tracks'
-import { Region } from '@jbrowse/core/util/types'
 import PaletteIcon from '@material-ui/icons/Palette'
 import FilterListIcon from '@material-ui/icons/FilterList'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
+import { BlockSet } from '@jbrowse/core/util/blockTypes'
 
 const ColorByTagDlg = lazy(() => import('./components/ColorByTag'))
 const FilterByTagDlg = lazy(() => import('./components/FilterByTag'))
-const ModificationsDlg = lazy(() => import('./components/ModificationsDlg'))
+const ModificationsDlg = lazy(() => import('./components/ColorByModifications'))
 
-const colorByModel = types.maybe(
+export const colorByModel = types.maybe(
   types.model({
     type: types.string,
     tag: types.maybe(types.string),
   }),
 )
 
-const filterByModel = types.optional(
+export const filterByModel = types.optional(
   types.model({
     flagInclude: types.optional(types.number, 0),
     flagExclude: types.optional(types.number, 1536),
@@ -30,7 +30,7 @@ const filterByModel = types.optional(
   {},
 )
 
-const colorSchemeMenu = (
+export const colorSchemeMenu = (
   self: IAnyStateTreeNode & { setColorScheme: Function },
 ) => ({
   label: 'Color scheme',
@@ -103,7 +103,7 @@ const colorSchemeMenu = (
   ],
 })
 
-const setDisplayModeMenu = (
+export const setDisplayModeMenu = (
   self: IAnyStateTreeNode & { setDisplayMode: Function },
 ) => ({
   label: 'Set display mode',
@@ -129,7 +129,7 @@ const setDisplayModeMenu = (
   ],
 })
 
-const filterByMenu = (self: IAnyStateTreeNode) => ({
+export const filterByMenu = (self: IAnyStateTreeNode) => ({
   label: 'Filter by',
   icon: FilterListIcon,
   onClick: () => {
@@ -139,11 +139,15 @@ const filterByMenu = (self: IAnyStateTreeNode) => ({
   },
 })
 
-async function getUniqueTagValues(
+export async function getUniqueTagValues(
   self: IAnyStateTreeNode & { adapterConfig: AnyConfigurationModel },
-  regions: Region[],
-  tag: string,
-  opts: Record<string, unknown> = {},
+  colorScheme: { type: string; tag?: string },
+  blocks: BlockSet,
+  opts?: {
+    headers?: Record<string, string>
+    signal?: AbortSignal
+    filters?: string[]
+  },
 ) {
   const { rpcManager } = getSession(self)
   const { adapterConfig } = self
@@ -153,20 +157,38 @@ async function getUniqueTagValues(
     'PileupGetGlobalValueForTag',
     {
       adapterConfig,
-      tag,
+      tag: colorScheme.tag,
       sessionId,
-      regions,
+      regions: blocks.contentBlocks,
       ...opts,
     },
   )
   return values as string[]
 }
 
-export {
-  colorByModel,
-  filterByModel,
-  colorSchemeMenu,
-  filterByMenu,
-  getUniqueTagValues,
-  setDisplayModeMenu,
+export async function getUniqueModificationValues(
+  self: IAnyStateTreeNode,
+  adapterConfig: AnyConfigurationModel,
+  colorScheme: { type: string; tag?: string },
+  blocks: BlockSet,
+  opts?: {
+    headers?: Record<string, string>
+    signal?: AbortSignal
+    filters?: string[]
+  },
+) {
+  const { rpcManager } = getSession(self)
+  const sessionId = getRpcSessionId(self)
+  const values = await rpcManager.call(
+    sessionId,
+    'PileupGetVisibleModifications',
+    {
+      adapterConfig,
+      tag: colorScheme.tag,
+      sessionId,
+      regions: blocks.contentBlocks,
+      ...opts,
+    },
+  )
+  return values as string[]
 }

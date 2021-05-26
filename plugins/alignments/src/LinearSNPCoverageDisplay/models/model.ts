@@ -1,5 +1,15 @@
-import { types, cast, getEnv, getParent } from 'mobx-state-tree'
+import {
+  types,
+  cast,
+  getEnv,
+  getSnapshot,
+  addDisposer,
+  getParent,
+} from 'mobx-state-tree'
+import { observable, autorun } from 'mobx'
 import { getConf, readConfObject } from '@jbrowse/core/configuration'
+import { getContainingView } from '@jbrowse/core/util'
+import { getParentRenderProps } from '@jbrowse/core/util/tracks'
 import { linearWiggleDisplayModelFactory } from '@jbrowse/plugin-wiggle'
 import {
   AnyConfigurationSchemaType,
@@ -13,10 +23,13 @@ import {
   filterByMenu,
   filterByModel,
   colorByModel,
+  getUniqueModificationValues,
 } from '../../shared/models'
-
+import { LinearGenomeViewModel } from '@jbrowse/plugin-linear-genome-view'
 // using a map because it preserves order
 const rendererTypes = new Map([['snpcoverage', 'SNPCoverageRenderer']])
+
+type LGV = LinearGenomeViewModel
 
 const stateModelFactory = (
   pluginManager: PluginManager,
@@ -34,6 +47,9 @@ const stateModelFactory = (
         filterBy: filterByModel,
       }),
     )
+    .volatile(() => ({
+      modificationTagMap: observable.map({}),
+    }))
     .actions(self => ({
       setConfig(configuration: AnyConfigurationModel) {
         self.configuration = configuration
@@ -48,6 +64,18 @@ const stateModelFactory = (
       },
       setColorBy(colorBy?: { type: string; tag?: string }) {
         self.colorBy = cast(colorBy)
+      },
+
+      updateModificationColorMap(uniqueModifications: string[]) {
+        const colorPalette = ['red', 'blue', 'green', 'orange', 'purple']
+        let i = 0
+
+        uniqueModifications.forEach(value => {
+          if (!self.modificationTagMap.has(value)) {
+            const newColor = colorPalette[i++]
+            self.modificationTagMap.set(value, newColor)
+          }
+        })
       },
     }))
     .views(self => ({
@@ -80,11 +108,18 @@ const stateModelFactory = (
           ? self.drawIndicators
           : readConfObject(this.rendererConfig, 'drawIndicators')
       },
+
+      get modificationsReady() {
+        return self.colorBy?.type === 'modifications'
+          ? Object.keys(JSON.parse(JSON.stringify(self.modificationTagMap)))
+              .length > 0
+          : true
+      },
       get renderProps() {
         return {
           ...self.composedRenderProps,
           ...getParentRenderProps(self),
-          notReady: !self.ready,
+          notReady: !self.ready || !this.modificationsReady,
           rpcDriverName: self.rpcDriverName,
           displayModel: self,
           config: self.rendererConfig,
@@ -110,6 +145,32 @@ const stateModelFactory = (
       },
       toggleDrawInterbaseCounts() {
         self.drawInterbaseCounts = !self.drawInterbaseCountsSetting
+      },
+      afterAttach() {
+        addDisposer(
+          self,
+          autorun(
+            async () => {
+              try {
+                const { colorBy } = self
+                const { staticBlocks } = getContainingView(self) as LGV
+                if (colorBy?.type === 'modifications') {
+                  const vals = await getUniqueModificationValues(
+                    self,
+                    getConf(self.parentTrack, 'adapter'),
+                    colorBy,
+                    staticBlocks,
+                  )
+                  self.updateModificationColorMap(vals)
+                }
+              } catch (error) {
+                console.error(error)
+                self.setError(error)
+              }
+            },
+            { delay: 1000 },
+          ),
+        )
       },
     }))
 

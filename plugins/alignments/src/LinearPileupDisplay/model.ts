@@ -45,12 +45,12 @@ import {
   colorSchemeMenu,
   filterByMenu,
   getUniqueTagValues,
+  getUniqueModificationValues,
   setDisplayModeMenu,
 } from '../shared/models'
 
 const SortByTagDlg = lazy(() => import('./components/SortByTag'))
 const SetMaxHeightDlg = lazy(() => import('./components/SetMaxHeight'))
-const ModificationsDlg = lazy(() => import('./components/ColorByModifications'))
 
 // using a map because it preserves order
 const rendererTypes = new Map([
@@ -113,56 +113,6 @@ const stateModelFactory = (
         self.colorBy = cast(colorScheme)
         self.ready = false
       },
-      async getUniqueTagValues(
-        colorScheme: { type: string; tag?: string },
-        blocks: BlockSet,
-        opts?: {
-          headers?: Record<string, string>
-          signal?: AbortSignal
-          filters?: string[]
-        },
-      ) {
-        const { rpcManager } = getSession(self)
-        const { adapterConfig } = self
-        const sessionId = getRpcSessionId(self)
-        const values = await rpcManager.call(
-          getRpcSessionId(self),
-          'PileupGetGlobalValueForTag',
-          {
-            adapterConfig,
-            tag: colorScheme.tag,
-            sessionId,
-            regions: blocks.contentBlocks,
-            ...opts,
-          },
-        )
-        return values as string[]
-      },
-      async getUniqueModificationValues(
-        colorScheme: { type: string; tag?: string },
-        blocks: BlockSet,
-        opts?: {
-          headers?: Record<string, string>
-          signal?: AbortSignal
-          filters?: string[]
-        },
-      ) {
-        const { rpcManager } = getSession(self)
-        const { adapterConfig } = self
-        const sessionId = getRpcSessionId(self)
-        const values = await rpcManager.call(
-          getRpcSessionId(self),
-          'PileupGetVisibleModifications',
-          {
-            adapterConfig,
-            tag: colorScheme.tag,
-            sessionId,
-            regions: blocks.contentBlocks,
-            ...opts,
-          },
-        )
-        return values as string[]
-      },
 
       updateModificationColorMap(uniqueModifications: string[]) {
         // pale color scheme https://cran.r-project.org/web/packages/khroma/vignettes/tol.html e.g. "tol_light"
@@ -215,7 +165,8 @@ const stateModelFactory = (
                 // continually generate the vc pairing, set and rerender if any
                 // new values seen
                 if (colorBy?.tag) {
-                  const uniqueTagSet = await self.getUniqueTagValues(
+                  const uniqueTagSet = await getUniqueTagValues(
+                    self,
                     colorBy,
                     view.staticBlocks,
                   )
@@ -223,7 +174,9 @@ const stateModelFactory = (
                 }
 
                 if (colorBy?.type === 'modifications') {
-                  const uniqueModificationsSet = await self.getUniqueModificationValues(
+                  const uniqueModificationsSet = await getUniqueModificationValues(
+                    self,
+                    getConf(self.parentTrack, ['adapter']),
                     colorBy,
                     view.staticBlocks,
                   )

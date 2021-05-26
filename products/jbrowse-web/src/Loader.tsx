@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { lazy, useEffect, useState, Suspense } from 'react'
 import PluginManager, { PluginLoadRecord } from '@jbrowse/core/PluginManager'
-import PluginLoader, { PluginDefinition } from '@jbrowse/core/PluginLoader'
+import PluginLoader, {
+  PluginDefinition,
+  PluginRecord,
+} from '@jbrowse/core/PluginLoader'
 import { observer } from 'mobx-react'
 import { inDevelopment, fromUrlSafeB64 } from '@jbrowse/core/util'
 import { openLocation } from '@jbrowse/core/util/io'
@@ -132,8 +135,8 @@ const SessionLoader = types
     shareWarningOpen: false as any,
     configSnapshot: undefined as any,
     sessionSnapshot: undefined as any,
-    runtimePlugins: [] as PluginConstructor[],
-    sessionPlugins: [] as PluginConstructor[],
+    runtimePlugins: [] as PluginRecord[],
+    sessionPlugins: [] as PluginRecord[],
     sessionError: undefined as Error | undefined,
     configError: undefined as Error | undefined,
     bc1:
@@ -187,10 +190,10 @@ const SessionLoader = types
     setSessionError(error: Error) {
       self.sessionError = error
     },
-    setRuntimePlugins(plugins: PluginConstructor[]) {
+    setRuntimePlugins(plugins: PluginRecord[]) {
       self.runtimePlugins = plugins
     },
-    setSessionPlugins(plugins: PluginConstructor[]) {
+    setSessionPlugins(plugins: PluginRecord[]) {
       self.sessionPlugins = plugins
     },
     setConfigSnapshot(snap: unknown) {
@@ -242,7 +245,9 @@ const SessionLoader = types
     ) {
       try {
         const { sessionPlugins = [] } = snap
-        const sessionPluginsAllowed = await checkPlugins(sessionPlugins)
+        const sessionPluginsAllowed = sessionPlugins.length
+          ? await checkPlugins(sessionPlugins)
+          : true
         if (sessionPluginsAllowed || userAcceptedConfirmation) {
           await this.fetchSessionPlugins(snap)
           self.setSessionSnapshotSuccess(snap)
@@ -270,7 +275,9 @@ const SessionLoader = types
       // cross origin config check
       if (configUri.hostname !== window.location.hostname) {
         const configPlugins = config.plugins || []
-        const configPluginsAllowed = await checkPlugins(configPlugins)
+        const configPluginsAllowed = configPlugins.length
+          ? await checkPlugins(configPlugins)
+          : true
         if (!configPluginsAllowed) {
           self.setSessionTriaged({
             snap: config,
@@ -494,8 +501,14 @@ const Renderer = observer(
                 metadata: { isCore: true },
               } as PluginLoadRecord
             }),
-            ...runtimePlugins.map(P => new P()),
-            ...sessionPlugins.map(P => new P()),
+            ...runtimePlugins.map(({ plugin: P, definition }) => ({
+              plugin: new P(),
+              definition,
+            })),
+            ...sessionPlugins.map(({ plugin: P, definition }) => ({
+              plugin: new P(),
+              definition,
+            })),
           ])
           pluginManager.createPluggableElements()
 
