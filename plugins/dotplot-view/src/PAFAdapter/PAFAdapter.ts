@@ -19,6 +19,25 @@ interface PafRecord {
   }
 }
 
+
+function zip(a: number[], b: number[]): [number, number][] {
+  return a.map(function (e, i) {
+    return [e, b[i]]
+  })
+}
+//https://gist.github.com/stekhn/a12ed417e91f90ecec14bcfa4c2ae16a
+function weightedMean(tuples: [number, number][]) {
+  const [valueSum, weightSum] = tuples.reduce(
+    ([valueSum, weightSum], [value, weight]) => [
+      valueSum + value * weight,
+      weightSum + weight,
+    ],
+    [0, 0],
+  )
+  return valueSum / weightSum
+}
+
+
 export default class PAFAdapter extends BaseFeatureDataAdapter {
   private setupP?: Promise<PafRecord[]>
 
@@ -47,7 +66,7 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
     // mashmap produces PAF-like data that is space separated instead of tab
     const hasTab = text.indexOf('\t')
     const splitChar = hasTab !== -1 ? '\t' : ' '
-    return text
+    const ret = text
       .split('\n')
       .filter(line => !!line)
       .map(line => {
@@ -90,6 +109,50 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
           },
         } as PafRecord
       })
+
+    const scoreMap: { [key: string]: { quals: number[]; len: number[] } } = {}
+    for (let i = 0; i < ret.length; i++) {
+      const entry = ret[i]
+      const query = entry.records[0].refName
+      const target = entry.records[1].refName
+      const key = query + '-' + target
+      if (!scoreMap[key]) {
+        scoreMap[key] = { quals: [], len: [] }
+      }
+      scoreMap[key].quals.push(entry.extra.mappingQual)
+      scoreMap[key].len.push(entry.extra.blockLen)
+    }
+
+    const meanScoreMap = Object.fromEntries(
+      Object.entries(scoreMap).map(([key, val]) => {
+        const vals = zip(val.quals, val.len)
+        return [key, weightedMean(vals)]
+      }),
+    )
+    for (let i = 0; i < ret.length; i++) {
+      const entry = ret[i]
+      const query = entry.records[0].refName
+      const target = entry.records[1].refName
+      const key = query + '-' + target
+      entry.extra.meanScore = meanScoreMap[key]
+    }
+
+    let min = 10000
+    let max = 0
+    for (let i = 0; i < ret.length; i++) {
+      const entry = ret[i]
+      min = Math.min(entry.extra.meanScore, min)
+      max = Math.max(entry.extra.meanScore, max)
+    }
+    console.log({ min, max })
+    for (let i = 0; i < ret.length; i++) {
+      const entry = ret[i]
+      const b = entry.extra.meanScore
+      entry.extra.meanScore = (entry.extra.meanScore - min) / (max - min)
+      // console.log(b, entry.extra.meanScore)
+    }
+
+    return ret
   }
 
   async hasDataForRefName() {
