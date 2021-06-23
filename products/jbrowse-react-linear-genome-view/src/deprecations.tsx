@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { createJBrowseTheme as coreCreateJBrowseTheme } from '@jbrowse/core/ui'
-import { Theme, ThemeOptions } from '@material-ui/core/styles'
+import { ThemeOptions } from '@material-ui/core/styles'
 
 export function createJBrowseTheme(theme?: ThemeOptions) {
   console.warn(
@@ -10,13 +10,7 @@ export function createJBrowseTheme(theme?: ThemeOptions) {
   return coreCreateJBrowseTheme(theme)
 }
 
-export function ThemeProvider({
-  theme,
-  children,
-}: {
-  theme: Theme
-  children: ReactNode
-}) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   console.warn(
     'Deprecation warning: `ThemeProvider` is no longer supported as a way to ' +
       'theme @jbrowse/react-linear-genome-view. If using a custom theme, ' +
