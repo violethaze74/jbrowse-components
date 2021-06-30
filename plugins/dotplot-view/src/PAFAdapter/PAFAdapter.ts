@@ -19,7 +19,7 @@ import { readConfObject } from '@jbrowse/core/configuration'
 import MyConfigSchema from './configSchema'
 
 interface PafRecord {
-  records: NoAssemblyRegion[]
+  records: [NoAssemblyRegion, NoAssemblyRegion]
   extra: {
     blockLen: number
     mappingQual: number
@@ -55,9 +55,10 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
       encoding: 'utf8',
       ...opts,
     })) as string
-    const pafRecords: PafRecord[] = []
-    text.split('\n').forEach((line: string, index: number) => {
-      if (line.length) {
+    return text
+      .split('\n')
+      .filter(line => line.length)
+      .map(line => {
         const [
           chr1,
           ,
@@ -83,7 +84,7 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
           }),
         )
 
-        pafRecords[index] = {
+        return {
           records: [
             { refName: chr1, start: +start1, end: +end1 },
             { refName: chr2, start: +start2, end: +end2 },
@@ -95,10 +96,8 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
             mappingQual: +mappingQual,
             ...rest,
           },
-        }
-      }
-    })
-    return pafRecords
+        } as PafRecord
+      })
   }
 
   async hasDataForRefName() {
@@ -108,9 +107,17 @@ export default class PAFAdapter extends BaseFeatureDataAdapter {
     return true
   }
 
-  async getRefNames() {
+  async getRefNames(opts?: BaseOptions) {
+    const records = await this.setup(opts)
     // we cannot determine this accurately
-    return []
+    const names: { [key: string]: boolean } = {}
+    records.forEach(({ records }) => {
+      names[records[0].refName] = true
+      names[records[1].refName] = true
+    })
+    const r = Object.keys(names)
+    console.log({ r })
+    return r
   }
 
   getFeatures(region: Region, opts: BaseOptions = {}) {
