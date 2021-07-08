@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+
+import NestedMenuItem from 'material-ui-nested-menu-item'
 import {
   Divider,
   Grow,
   ListItemIcon,
   ListItemText,
   ListSubheader,
+  Menu,
   MenuProps as MUIMenuProps,
   MenuItem,
   MenuItemProps,
@@ -191,10 +194,7 @@ const MenuPage = React.forwardRef((props: MenuPageProps, ref) => {
   const [openSubMenuIdx, setOpenSubMenuIdx] = useState<number>()
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false)
   const [selectedMenuItemIdx, setSelectedMenuItemIdx] = useState<number>()
-  const [position, setPosition] = useState<{
-    top?: number
-    left?: number
-  }>()
+
   const paperRef = useRef<HTMLDivElement>()
   const classes = useStyles()
 
@@ -206,48 +206,6 @@ const MenuPage = React.forwardRef((props: MenuPageProps, ref) => {
     anchorEl,
     top = false,
   } = props
-
-  useEffect(() => {
-    if (!open) {
-      setSubMenuAnchorEl(undefined)
-      setOpenSubMenuIdx(undefined)
-    }
-  }, [open])
-
-  useEffect(() => {
-    const shouldSubMenuBeOpen = open && Boolean(subMenuAnchorEl)
-    let timer: NodeJS.Timeout
-    if (shouldSubMenuBeOpen && !isSubMenuOpen) {
-      timer = setTimeout(() => {
-        setIsSubMenuOpen(true)
-      }, 300)
-    } else if (!shouldSubMenuBeOpen && isSubMenuOpen) {
-      timer = setTimeout(() => {
-        setIsSubMenuOpen(false)
-      }, 300)
-    }
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [isSubMenuOpen, open, subMenuAnchorEl])
-
-  useEffect(() => {
-    if (anchorEl) {
-      const rect = (anchorEl as HTMLElement).getBoundingClientRect()
-      if (position) {
-        if (
-          rect.top !== position.top ||
-          rect.left + rect.width !== position.left
-        ) {
-          setPosition({ top: rect.top, left: rect.left + rect.width })
-        }
-      } else {
-        setPosition({ top: rect.top, left: rect.left + rect.width })
-      }
-    } else if (!position) {
-      setPosition({})
-    }
-  }, [position, anchorEl])
 
   const hasEndDecoration = menuItems.some(
     menuItem =>
@@ -387,18 +345,7 @@ const MenuPage = React.forwardRef((props: MenuPageProps, ref) => {
     return ListContents
   }
 
-  return (
-    <Grow in={open} style={{ transformOrigin: `0 0 0` }} ref={ref}>
-      <Paper
-        elevation={8}
-        ref={paperRef}
-        className={classes.paper}
-        style={{ ...position }}
-      >
-        {ListContents}
-      </Paper>
-    </Grow>
-  )
+  return <NestedMenuItem parentMenuOpen={open}>{ListContents}</NestedMenuItem>
 })
 
 interface MenuProps extends PopoverProps {
@@ -409,17 +356,39 @@ interface MenuProps extends PopoverProps {
   ) => void
 }
 
-function Menu(props: MenuProps) {
-  const { open, onClose, menuItems, onMenuItemClick, ...other } = props
+// function Menu(props: MenuProps) {
+//   const { open, onClose, menuItems, onMenuItemClick, ...other } = props
+
+//   return (
+//     <Popover
+//       transitionDuration={0}
+//       open={open}
+//       onClose={onClose}
+//       BackdropProps={{ invisible: true }}
+//       {...other}
+//     >
+//       <MenuPage
+//         open={open}
+//         onClose={onClose}
+//         menuItems={menuItems}
+//         onMenuItemClick={onMenuItemClick}
+//         top
+//       />
+//     </Popover>
+//   )
+// }
+
+const NestedMenu = ({
+  anchorEl,
+  open,
+  onClose,
+  onMenuItemClick,
+  menuItems,
+}: any) => {
+  const handleItemClick = (event: React.MouseEvent) => {}
 
   return (
-    <Popover
-      transitionDuration={0}
-      open={open}
-      onClose={onClose}
-      BackdropProps={{ invisible: true }}
-      {...other}
-    >
+    <Menu open={open} onClose={onClose} anchorEl={anchorEl}>
       <MenuPage
         open={open}
         onClose={onClose}
@@ -427,8 +396,8 @@ function Menu(props: MenuProps) {
         onMenuItemClick={onMenuItemClick}
         top
       />
-    </Popover>
+    </Menu>
   )
 }
 
-export default Menu
+export default NestedMenu
