@@ -369,34 +369,34 @@ export default class TextIndex extends JBrowseCommand {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const getAndPushRecord = (subRecord: any) => {
         const locStr = `${subRecord['seq_id']};${subRecord['start']}..${subRecord['end']}`
+        const arr = []
+        const attrString: Array<string> = []
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const recordObj: any = {
-          locstring: `${locStr}`,
-        }
-        let attrString = ''
+        arr.push(locStr)
+        attrString.push('locstring')
 
         for (const attr of attributesArr) {
           // Check to see if the attr exists for the record
           if (subRecord[attr]) {
-            recordObj[attr] = subRecord[attr]
-            attrString += ' ' + recordObj[attr]
+            arr.push(subRecord[attr])
+            attrString.push(attr)
           } else if (subRecord.attributes && subRecord.attributes[attr]) {
             // Name and ID are in the attributes object, so check there too
-            recordObj[attr] = subRecord.attributes[attr]
-            attrString += ' ' + recordObj[attr]
+            arr.push(subRecord.attributes[attr])
+            attrString.push(attr)
           }
         }
 
         // encodes the record object so that it can be used by ixIxx
         // appends the attributes that we are indexing by to the end
         // of the string before pushing to ixIxx
-        const buff = Buffer.from(JSON.stringify(recordObj))
+        const buff = Buffer.from(JSON.stringify(arr)).toString('base64')
+        const fieldNames = JSON.stringify(attrString) + '\n'
 
-        let str: string = buff.toString('base64')
-        str += attrString + locStr + '\n'
+        // fieldnames would be put in a json file but I didnt add
+        // it to this since that already works.
 
-        gff3Stream.push(str)
+        gff3Stream.push(`${buff}\n`)
       }
 
       if (Array.isArray(record)) {
