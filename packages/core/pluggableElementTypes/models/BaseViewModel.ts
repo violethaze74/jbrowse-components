@@ -1,4 +1,5 @@
 import { types, Instance } from 'mobx-state-tree'
+import BaseResult from '@jbrowse/core/TextSearch/BaseResults'
 import { ElementId } from '../../util/types/mst'
 import { MenuItem } from '../../ui'
 
@@ -14,6 +15,9 @@ const BaseViewModel = types
     get menuItems(): MenuItem[] {
       return []
     },
+    get coarseVisibleLocStrings() {
+      return ''
+    },
   }))
   .actions(self => ({
     setDisplayName(name: string) {
@@ -21,6 +25,16 @@ const BaseViewModel = types
     },
     setWidth(newWidth: number) {
       self.width = newWidth
+    },
+    searchScope(assemblyName: string) {
+      return {
+        assemblyName,
+        includeAggregateIndexes: true,
+      }
+    },
+    rankSearchResults(results: BaseResult[]) {
+      // order of rank
+      return results
     },
   }))
 
