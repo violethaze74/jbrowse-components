@@ -133,6 +133,7 @@ export default (pluginManager: PluginManager) => {
       if (args.limit && relevantResults.length > 0) {
         return relevantResults.slice(0, args.limit)
       }
+      console.log(relevantResults)
       return relevantResults
     }
 

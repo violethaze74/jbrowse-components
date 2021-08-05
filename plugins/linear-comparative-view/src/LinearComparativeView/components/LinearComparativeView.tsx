@@ -96,6 +96,7 @@ const OverlayComparativeView = observer(({ model }: Props) => {
           <div style={{ position: 'relative' }}>
             {views.map(view => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              console.log(view)
               const viewType = pluginManager.getViewType(view.type) as any
               const { ReactComponent } = viewType
               return <ReactComponent key={view.id} model={view} />

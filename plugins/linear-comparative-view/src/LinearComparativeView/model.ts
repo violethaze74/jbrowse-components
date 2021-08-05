@@ -48,7 +48,7 @@ export default function stateModelFactory(pluginManager: PluginManager) {
           pluginManager.getViewType('LinearGenomeView')
             .stateModel as LinearGenomeViewStateModel,
         ),
-
+        currentView: 0,
         // this represents tracks specific to this view
         // specifically used for read vs ref dotplots where
         // this track would not really apply elsewhere
@@ -139,6 +139,10 @@ export default function stateModelFactory(pluginManager: PluginManager) {
 
       setViews(views: SnapshotIn<LinearGenomeViewModel>[]) {
         self.views = cast(views)
+      },
+
+      setCurrentView(view: number) {
+        self.currentView = view
       },
 
       removeView(view: LinearGenomeViewModel) {
