@@ -1,6 +1,7 @@
 import React from 'react'
 import { getEnv } from 'mobx-state-tree'
 import { getSession } from '@jbrowse/core/util'
+import BaseResult from '@jbrowse/core/TextSearch/BaseResults'
 
 import LeakAddIcon from '@material-ui/icons/LeakAdd'
 import LeakRemoveIcon from '@material-ui/icons/LeakRemove'
@@ -123,21 +124,75 @@ const Header = observer(
     model.setHeaderHeight(size.height)
     const theme = useTheme()
     const session = getSession(model)
-    // const { pluginManager } = getEnv(session)
+    const { pluginManager } = getEnv(session)
+    const { textSearchManager } = pluginManager.rootModel
     const { assemblyManager } = session
     const { views } = model
+    const currentModel = views[model.currentView]
     // console.log('===================')
     // console.log(model.currentView)
     // console.log(views[model.currentView])
-    const { coarseDynamicBlocks: contentBlocks, displayedRegions } = views[
-      model.currentView
-    ]
+    const {
+      coarseDynamicBlocks: contentBlocks,
+      displayedRegions,
+      rankSearchResults,
+    } = currentModel
     const { assemblyName, refName } = contentBlocks[0] || { refName: '' }
     const assembly = assemblyName && assemblyManager.get(assemblyName)
     const regions = (assembly && assembly.regions) || []
+    const searchScope = model.searchScope(assemblyName)
+    console.log(displayedRegions)
     // console.log(displayedRegions)
     // console.log(contentBlocks)
     // console.log('===================')
+
+    async function setDisplayedRegion(result: BaseResult, model: any) {
+      if (result) {
+        const newRegionValue = result.getLocation()
+        // need to fix finding region
+        const newRegion = regions.find(
+          region => newRegionValue === region.refName,
+        )
+        if (newRegion) {
+          model.setDisplayedRegions([newRegion])
+          // we use showAllRegions after setDisplayedRegions to make the entire
+          // region visible, xref #1703
+          model.showAllRegions()
+        } else {
+          const results =
+            (await textSearchManager?.search(
+              {
+                queryString: newRegionValue.toLocaleLowerCase(),
+                searchType: 'exact',
+              },
+              searchScope,
+              rankSearchResults,
+            )) || []
+          // distinguishes between locstrings and search strings
+          if (results.length > 0) {
+            model.setSearchResults(results, newRegionValue.toLocaleLowerCase())
+          } else {
+            try {
+              newRegionValue !== '' && model.navToLocString(newRegionValue)
+            } catch (e) {
+              if (
+                `${e}` ===
+                `Error: Unknown reference sequence "${newRegionValue}"`
+              ) {
+                model.setSearchResults(
+                  results,
+                  newRegionValue.toLocaleLowerCase(),
+                )
+              } else {
+                console.warn(e)
+                session.notify(`${e}`, 'warning')
+              }
+            }
+          }
+        }
+      }
+    }
+
     return (
       <div className={classes.headerBar}>
         <LinkViews model={model} />
@@ -161,12 +216,10 @@ const Header = observer(
         </div>
         <FormGroup row className={classes.headerForm}>
           <RefNameAutocomplete
-            onSelect={() =>
-              console.log('I selected a region from these regions', regions)
-            }
+            onSelect={result => setDisplayedRegion(result, currentModel)}
             assemblyName={assemblyName}
             value={displayedRegions.length > 1 ? '' : refName}
-            model={model}
+            model={currentModel}
             TextFieldProps={{
               variant: 'outlined',
               className: classes.headerRefName,
