@@ -12,7 +12,6 @@ also assumes you have:
 - a web server that reads files from /var/www/html/ e.g. Apache or nginx (not
   strictly necessary for jbrowse to run, see footnote)
 - node 10+ installed
-- genometools installed e.g. `sudo apt install genometools` or `brew install brewsci/bio/genometools`, used for sorting GFF3 for creating tabix GFF
 - samtools installed e.g. `sudo apt install samtools` or `brew install samtools`, used for creating FASTA index and BAM/CRAM processing
 - tabix installed e.g. `sudo apt install tabix` or `brew install htslib`, used
   for created tabix indexes for BED/VCF/GFF files
@@ -74,7 +73,7 @@ jbrowse add-track myfile.bam --index myfile.bai --out /var/www/html/jbrowse2 --l
 ```
 ## load gene annotations from a GFF, using "GenomeTools" (gt) to sort the gff
 ## and tabix to index the GFF3
-gt gff3 -sortlines -tidy -retainids myfile.gff > myfile.sorted.gff
+awk '$0 ~ /^#/; { print $0 | "sort -V -k1,1 -k4,4n" };' myfile.gff > myfile.sorted.gff
 bgzip myfile.sorted.gff
 tabix myfile.sorted.gff.gz
 jbrowse add-track myfile.sorted.gff.gz --out /var/www/html/jbrowse2 --load copy
@@ -113,8 +112,7 @@ minimap2 grape.fa peach.fa > peach_vs_grape.paf
 jbrowse add-assembly grape.fa --load copy --out /var/www/html/jbrowse2/ -n grape
 jbrowse add-assembly peach.fa --load copy --out /var/www/html/jbrowse2/ -n peach
 
-## Use gt gff3 to make sorted tabixed gffs for each assembly, and then load to
-## their respective ## assembly
+## Make sorted tabixed gffs for each assembly, and then load to their respective assemblies
 jbrowse add-track grape.sorted.gff.gz -a grape --load copy --out /var/www/html/jbrowse2
 jbrowse add-track peach.sorted.gff.gz -a peach --load copy --out /var/www/html/jbrowse2
 
