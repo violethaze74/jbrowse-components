@@ -6,6 +6,7 @@ import { createJBrowseTheme } from '@jbrowse/core/ui'
 import { StringParam, useQueryParam } from 'use-query-params'
 import { ipcRenderer } from 'electron'
 import { createPluginManager } from './StartScreen/util'
+import ColorModeContext from './ColorProvider'
 
 import JBrowse from './JBrowse'
 import StartScreen from './StartScreen'
@@ -96,22 +97,44 @@ const Loader = observer(() => {
     })()
   }, [config, handleSetPluginManager])
 
-  return (
-    <ThemeProvider theme={createJBrowseTheme()}>
-      <CssBaseline />
+  const [mode, setMode] = React.useState<'light' | 'dark'>('light')
+  const colorMode = React.useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode(prevMode => (prevMode === 'light' ? 'dark' : 'light'))
+      },
+    }),
+    [],
+  )
 
-      {error ? (
-        <ErrorMessage error={error} snapshotError={snapshotError} />
-      ) : null}
-      {pluginManager?.rootModel?.session ? (
-        <JBrowse pluginManager={pluginManager} />
-      ) : !config || error ? (
-        <StartScreen
-          setError={handleError}
-          setPluginManager={handleSetPluginManager}
-        />
-      ) : null}
-    </ThemeProvider>
+  const theme = React.useMemo(
+    () => ({
+      palette: {
+        type: mode,
+      },
+    }),
+    [mode],
+  )
+
+  const finaltheme = createJBrowseTheme(theme)
+  return (
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={finaltheme}>
+        <CssBaseline />
+
+        {error ? (
+          <ErrorMessage error={error} snapshotError={snapshotError} />
+        ) : null}
+        {pluginManager?.rootModel?.session ? (
+          <JBrowse pluginManager={pluginManager} mode={mode} />
+        ) : !config || error ? (
+          <StartScreen
+            setError={handleError}
+            setPluginManager={handleSetPluginManager}
+          />
+        ) : null}
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   )
 })
 

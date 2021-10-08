@@ -199,6 +199,7 @@ export const jbrowseBaseTheme: ThemeOptions = {
 }
 
 export function createJBrowseTheme(theme?: ThemeOptions) {
+  console.log('before', { theme })
   if (!theme) {
     return createTheme(jbrowseBaseTheme)
   }
@@ -220,6 +221,7 @@ export function createJBrowseTheme(theme?: ThemeOptions) {
       },
     }
   }
+  console.log('after', { theme })
   theme = {
     ...theme,
     props: deepmerge(createJBrowseDefaultProps(), theme.props || {}),
@@ -228,5 +230,7 @@ export function createJBrowseTheme(theme?: ThemeOptions) {
       theme.overrides || {},
     ),
   }
+  console.log('k1', { theme })
+  console.log('k2', deepmerge(jbrowseBaseTheme, theme))
   return createTheme(deepmerge(jbrowseBaseTheme, theme))
 }

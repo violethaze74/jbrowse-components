@@ -1,12 +1,24 @@
 import React from 'react'
-import { Grid, Paper, Typography, makeStyles } from '@material-ui/core'
+import {
+  Box,
+  Grid,
+  IconButton,
+  Paper,
+  Typography,
+  useTheme,
+  makeStyles,
+} from '@material-ui/core'
 
 import { LogoFull } from '@jbrowse/core/ui/Logo'
 import PluginManager from '@jbrowse/core/PluginManager'
 
+import Brightness5Icon from '@material-ui/icons/Brightness5'
+import Brightness7Icon from '@material-ui/icons/Brightness7'
+
 // locals
 import LauncherPanel from './LauncherPanel'
 import RecentSessionPanel from './RecentSessionsPanel'
+import ColorModeContext from '../ColorProvider'
 
 import { version } from '../../package.json'
 
@@ -46,6 +58,31 @@ function LogoWithVersion() {
     </div>
   )
 }
+
+function ToggleDarkModeButton() {
+  const theme = useTheme()
+  const colorMode = React.useContext(ColorModeContext)
+  return (
+    <Box>
+      {
+        // @ts-ignore
+        theme.palette.mode
+      }{' '}
+      mode
+      <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+        {
+          // @ts-ignore
+          theme.palette.mode === 'dark' ? (
+            <Brightness7Icon />
+          ) : (
+            <Brightness5Icon />
+          )
+        }
+      </IconButton>
+    </Box>
+  )
+}
+
 export default function StartScreen({
   setPluginManager,
   setError,
@@ -58,6 +95,7 @@ export default function StartScreen({
   return (
     <div>
       <LogoWithVersion />
+      <ToggleDarkModeButton />
 
       <div className={classes.root}>
         <Grid container spacing={3}>

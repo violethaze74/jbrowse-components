@@ -5,22 +5,23 @@ import { getConf } from '@jbrowse/core/configuration'
 import { App, createJBrowseTheme } from '@jbrowse/core/ui'
 import PluginManager from '@jbrowse/core/PluginManager'
 import { AssemblyManager } from '@jbrowse/plugin-data-management'
+import deepmerge from 'deepmerge'
 
 // locals
 import { RootModel } from './rootModel'
 
 const JBrowse = observer(
-  ({ pluginManager }: { pluginManager: PluginManager }) => {
+  ({ pluginManager, mode }: { mode: string; pluginManager: PluginManager }) => {
     const { rootModel } = pluginManager
 
     return rootModel ? (
-      <JBrowseNonNullRoot rootModel={rootModel as RootModel} />
+      <JBrowseNonNullRoot mode={mode} rootModel={rootModel as RootModel} />
     ) : null
   },
 )
 
 const JBrowseNonNullRoot = observer(
-  ({ rootModel }: { rootModel: RootModel }) => {
+  ({ rootModel, mode }: { mode: string; rootModel: RootModel }) => {
     const [firstLoad, setFirstLoad] = useState(true)
     const { session, jbrowse, error, isAssemblyEditing, setAssemblyEditing } =
       rootModel
@@ -37,8 +38,18 @@ const JBrowseNonNullRoot = observer(
 
     const theme = getConf(jbrowse, 'theme')
 
+    const colorTheme = React.useMemo(
+      () => ({
+        palette: {
+          type: mode,
+        },
+      }),
+      [mode],
+    )
+
     return (
-      <ThemeProvider theme={createJBrowseTheme(theme)}>
+      // @ts-ignore
+      <ThemeProvider theme={createJBrowseTheme(deepmerge(theme, colorTheme))}>
         <CssBaseline />
         {session ? (
           <>
