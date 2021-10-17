@@ -20,25 +20,8 @@ const encrypt = (text: string, password: string) => {
 }
 
 const decrypt = (text: string, password: string) => {
-  const bytes = AES.decrypt(text, password)
-  return bytes.toString(Utf8)
+  return AES.decrypt(text, password).toString(Utf8)
 }
-
-// recusively checks config for callbacks and removes them
-// was used to parse and delete, commented out for later if needed
-// const deleteCallbacks = (key: any) => {
-//   if (Array.isArray(key)) {
-//     key.forEach(a => {
-//       deleteCallbacks(a)
-//     })
-//   } else if (key && typeof key === 'object') {
-//     Object.entries(key).forEach(([innerKey, value]) => {
-//       if (typeof value === 'string' && value.startsWith('function')) {
-//         delete key[innerKey] // removing sets it to the default callback
-//       } else deleteCallbacks(key[innerKey])
-//     })
-//   }
-// }
 
 function getErrorMsg(err: string) {
   try {

@@ -7,7 +7,6 @@ import PluginManager from '@jbrowse/core/PluginManager'
 import Plugin from '@jbrowse/core/Plugin'
 import {
   getParent,
-  getRoot,
   getSnapshot,
   resolveIdentifier,
   types,
