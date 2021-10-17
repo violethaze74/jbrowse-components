@@ -120,6 +120,9 @@ export default function sessionModelFactory(
       get tracks() {
         return getParent<any>(self).jbrowse.tracks
       },
+      get internetAccounts() {
+        return getParent<any>(self).internetAccounts
+      },
       get textSearchManager(): TextSearchManager {
         return getParent<any>(self).textSearchManager
       },

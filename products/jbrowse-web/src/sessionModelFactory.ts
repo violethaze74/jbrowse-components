@@ -19,7 +19,6 @@ import { observable } from 'mobx'
 import {
   getMembers,
   getParent,
-  getRoot,
   getSnapshot,
   getType,
   isAlive,
@@ -145,6 +144,9 @@ export default function sessionModelFactory(
       },
       get textSearchManager(): TextSearchManager {
         return getParent<any>(self).textSearchManager
+      },
+      get internetAccounts() {
+        return getParent<any>(self).internetAccounts
       },
       get connections() {
         return [
