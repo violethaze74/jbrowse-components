@@ -196,6 +196,28 @@ export default function CircularView(pluginManager: PluginManager) {
           })
           return assemblyNames
         },
+        get initialized() {
+          const { assemblyManager } = getSession(self)
+
+          // if the assemblyManager is tracking a given assembly name, wait for
+          // it to be loaded. this is done by looking in the assemblyManager's
+          // assembly list, and then waiting on it's initialized state which is
+          // updated later
+          const assembliesInitialized = this.assemblyNames.every(
+            assemblyName => {
+              if (
+                assemblyManager.assemblyList
+                  ?.map(asm => asm.name)
+                  .includes(assemblyName)
+              ) {
+                return (assemblyManager.get(assemblyName) || {}).initialized
+              }
+              return true
+            },
+          )
+
+          return assembliesInitialized
+        },
       }))
       .volatile(() => ({
         error: undefined as Error | undefined,
@@ -257,7 +279,7 @@ export default function CircularView(pluginManager: PluginManager) {
         },
 
         closeView() {
-          getParent(self, 2).removeView(self)
+          getParent<any>(self, 2).removeView(self)
         },
 
         setDisplayedRegions(regions: SnapshotOrInstance<typeof Region>[]) {
@@ -304,9 +326,8 @@ export default function CircularView(pluginManager: PluginManager) {
         },
 
         showTrack(trackId: string, initialSnapshot = {}) {
-          const trackConfigSchema = pluginManager.pluggableConfigSchemaType(
-            'track',
-          )
+          const trackConfigSchema =
+            pluginManager.pluggableConfigSchemaType('track')
           const configuration = resolveIdentifier(
             trackConfigSchema,
             getRoot(self),
@@ -360,9 +381,8 @@ export default function CircularView(pluginManager: PluginManager) {
         },
 
         hideTrack(trackId: string) {
-          const trackConfigSchema = pluginManager.pluggableConfigSchemaType(
-            'track',
-          )
+          const trackConfigSchema =
+            pluginManager.pluggableConfigSchemaType('track')
           const configuration = resolveIdentifier(
             trackConfigSchema,
             getRoot(self),

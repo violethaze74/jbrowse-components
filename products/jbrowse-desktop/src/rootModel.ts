@@ -1,35 +1,56 @@
+import {
+  addDisposer,
+  cast,
+  resolveIdentifier,
+  getSnapshot,
+  types,
+  SnapshotIn,
+  Instance,
+  IAnyModelType,
+} from 'mobx-state-tree'
+
+import { autorun } from 'mobx'
+
 import assemblyManagerFactory, {
   assemblyConfigSchemas as AssemblyConfigSchemasFactory,
 } from '@jbrowse/core/assemblyManager'
 import PluginManager from '@jbrowse/core/PluginManager'
 import RpcManager from '@jbrowse/core/rpc/RpcManager'
 import { MenuItem } from '@jbrowse/core/ui'
-import AddIcon from '@material-ui/icons/Add'
-import SettingsIcon from '@material-ui/icons/Settings'
+import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
+import { UriLocation } from '@jbrowse/core/util/types'
+import { ipcRenderer } from 'electron'
+
+// icons
+import OpenIcon from '@material-ui/icons/FolderOpen'
+import ExtensionIcon from '@material-ui/icons/Extension'
 import AppsIcon from '@material-ui/icons/Apps'
-import electron from 'electron'
-import {
-  cast,
-  getParent,
-  getSnapshot,
-  SnapshotIn,
-  types,
-} from 'mobx-state-tree'
+import StorageIcon from '@material-ui/icons/Storage'
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom'
+import { Save, SaveAs, DNA, Cable } from '@jbrowse/core/ui/Icons'
+
+// locals
+import sessionModelFactory from './sessionModelFactory'
 import JBrowseDesktop from './jbrowseModel'
+import OpenSequenceDialog from './OpenSequenceDialog'
 // @ts-ignore
 import RenderWorker from './rpc.worker'
-import sessionModelFactory from './sessionModelFactory'
 
-const { ipcRenderer } = electron
+function getSaveSession(model: RootModel) {
+  return {
+    ...getSnapshot(model.jbrowse),
+    defaultSession: model.session ? getSnapshot(model.session) : {},
+  }
+}
+
 interface Menu {
   label: string
   menuItems: MenuItem[]
 }
 
-export default function RootModel(pluginManager: PluginManager) {
-  const { assemblyConfigSchemas, dispatcher } = AssemblyConfigSchemasFactory(
-    pluginManager,
-  )
+export default function rootModelFactory(pluginManager: PluginManager) {
+  const { assemblyConfigSchemas, dispatcher } =
+    AssemblyConfigSchemasFactory(pluginManager)
   const assemblyConfigSchemasType = types.union(
     { dispatcher },
     ...assemblyConfigSchemas,
@@ -48,42 +69,53 @@ export default function RootModel(pluginManager: PluginManager) {
       ),
       session: types.maybe(Session),
       assemblyManager: assemblyManagerType,
-      error: types.maybe(types.string),
       savedSessionNames: types.maybe(types.array(types.string)),
       version: types.maybe(types.string),
+      internetAccounts: types.array(
+        pluginManager.pluggableMstType('internet account', 'stateModel'),
+      ),
       isAssemblyEditing: false,
+      sessionPath: types.optional(types.string, ''),
     })
     .volatile(() => ({
-      pluginsUpdated: false,
+      error: undefined as unknown,
+      textSearchManager: new TextSearchManager(pluginManager),
+      openNewSessionCallback: () => {
+        console.error('openNewSessionCallback unimplemented')
+      },
     }))
     .actions(self => ({
+      async saveSession(val: unknown) {
+        if (self.sessionPath) {
+          await ipcRenderer.invoke('saveSession', self.sessionPath, val)
+        }
+      },
+      setOpenNewSessionCallback(cb: () => Promise<void>) {
+        self.openNewSessionCallback = cb
+      },
       setSavedSessionNames(sessionNames: string[]) {
         self.savedSessionNames = cast(sessionNames)
+      },
+      setSessionPath(path: string) {
+        self.sessionPath = path
       },
       setSession(sessionSnapshot?: SnapshotIn<typeof Session>) {
         self.session = cast(sessionSnapshot)
       },
+      setError(error: unknown) {
+        self.error = error
+      },
       setDefaultSession() {
-        this.setSession({
-          ...self.jbrowse.defaultSession,
-          name: `${
-            self.jbrowse.defaultSession.name
-          } ${new Date().toLocaleString()}`,
-        })
+        this.setSession(self.jbrowse.defaultSession)
       },
       setAssemblyEditing(flag: boolean) {
         self.isAssemblyEditing = flag
       },
-      setPluginsUpdated(flag: boolean) {
-        self.pluginsUpdated = flag
-      },
-      renameCurrentSession(sessionName: string) {
+
+      async renameCurrentSession(newName: string) {
         if (self.session) {
-          const snapshot = JSON.parse(JSON.stringify(getSnapshot(self.session)))
-          const oldName = snapshot.name
-          snapshot.name = sessionName
-          this.setSession(snapshot)
-          ipcRenderer.invoke('renameSession', oldName, sessionName)
+          this.setSession({ ...getSnapshot(self.session), name: newName })
+          await this.saveSession(getSaveSession(self as RootModel))
         }
       },
       duplicateCurrentSession() {
@@ -101,6 +133,100 @@ export default function RootModel(pluginManager: PluginManager) {
           this.setSession(snapshot)
         }
       },
+      initializeInternetAccount(
+        internetAccountId: string,
+        initialSnapshot = {},
+      ) {
+        const internetAccountConfigSchema =
+          pluginManager.pluggableConfigSchemaType('internet account')
+        const configuration = resolveIdentifier(
+          internetAccountConfigSchema as IAnyModelType,
+          self,
+          internetAccountId,
+        )
+
+        const internetAccountType = pluginManager.getInternetAccountType(
+          configuration.type,
+        )
+        if (!internetAccountType) {
+          throw new Error(`unknown internet account type ${configuration.type}`)
+        }
+
+        const internetAccount = internetAccountType.stateModel.create({
+          ...initialSnapshot,
+          type: configuration.type,
+          configuration,
+        })
+        self.internetAccounts.push(internetAccount)
+        return internetAccount
+      },
+      createEphemeralInternetAccount(
+        internetAccountId: string,
+        initialSnapshot = {},
+        location: UriLocation,
+      ) {
+        let hostUri
+
+        try {
+          hostUri = new URL(location.uri).origin
+        } catch (e) {
+          // ignore
+        }
+        // id of a custom new internaccount is `${type}-${name}`
+        const internetAccountSplit = internetAccountId.split('-')
+        const configuration = {
+          type: internetAccountSplit[0],
+          internetAccountId: internetAccountId,
+          name: internetAccountSplit.slice(1).join('-'),
+          description: '',
+          domains: [hostUri],
+        }
+        const internetAccountType = pluginManager.getInternetAccountType(
+          configuration.type,
+        )
+        const internetAccount = internetAccountType.stateModel.create({
+          ...initialSnapshot,
+          type: configuration.type,
+          configuration,
+        })
+        self.internetAccounts.push(internetAccount)
+        return internetAccount
+      },
+      findAppropriateInternetAccount(location: UriLocation) {
+        // find the existing account selected from menu
+        const selectedId = location.internetAccountId
+        if (selectedId) {
+          const selectedAccount = self.internetAccounts.find(account => {
+            return account.internetAccountId === selectedId
+          })
+          if (selectedAccount) {
+            return selectedAccount
+          }
+        }
+
+        // if no existing account or not found, try to find working account
+        for (const account of self.internetAccounts) {
+          const handleResult = account.handlesLocation(location)
+          if (handleResult) {
+            return account
+          }
+        }
+
+        // if still no existing account, create ephemeral config to use
+        return selectedId
+          ? this.createEphemeralInternetAccount(selectedId, {}, location)
+          : null
+      },
+      afterCreate() {
+        addDisposer(
+          self,
+          autorun(() => {
+            self.jbrowse.internetAccounts.forEach(account => {
+              this.initializeInternetAccount(account.internetAccountId)
+            })
+          }),
+        )
+      },
     }))
     .volatile(self => ({
       history: {},
@@ -109,30 +235,134 @@ export default function RootModel(pluginManager: PluginManager) {
           label: 'File',
           menuItems: [
             {
-              label: 'New Session',
-              icon: AddIcon,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              onClick: (session: any) => {
-                session.setDefaultSession()
+              label: 'Open',
+              icon: OpenIcon,
+              onClick: async () => {
+                try {
+                  await self.openNewSessionCallback()
+                } catch (e) {
+                  console.error(e)
+                  self.session?.notify(`${e}`, 'error')
+                }
               },
             },
             {
-              label: 'Return to splash screen',
+              label: 'Save',
+              icon: Save,
+              onClick: async () => {
+                if (self.session) {
+                  try {
+                    await self.saveSession(getSaveSession(self as RootModel))
+                  } catch (e) {
+                    console.error(e)
+                    self.session?.notify(`${e}`, 'error')
+                  }
+                }
+              },
+            },
+            {
+              label: 'Save as...',
+              icon: SaveAs,
+              onClick: async () => {
+                try {
+                  const saveAsPath = await ipcRenderer.invoke(
+                    'promptSessionSaveAs',
+                  )
+                  self.setSessionPath(saveAsPath)
+                  await self.saveSession(getSaveSession(self as RootModel))
+                } catch (e) {
+                  console.error(e)
+                  self.session?.notify(`${e}`, 'error')
+                }
+              },
+            },
+            {
+              type: 'divider',
+            },
+            {
+              label: 'Open assembly...',
+              icon: DNA,
+              onClick: () => {
+                if (self.session) {
+                  self.session.queueDialog(doneCallback => [
+                    OpenSequenceDialog,
+                    { model: self, onClose: doneCallback },
+                  ])
+                }
+              },
+            },
+            {
+              label: 'Open track...',
+              icon: StorageIcon,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onClick: (session: any) => {
+                if (session.views.length === 0) {
+                  session.notify('Please open a view to add a track first')
+                } else if (session.views.length >= 1) {
+                  const widget = session.addWidget(
+                    'AddTrackWidget',
+                    'addTrackWidget',
+                    { view: session.views[0].id },
+                  )
+                  session.showWidget(widget)
+                  if (session.views.length > 1) {
+                    session.notify(
+                      `This will add a track to the first view. Note: if you want to open a track in a specific view open the track selector for that view and use the add track (plus icon) in the bottom right`,
+                    )
+                  }
+                }
+              },
+            },
+            {
+              label: 'Open connection...',
+              icon: Cable,
+              onClick: () => {
+                if (self.session) {
+                  const widget = self.session.addWidget(
+                    'AddConnectionWidget',
+                    'addConnectionWidget',
+                  )
+                  self.session.showWidget(widget)
+                }
+              },
+            },
+            {
+              type: 'divider',
+            },
+            {
+              label: 'Return to start screen',
               icon: AppsIcon,
               onClick: () => {
                 self.setSession(undefined)
               },
             },
+            {
+              label: 'Exit',
+              icon: MeetingRoomIcon,
+              onClick: () => {
+                ipcRenderer.invoke('quit')
+              },
+            },
           ],
         },
         {
-          label: 'Edit',
+          label: 'Add',
+          menuItems: [],
+        },
+        {
+          label: 'Tools',
           menuItems: [
             {
-              label: 'Open assembly manager',
-              icon: SettingsIcon,
+              label: 'Plugin store',
+              icon: ExtensionIcon,
               onClick: () => {
-                self.setAssemblyEditing(true)
+                if (self.session) {
+                  const widget = self.session.addWidget(
+                    'PluginStoreWidget',
+                    'pluginStoreWidget',
+                  )
+                  self.session.showWidget(widget)
+                }
               },
             },
           ],
@@ -158,6 +388,20 @@ export default function RootModel(pluginManager: PluginManager) {
       },
       setMenus(newMenus: Menu[]) {
         self.menus = newMenus
+      },
+      async setPluginsUpdated() {
+        if (self.session) {
+          await self.saveSession(getSnapshot(self.session))
+        }
+
+        const url = window.location.href.split('?')[0]
+        if (!self.sessionPath) {
+          self.session?.notify('You must save your session first')
+        } else {
+          window.location.href = `${url}?config=${encodeURIComponent(
+            self.sessionPath,
+          )}`
+        }
       },
       /**
        * Add a top-level menu
@@ -246,6 +490,7 @@ export default function RootModel(pluginManager: PluginManager) {
         })
         return subMenu.push(menuItem)
       },
+
       /**
        * Insert a menu item into a sub-menu
        * @param menuPath - Path to the sub-menu to add to, starting with the
@@ -285,5 +530,22 @@ export default function RootModel(pluginManager: PluginManager) {
         subMenu.splice(position, 0, menuItem)
         return subMenu.length
       },
+
+      afterCreate() {
+        addDisposer(
+          self,
+          autorun(
+            async () => {
+              if (self.session) {
+                await self.saveSession(getSaveSession(self as RootModel))
+              }
+            },
+            { delay: 1000 },
+          ),
+        )
+      },
     }))
 }
+
+export type RootModelType = ReturnType<typeof rootModelFactory>
+export type RootModel = Instance<RootModelType>

@@ -4,10 +4,7 @@ import {
   readConfObject,
   getConf,
 } from '@jbrowse/core/configuration'
-import {
-  getParentRenderProps,
-  getRpcSessionId,
-} from '@jbrowse/core/util/tracks'
+import { getRpcSessionId } from '@jbrowse/core/util/tracks'
 import {
   getSession,
   isSessionModelWithWidgets,
@@ -29,7 +26,7 @@ import SortIcon from '@material-ui/icons/Sort'
 import PaletteIcon from '@material-ui/icons/Palette'
 import FilterListIcon from '@material-ui/icons/ClearAll'
 
-import { autorun, observable, toJS } from 'mobx'
+import { autorun, observable } from 'mobx'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import SerializableFilterChain from '@jbrowse/core/pluggableElementTypes/renderers/util/serializableFilterChain'
 import { LinearPileupDisplayConfigModel } from './configSchema'
@@ -88,7 +85,7 @@ const stateModelFactory = (
         filterBy: types.optional(
           types.model({
             flagInclude: types.optional(types.number, 0),
-            flagExclude: types.optional(types.number, 1536),
+            flagExclude: types.optional(types.number, 1540),
             readName: types.maybe(types.string),
             tagFilter: types.maybe(
               types.model({ tag: types.string, value: types.string }),
@@ -170,7 +167,7 @@ const stateModelFactory = (
             async () => {
               try {
                 const { rpcManager } = getSession(self)
-                const { sortedBy, colorBy, renderProps } = self
+                const { sortedBy, colorBy } = self
                 const view = getContainingView(self) as LGV
 
                 // continually generate the vc pairing, set and rerender if any
@@ -185,12 +182,13 @@ const stateModelFactory = (
                 }
 
                 if (colorBy?.type === 'modifications') {
-                  const uniqueModificationsSet = await getUniqueModificationValues(
-                    self,
-                    getConf(self.parentTrack, ['adapter']),
-                    colorBy,
-                    view.staticBlocks,
-                  )
+                  const uniqueModificationsSet =
+                    await getUniqueModificationValues(
+                      self,
+                      getConf(self.parentTrack, ['adapter']),
+                      colorBy,
+                      view.staticBlocks,
+                    )
                   self.updateModificationColorMap(uniqueModificationsSet)
                 }
 
@@ -199,30 +197,29 @@ const stateModelFactory = (
 
                   const region = {
                     start: pos,
-                    end: (pos || 0) + 1,
+                    end: pos + 1,
                     refName,
                     assemblyName,
                   }
 
                   // render just the sorted region first
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  await (self.rendererType as any).renderInClient(rpcManager, {
+                  await self.rendererType.renderInClient(rpcManager, {
                     assemblyName,
                     regions: [region],
                     adapterConfig: self.adapterConfig,
                     rendererType: self.rendererType.name,
                     sessionId: getRpcSessionId(self),
                     timeout: 1000000,
-                    ...renderProps,
+                    ...self.renderProps(),
                   })
                   self.setReady(true)
                   self.setCurrBpPerPx(view.bpPerPx)
                 } else {
                   self.setReady(true)
                 }
-              } catch (error) {
-                console.error(error)
-                self.setError(error)
+              } catch (e) {
+                console.error(e)
+                self.setError(e)
               }
             },
             { delay: 1000 },
@@ -248,10 +245,9 @@ const stateModelFactory = (
 
       // uses copy-to-clipboard and generates notification
       copyFeatureToClipboard(feature: Feature) {
-        const copiedFeature = feature.toJSON()
-        delete copiedFeature.uniqueId
+        const { uniqueId, ...rest } = feature.toJSON()
         const session = getSession(self)
-        copy(JSON.stringify(copiedFeature, null, 4))
+        copy(JSON.stringify(rest, null, 4))
         session.notify('Copied to clipboard', 'success')
       },
 
@@ -342,7 +338,11 @@ const stateModelFactory = (
       },
     }))
     .views(self => {
-      const { trackMenuItems } = self
+      const {
+        trackMenuItems: superTrackMenuItems,
+        renderProps: superRenderProps,
+      } = self
+
       return {
         get rendererTypeName() {
           const viewName = getConf(self, 'defaultRendering')
@@ -353,7 +353,7 @@ const stateModelFactory = (
           return rendererType
         },
 
-        get contextMenuItems() {
+        contextMenuItems() {
           const feat = self.contextMenuFeature
           const contextMenuItems = feat
             ? [
@@ -378,12 +378,6 @@ const stateModelFactory = (
                 },
               ]
             : []
-          self.additionalContextMenuItemCallbacks.forEach(
-            (callback: Function) => {
-              const menuItems = callback(feat, self, pluginManager)
-              contextMenuItems.push(...menuItems)
-            },
-          )
           return contextMenuItems
         },
 
@@ -412,30 +406,34 @@ const stateModelFactory = (
           return new SerializableFilterChain({ filters })
         },
 
-        get renderProps() {
+        renderProps() {
           const view = getContainingView(self) as LGV
+          const {
+            ready,
+            colorTagMap,
+            modificationTagMap,
+            sortedBy,
+            colorBy,
+            rpcDriverName,
+          } = self
           return {
-            ...self.composedRenderProps,
-            ...getParentRenderProps(self),
-            notReady:
-              !self.ready ||
-              (self.sortedBy && self.currBpPerPx !== view.bpPerPx),
-            rpcDriverName: self.rpcDriverName,
+            ...superRenderProps(),
+            notReady: !ready || (sortedBy && self.currBpPerPx !== view.bpPerPx),
+            rpcDriverName,
             displayModel: self,
-            sortedBy: self.sortedBy,
-            colorBy: self.colorBy,
-            colorTagMap: Object.fromEntries(toJS(self.colorTagMap)),
-            modificationTagMap: JSON.parse(
-              JSON.stringify(self.modificationTagMap),
-            ),
+            sortedBy,
+            colorBy,
+            colorTagMap: JSON.parse(JSON.stringify(colorTagMap)),
+            modificationTagMap: JSON.parse(JSON.stringify(modificationTagMap)),
             filters: this.filters,
             showSoftClip: self.showSoftClipping,
             config: self.rendererConfig,
           }
         },
 
-        get composedTrackMenuItems() {
+        trackMenuItems() {
           return [
+            ...superTrackMenuItems(),
             {
               label: 'Show soft clipping',
               icon: VisibilityIcon,
@@ -465,10 +463,12 @@ const stateModelFactory = (
                 ),
                 {
                   label: 'Sort by tag...',
-                  onClick: () =>
-                    getSession(self).setDialogComponent(SortByTagDlg, {
-                      model: self,
-                    }),
+                  onClick: () => {
+                    getSession(self).queueDialog((doneCallback: Function) => [
+                      SortByTagDlg,
+                      { model: self, handleClose: doneCallback },
+                    ])
+                  },
                 },
                 {
                   label: 'Clear sort',
@@ -513,9 +513,10 @@ const stateModelFactory = (
                 {
                   label: 'Modifications or methylation',
                   onClick: () => {
-                    getSession(self).setDialogComponent(ModificationsDlg, {
-                      model: self,
-                    })
+                    getSession(self).queueDialog((doneCallback: Function) => [
+                      ModificationsDlg,
+                      { model: self, handleClose: doneCallback },
+                    ])
                   },
                 },
                 {
@@ -533,9 +534,10 @@ const stateModelFactory = (
                 {
                   label: 'Color by tag...',
                   onClick: () => {
-                    getSession(self).setDialogComponent(ColorByTagDlg, {
-                      model: self,
-                    })
+                    getSession(self).queueDialog((doneCallback: Function) => [
+                      ColorByTagDlg,
+                      { model: self, handleClose: doneCallback },
+                    ])
                   },
                 },
               ],
@@ -544,25 +546,28 @@ const stateModelFactory = (
               label: 'Filter by',
               icon: FilterListIcon,
               onClick: () => {
-                getSession(self).setDialogComponent(FilterByTagDlg, {
-                  model: self,
-                })
+                getSession(self).queueDialog((doneCallback: Function) => [
+                  FilterByTagDlg,
+                  { model: self, handleClose: doneCallback },
+                ])
               },
             },
             {
               label: 'Set feature height',
               onClick: () => {
-                getSession(self).setDialogComponent(SetFeatureHeightDlg, {
-                  model: self,
-                })
+                getSession(self).queueDialog((doneCallback: Function) => [
+                  SetFeatureHeightDlg,
+                  { model: self, handleClose: doneCallback },
+                ])
               },
             },
             {
               label: 'Set max height',
               onClick: () => {
-                getSession(self).setDialogComponent(SetMaxHeightDlg, {
-                  model: self,
-                })
+                getSession(self).queueDialog((doneCallback: Function) => [
+                  SetMaxHeightDlg,
+                  { model: self, handleClose: doneCallback },
+                ])
               },
             },
             {
@@ -574,10 +579,6 @@ const stateModelFactory = (
               },
             },
           ]
-        },
-
-        get trackMenuItems() {
-          return [...trackMenuItems, ...this.composedTrackMenuItems]
         },
       }
     })

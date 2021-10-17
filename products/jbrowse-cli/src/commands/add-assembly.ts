@@ -23,7 +23,7 @@ export default class AddAssembly extends JBrowseCommand {
   static examples = [
     '$ jbrowse add-assembly GRCh38.fa --load copy',
     '$ jbrowse add-assembly GRCh38.fasta.with.custom.extension.xyz --type indexedFasta --load move',
-    '$ jbrowse add-assembly myFile.fa.gz --name GRCh38 --alias hg38 --load inPlace',
+    '$ jbrowse add-assembly myFile.fa.gz --name hg38 --alias GRCh38 --displayName "Homo sapiens (hg38)" --load inPlace',
     '$ jbrowse add-assembly GRCh38.chrom.sizes --load inPlace',
     '$ jbrowse add-assembly GRCh38.config.json --load copy',
     '$ jbrowse add-assembly https://example.com/data/sample.2bit',
@@ -73,6 +73,10 @@ custom         Either a JSON file location or inline JSON that defines a custom
       description:
         'An alias for the assembly name (e.g. "hg38" if the name of the assembly is "GRCh38");\ncan be specified multiple times',
       multiple: true,
+    }),
+    displayName: flags.string({
+      description:
+        'The display name to specify for the assembly, e.g. "Homo sapiens (hg38)" while the name can be a shorter identifier like "hg38"',
     }),
     faiLocation: flags.string({
       description: '[default: <fastaLocation>.fai] FASTA index file or URL',
@@ -196,8 +200,11 @@ custom         Either a JSON file location or inline JSON that defines a custom
           trackId: `${name}-ReferenceSequenceTrack`,
           adapter: {
             type: 'IndexedFastaAdapter',
-            fastaLocation: { uri: sequenceLocation },
-            faiLocation: { uri: indexLocation },
+            fastaLocation: {
+              uri: sequenceLocation,
+              locationType: 'UriLocation',
+            },
+            faiLocation: { uri: indexLocation, locationType: 'UriLocation' },
           },
         }
         break
@@ -248,9 +255,15 @@ custom         Either a JSON file location or inline JSON that defines a custom
           trackId: `${name}-ReferenceSequenceTrack`,
           adapter: {
             type: 'BgzipFastaAdapter',
-            fastaLocation: { uri: sequenceLocation },
-            faiLocation: { uri: indexLocation },
-            gziLocation: { uri: bgzipIndexLocation },
+            fastaLocation: {
+              uri: sequenceLocation,
+              locationType: 'UriLocation',
+            },
+            faiLocation: { uri: indexLocation, locationType: 'UriLocation' },
+            gziLocation: {
+              uri: bgzipIndexLocation,
+              locationType: 'UriLocation',
+            },
           },
         }
         break
@@ -277,7 +290,10 @@ custom         Either a JSON file location or inline JSON that defines a custom
           trackId: `${name}-ReferenceSequenceTrack`,
           adapter: {
             type: 'TwoBitAdapter',
-            twoBitLocation: { uri: sequenceLocation },
+            twoBitLocation: {
+              uri: sequenceLocation,
+              locationType: 'UriLocation',
+            },
           },
         }
         break
@@ -304,7 +320,10 @@ custom         Either a JSON file location or inline JSON that defines a custom
           trackId: `${name}-ReferenceSequenceTrack`,
           adapter: {
             type: 'ChromSizesAdapter',
-            chromSizesLocation: { uri: sequenceLocation },
+            chromSizesLocation: {
+              uri: sequenceLocation,
+              locationType: 'UriLocation',
+            },
           },
         }
         break
@@ -413,10 +432,17 @@ custom         Either a JSON file location or inline JSON that defines a custom
         assembly.refNameAliases = {
           adapter: {
             type: 'RefNameAliasAdapter',
-            location: { uri: refNameAliasesLocation },
+            location: {
+              uri: refNameAliasesLocation,
+              locationType: 'UriLocation',
+            },
           },
         }
       }
+    }
+
+    if (runFlags.displayName) {
+      assembly.displayName = runFlags.displayName
     }
 
     const defaultConfig: Config = {

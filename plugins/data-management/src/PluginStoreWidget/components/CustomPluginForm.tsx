@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react'
-import { getRoot } from 'mobx-state-tree'
-
-import { makeStyles } from '@material-ui/core/styles'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-
-import IconButton from '@material-ui/core/IconButton'
+import { getSession } from '@jbrowse/core/util'
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Button,
+  IconButton,
+  makeStyles,
+} from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
 
 import { PluginStoreModel } from '../model'
@@ -36,24 +38,9 @@ function CustomPluginForm({
   model: PluginStoreModel
 }) {
   const classes = useStyles()
-  const [formInput, setFormInput] = useState({
-    name: '',
-    url: '',
-  })
-
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormInput({
-      ...formInput,
-      [event.target.name]: event.target.value,
-    })
-  }
-
-  const rootModel = getRoot(model)
-  const { jbrowse } = rootModel
-
-  const handleSubmit = () => {
-    jbrowse.addPlugin({ name: formInput.name, url: formInput.url })
-  }
+  const [name, setName] = useState('')
+  const [url, setUrl] = useState('')
+  const { jbrowse } = getSession(model)
 
   return (
     <Dialog open={open} onClose={() => onClose(false)}>
@@ -66,15 +53,14 @@ function CustomPluginForm({
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-
-      <div className={classes.dialogContainer}>
+      <DialogContent>
         <TextField
           id="name-input"
           name="name"
           label="Plugin name"
           variant="outlined"
-          value={formInput.name}
-          onChange={handleChange}
+          value={name}
+          onChange={event => setName(event.target.value)}
           multiline
         />
         <TextField
@@ -82,19 +68,21 @@ function CustomPluginForm({
           name="url"
           label="Plugin URL"
           variant="outlined"
-          value={formInput.url}
-          onChange={handleChange}
+          value={url}
+          onChange={event => setUrl(event.target.value)}
           multiline
         />
+      </DialogContent>
+      <DialogActions>
         <Button
           variant="contained"
           color="primary"
           style={{ marginTop: '1.5rem' }}
-          onClick={handleSubmit}
+          onClick={() => jbrowse.addPlugin({ name, url })}
         >
           Add plugin
         </Button>
-      </div>
+      </DialogActions>
     </Dialog>
   )
 }

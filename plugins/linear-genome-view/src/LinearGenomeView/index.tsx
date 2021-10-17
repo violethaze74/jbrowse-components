@@ -47,6 +47,7 @@ import clone from 'clone'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { saveAs } from 'file-saver'
 import { renderToSvg } from './components/LinearGenomeView'
+import RefNameAutocomplete from './components/RefNameAutocomplete'
 import ExportSvgDlg from './components/ExportSvgDialog'
 import ReturnToImportFormDlg from './components/ReturnToImportFormDialog'
 
@@ -129,7 +130,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
       volatileWidth: undefined as number | undefined,
       minimumBlockWidth: 3,
       draggingTrackId: undefined as undefined | string,
-      error: undefined as undefined | Error,
+      volatileError: undefined as undefined | Error,
 
       // array of callbacks to run after the next set of the displayedRegions,
       // which is basically like an onLoad
@@ -158,25 +159,22 @@ export function stateModelFactory(pluginManager: PluginManager) {
       },
     }))
     .views(self => ({
-      get initialized() {
+      get assemblyErrors() {
         const { assemblyManager } = getSession(self)
+        return this.assemblyNames
+          .map(a => assemblyManager.get(a)?.error)
+          .filter(f => !!f)
+          .join(', ')
+      },
 
-        // if the assemblyManager is tracking a given assembly name, wait for
-        // it to be loaded. this is done by looking in the assemblyManager's
-        // assembly list, and then waiting on it's initialized state which is
-        // updated later
-        const assembliesInitialized = this.assemblyNames.every(assemblyName => {
-          if (
-            assemblyManager.assemblyList
-              ?.map(asm => asm.name)
-              .includes(assemblyName)
-          ) {
-            return (assemblyManager.get(assemblyName) || {}).initialized
-          }
-          return true
-        })
-
-        return self.volatileWidth !== undefined && assembliesInitialized
+      get assembliesInitialized() {
+        const { assemblyManager } = getSession(self)
+        return this.assemblyNames.every(
+          a => assemblyManager.get(a)?.initialized,
+        )
+      },
+      get initialized() {
+        return self.volatileWidth !== undefined && this.assembliesInitialized
       },
       get hasDisplayedRegions() {
         return self.displayedRegions.length > 0
@@ -228,6 +226,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
         return 1 / 50
       },
 
+      get error() {
+        return self.volatileError || this.assemblyErrors
+      },
+
       get maxOffset() {
         // objectively determined to keep the linear genome on the main screen
         const leftPadding = 10
@@ -244,7 +246,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         return this.totalBp / self.bpPerPx
       },
 
-      get renderProps() {
+      renderProps() {
         return {
           ...getParentRenderProps(self),
           bpPerPx: self.bpPerPx,
@@ -254,6 +256,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
           ),
         }
       },
+
       get assemblyNames() {
         return [
           ...new Set(self.displayedRegions.map(region => region.assemblyName)),
@@ -471,7 +474,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         self.volatileWidth = newWidth
       },
       setError(error: Error | undefined) {
-        self.error = error
+        self.volatileError = error
       },
 
       toggleHeader() {
@@ -550,15 +553,17 @@ export function stateModelFactory(pluginManager: PluginManager) {
         initialSnapshot = {},
         displayInitialSnapshot = {},
       ) {
-        const trackConfigSchema = pluginManager.pluggableConfigSchemaType(
-          'track',
-        )
+        const trackConfigSchema =
+          pluginManager.pluggableConfigSchemaType('track')
         const configuration = resolveIdentifier(
           trackConfigSchema as IAnyModelType,
           getRoot(self),
           trackId,
         )
-        const trackType = pluginManager.getTrackType(configuration.type)
+        if (!configuration) {
+          throw new Error(`Could not resolve identifier`)
+        }
+        const trackType = pluginManager.getTrackType(configuration?.type)
         if (!trackType) {
           throw new Error(`unknown track type ${configuration.type}`)
         }
@@ -574,26 +579,32 @@ export function stateModelFactory(pluginManager: PluginManager) {
             `could not find a compatible display for view type ${self.type}`,
           )
         }
-        const track = trackType.stateModel.create({
-          ...initialSnapshot,
-          type: configuration.type,
-          configuration,
-          displays: [
-            {
-              type: displayConf.type,
-              configuration: displayConf,
-              ...displayInitialSnapshot,
-            },
-          ],
-        })
-        self.tracks.push(track)
-        return track
+
+        const shownTracks = self.tracks.filter(
+          t => t.configuration === configuration,
+        )
+        if (shownTracks.length === 0) {
+          const track = trackType.stateModel.create({
+            ...initialSnapshot,
+            type: configuration.type,
+            configuration,
+            displays: [
+              {
+                type: displayConf.type,
+                configuration: displayConf,
+                ...displayInitialSnapshot,
+              },
+            ],
+          })
+          self.tracks.push(track)
+          return track
+        }
+        return shownTracks[0]
       },
 
       hideTrack(trackId: string) {
-        const trackConfigSchema = pluginManager.pluggableConfigSchemaType(
-          'track',
-        )
+        const trackConfigSchema =
+          pluginManager.pluggableConfigSchemaType('track')
         const configuration = resolveIdentifier(
           trackConfigSchema as IAnyModelType,
           getRoot(self),
@@ -1214,9 +1225,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
             {
               label: 'Return to import form',
               onClick: () => {
-                getSession(self).setDialogComponent(ReturnToImportFormDlg, {
-                  model: self,
-                })
+                getSession(self).queueDialog((doneCallback: Function) => [
+                  ReturnToImportFormDlg,
+                  { model: self, handleClose: doneCallback },
+                ])
               },
               icon: FolderOpenIcon,
             },
@@ -1224,9 +1236,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
               label: 'Export SVG',
               icon: PhotoCameraIcon,
               onClick: () => {
-                getSession(self).setDialogComponent(ExportSvgDlg, {
-                  model: self,
-                })
+                getSession(self).queueDialog((doneCallback: Function) => [
+                  ExportSvgDlg,
+                  { model: self, handleClose: doneCallback },
+                ])
               },
             },
             {
@@ -1404,6 +1417,6 @@ export function stateModelFactory(pluginManager: PluginManager) {
     }))
 }
 
-export { renderToSvg }
+export { renderToSvg, RefNameAutocomplete }
 export type LinearGenomeViewStateModel = ReturnType<typeof stateModelFactory>
 export type LinearGenomeViewModel = Instance<LinearGenomeViewStateModel>

@@ -1,14 +1,14 @@
-import jsonStableStringify from 'json-stable-stringify'
 import { SnapshotIn } from 'mobx-state-tree'
 import PluginManager from '../PluginManager'
 import { AnyConfigurationSchemaType } from '../configuration/configurationSchema'
 import { AnyDataAdapter } from './BaseAdapter'
 import { Region } from '../util/types'
+import idMaker from '../util/idMaker'
 
 function adapterConfigCacheKey(
   adapterConfig: SnapshotIn<AnyConfigurationSchemaType>,
 ) {
-  return `${jsonStableStringify(adapterConfig)}`
+  return `${idMaker(adapterConfig)}`
 }
 
 interface AdapterCacheEntry {
@@ -67,7 +67,7 @@ export async function getAdapter(
       throw new Error('Failed to get adapter')
     }
 
-    const dataAdapter = new CLASS(adapterConfig, getSubAdapter)
+    const dataAdapter = new CLASS(adapterConfig, getSubAdapter, pluginManager)
 
     // store it in our cache
     adapterCache[cacheKey] = {

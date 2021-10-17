@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { types, getParent } from 'mobx-state-tree'
+import { openLocation } from '@jbrowse/core/util/io'
 import { getSession } from '@jbrowse/core/util'
 import PluginManager from '@jbrowse/core/PluginManager'
 
@@ -6,11 +7,6 @@ import PluginManager from '@jbrowse/core/PluginManager'
 const IMPORT_SIZE_LIMIT = 30_000_000
 
 export default (pluginManager: PluginManager) => {
-  const { lib } = pluginManager
-  const { types, getParent, getRoot } = lib['mobx-state-tree']
-  const { openLocation } = lib['@jbrowse/core/util/io']
-  const { readConfObject } = lib['@jbrowse/core/configuration']
-
   const fileTypes = ['CSV', 'TSV', 'VCF', 'BED', 'BEDPE', 'STAR-Fusion']
   const fileTypeParsers = {
     CSV: () =>
@@ -39,12 +35,13 @@ export default (pluginManager: PluginManager) => {
       fileType: types.optional(types.enumeration(fileTypes), 'CSV'),
       hasColumnNameLine: true,
       columnNameLineNumber: 1,
-      selectedAssemblyIdx: 0,
+      selectedAssemblyName: types.maybe(types.string),
     })
     .volatile(() => ({
       fileTypes,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fileSource: undefined as any,
-      error: undefined as Error | undefined,
+      error: undefined as unknown,
       loading: false,
     }))
     .views(self => ({
@@ -59,18 +56,6 @@ export default (pluginManager: PluginManager) => {
       },
       get canCancel() {
         return getParent<any>(self).readyToDisplay
-      },
-      get assemblyChoices() {
-        return getRoot<any>(self).jbrowse.assemblies
-      },
-      get selectedAssemblyName() {
-        const asm = getRoot<any>(self).jbrowse.assemblies[
-          self.selectedAssemblyIdx
-        ]
-        if (asm) {
-          return readConfObject(asm, 'name')
-        }
-        return undefined
       },
 
       get fileName() {
@@ -93,6 +78,9 @@ export default (pluginManager: PluginManager) => {
       },
     }))
     .actions(self => ({
+      setSelectedAssemblyName(s: string) {
+        self.selectedAssemblyName = s
+      },
       setFileSource(newSource: unknown) {
         self.fileSource = newSource
         self.error = undefined
@@ -114,10 +102,6 @@ export default (pluginManager: PluginManager) => {
         }
       },
 
-      setSelectedAssemblyIdx(idx: number) {
-        self.selectedAssemblyIdx = idx
-      },
-
       toggleHasColumnNameLine() {
         self.hasColumnNameLine = !self.hasColumnNameLine
       },
@@ -132,8 +116,7 @@ export default (pluginManager: PluginManager) => {
         self.fileType = typeName
       },
 
-      setError(error: Error) {
-        console.error(error)
+      setError(error: unknown) {
         self.loading = false
         self.error = error
       },
@@ -150,27 +133,28 @@ export default (pluginManager: PluginManager) => {
 
       // fetch and parse the file, make a new Spreadsheet model for it,
       // then set the parent to display it
-      async import() {
+      async import(assemblyName: string) {
         try {
           if (!self.fileSource) {
             return
           }
 
           if (self.loading) {
-            throw new Error('cannot import, load already in progress')
+            throw new Error('Cannot import, load already in progress')
           }
+
+          self.selectedAssemblyName = assemblyName
           self.loading = true
-          const typeParser = await fileTypeParsers[
-            self.fileType as keyof typeof fileTypeParsers
-          ]()
+          const type = self.fileType as keyof typeof fileTypeParsers
+          const typeParser = await fileTypeParsers[type]()
           if (!typeParser) {
             throw new Error(`cannot open files of type '${self.fileType}'`)
           }
 
           const { unzip } = await import('@gmod/bgzf-filehandle')
 
-          const filehandle = openLocation(self.fileSource)
-          filehandle
+          const filehandle = openLocation(self.fileSource, pluginManager)
+          await filehandle
             .stat()
             .then(stat => {
               if (stat.size > IMPORT_SIZE_LIMIT) {
@@ -182,16 +166,14 @@ export default (pluginManager: PluginManager) => {
               }
             })
             .then(() => filehandle.readFile())
-            .then(buffer => {
-              return self.requiresUnzip ? unzip(buffer) : buffer
-            })
+            .then(buffer => (self.requiresUnzip ? unzip(buffer) : buffer))
             .then(buffer => typeParser(buffer as Buffer, self))
             .then(spreadsheet => {
               this.setLoaded()
               getParent<any>(self).displaySpreadsheet(spreadsheet)
             })
-            .catch(this.setError)
         } catch (error) {
+          console.error(error)
           this.setError(error)
         }
       },

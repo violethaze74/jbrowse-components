@@ -1,13 +1,16 @@
+import React from 'react'
 import {
   isStateTreeNode,
   Instance,
   SnapshotIn,
+  IType,
   IAnyStateTreeNode,
+  IStateTreeNode,
 } from 'mobx-state-tree'
 import { AnyConfigurationModel } from '../../configuration/configurationSchema'
 
 import assemblyManager from '../../assemblyManager'
-import textSearchManager from '../../TextSearch/TextSearchManager'
+import TextSearchManager from '../../TextSearch/TextSearchManager'
 import { MenuItem } from '../../ui'
 import {
   LocalPathLocation as MULocalPathLocation,
@@ -16,11 +19,13 @@ import {
 } from './mst'
 import RpcManager from '../../rpc/RpcManager'
 import { Feature } from '../simpleFeature'
+import { BaseInternetAccountModel } from '../../pluggableElementTypes/models'
 
 export * from './util'
 
 /** abstract type for a model that contains multiple views */
-export interface AbstractViewContainer {
+export interface AbstractViewContainer
+  extends IStateTreeNode<IType<any, any, any>> {
   views: AbstractViewModel[]
   removeView(view: AbstractViewModel): void
   addView(
@@ -42,7 +47,7 @@ export function isViewContainer(
 export type NotificationLevel = 'error' | 'info' | 'warning' | 'success'
 
 export type AssemblyManager = Instance<ReturnType<typeof assemblyManager>>
-export type TextSearchManager = Instance<ReturnType<typeof textSearchManager>>
+export type { TextSearchManager }
 export interface BasePlugin {
   version?: string
   name: string
@@ -95,8 +100,12 @@ export interface AbstractSessionModel extends AbstractViewContainer {
   DialogComponent?: DialogComponentType
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   DialogProps: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setDialogComponent: (dlg?: DialogComponentType, props?: any) => void
+  queueDialog: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback: (doneCallback: Function) => [DialogComponentType, any],
+  ) => void
+  name: string
+  id?: string
 }
 export function isSessionModel(thing: unknown): thing is AbstractSessionModel {
   return (
@@ -117,18 +126,37 @@ export function isSessionModelWithConfigEditing(
   return isSessionModel(thing) && 'editConfiguration' in thing
 }
 
+export interface Widget {
+  type: string
+  id: string
+}
+
 /** abstract interface for a session that manages widgets */
 export interface SessionWithWidgets extends AbstractSessionModel {
-  visibleWidget?: { id: string }
-  widgets: Map<string, unknown>
+  minimized: boolean
+  visibleWidget?: Widget
+  widgets: Map<string, Widget>
+  activeWidgets: Map<string, Widget>
   addWidget(
     typeName: string,
     id: string,
     initialState?: Record<string, unknown>,
     configuration?: { type: string },
-  ): void
+  ): Widget
   showWidget(widget: unknown): void
+  hideWidget(widget: unknown): void
 }
+
+/* only some sessions with widgets use a drawer widget */
+export interface SessionWithDrawerWidgets extends SessionWithWidgets {
+  drawerWidth: number
+  resizeDrawer(arg: number): number
+  minimizeWidgetDrawer(): void
+  showWidgetDrawer: () => void
+  drawerPosition: string
+  setDrawerPosition(arg: string): void
+}
+
 export function isSessionModelWithWidgets(
   thing: unknown,
 ): thing is SessionWithWidgets {
@@ -168,6 +196,9 @@ export interface AbstractViewModel {
   type: string
   width: number
   setWidth(width: number): void
+  displayName: string | undefined
+  setDisplayName: (arg: string) => void
+  menuItems: () => MenuItem[]
 }
 export function isViewModel(thing: unknown): thing is AbstractViewModel {
   return (
@@ -225,6 +256,7 @@ export interface AbstractRootModel {
   session?: AbstractSessionModel
   setDefaultSession?(): void
   adminMode?: boolean
+  error?: unknown
 }
 
 /** root model with more included for the heavier JBrowse web and desktop app */
@@ -233,6 +265,19 @@ export interface AppRootModel extends AbstractRootModel {
   isDefaultSessionEditing: boolean
   setAssemblyEditing: (arg: boolean) => boolean
   setDefaultSessionEditing: (arg: boolean) => boolean
+  internetAccounts: BaseInternetAccountModel[]
+  findAppropriateInternetAccount(
+    location: UriLocation,
+  ): BaseInternetAccountModel | undefined
+}
+
+export function isAppRootModel(thing: unknown): thing is AppRootModel {
+  return (
+    typeof thing === 'object' &&
+    thing !== null &&
+    'isAssemblyEditing' in thing &&
+    'findAppropriateInternetAccount' in thing
+  )
 }
 
 /** a root model that manages global menus */
@@ -281,11 +326,55 @@ export interface LocalPathLocation
 
 export interface UriLocation extends SnapshotIn<typeof MUUriLocation> {}
 
+export function isUriLocation(location: unknown): location is UriLocation {
+  return (
+    typeof location === 'object' &&
+    location !== null &&
+    'locationType' in location &&
+    'uri' in location
+  )
+}
+
+export class AuthNeededError extends Error {
+  location: UriLocation
+  constructor(message: string, location: UriLocation) {
+    super(message)
+    this.location = location
+    this.name = 'AuthNeededError'
+
+    Object.setPrototypeOf(this, AuthNeededError.prototype)
+  }
+}
+
+export class RetryError extends Error {
+  internetAccountId: string
+  constructor(message: string, internetAccountId: string) {
+    super(message)
+    this.message = message
+    this.internetAccountId = internetAccountId
+    this.name = 'RetryError'
+  }
+}
+
+export function isAuthNeededException(exception: Error): boolean {
+  return (
+    // DOMException
+    exception.name === 'AuthNeededError' ||
+    (exception as AuthNeededError).location !== undefined
+  )
+}
+
+export function isRetryException(exception: Error): boolean {
+  return (
+    // DOMException
+    exception.name === 'RetryError' ||
+    (exception as RetryError).internetAccountId !== undefined
+  )
+}
+
 export interface BlobLocation extends SnapshotIn<typeof MUBlobLocation> {}
 
 export type FileLocation = LocalPathLocation | UriLocation | BlobLocation
-
-/* eslint-enable @typescript-eslint/no-empty-interface */
 
 // These types are slightly different than the MST models representing a
 // location because a blob cannot be stored in a MST, so this is the

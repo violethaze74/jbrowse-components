@@ -17,7 +17,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import { autorun } from 'mobx'
-import { addDisposer, Instance, isAlive, types, getEnv } from 'mobx-state-tree'
+import { addDisposer, Instance, isAlive, types } from 'mobx-state-tree'
 import React from 'react'
 import { Tooltip } from '../components/BaseLinearDisplay'
 import BlockState, { renderBlockData } from './serverSideRenderedBlock'
@@ -56,7 +56,6 @@ export const BaseLinearDisplay = types
     message: '',
     featureIdUnderMouse: undefined as undefined | string,
     contextMenuFeature: undefined as undefined | Feature,
-    additionalContextMenuItemCallbacks: [] as Function[],
     scrollTop: 0,
   }))
   .views(self => ({
@@ -89,7 +88,7 @@ export const BaseLinearDisplay = types
     },
 
     get TooltipComponent(): React.FC<any> {
-      return (Tooltip as unknown) as React.FC
+      return Tooltip as unknown as React.FC
     },
 
     /**
@@ -98,8 +97,7 @@ export const BaseLinearDisplay = types
      */
     get selectedFeatureId() {
       if (isAlive(self)) {
-        const session = getSession(self)
-        const { selection } = session
+        const { selection } = getSession(self)
         // does it quack like a feature?
         if (isFeature(selection)) {
           return selection.id()
@@ -141,7 +139,12 @@ export const BaseLinearDisplay = types
         return self.blockState.get(blockKey)?.layout?.getByCoord(x, y)
       },
 
-      getFeatureByID(id: string): [number, number, number, number] | undefined {
+      getFeatureByID(blockKey: string, id: string): LayoutRecord | undefined {
+        return self.blockState.get(blockKey)?.layout?.getByID(id)
+      },
+
+      // if block key is not supplied, can look at all blocks
+      searchFeatureByID(id: string): LayoutRecord | undefined {
         let ret
         self.blockState.forEach(block => {
           const val = block?.layout?.getByID(id)
@@ -238,9 +241,6 @@ export const BaseLinearDisplay = types
     reload() {
       ;[...self.blockState.values()].map(val => val.doReload())
     },
-    addAdditionalContextMenuItemCallback(callback: Function) {
-      self.additionalContextMenuItemCallbacks.push(callback)
-    },
     setContextMenuFeature(feature?: Feature) {
       self.contextMenuFeature = feature
     },
@@ -288,21 +288,12 @@ export const BaseLinearDisplay = types
       return undefined
     },
 
-    get trackMenuItems(): MenuItem[] {
+    trackMenuItems(): MenuItem[] {
       return []
     },
-    // distinct set of display items that are particular to this display type.
-    // for base, there are none
-    //
-    // note: this attribute is helpful when composing together multiple
-    // subdisplays so that you don't repeat the "about this track" from each
-    // child display
-    get composedTrackMenuItems(): MenuItem[] {
-      return []
-    },
-    get contextMenuItems() {
-      const { pluginManager } = getEnv(self)
-      const contextMenuItems = self.contextMenuFeature
+
+    contextMenuItems() {
+      return self.contextMenuFeature
         ? [
             {
               label: 'Open feature details',
@@ -315,14 +306,8 @@ export const BaseLinearDisplay = types
             },
           ]
         : []
-
-      self.additionalContextMenuItemCallbacks.forEach(callback => {
-        const menuItems = callback(self.contextMenuFeature, self, pluginManager)
-        contextMenuItems.push(...menuItems)
-      })
-      return contextMenuItems
     },
-    get composedRenderProps() {
+    renderProps() {
       return {
         ...getParentRenderProps(self),
         rpcDriverName: self.rpcDriverName,
@@ -364,9 +349,6 @@ export const BaseLinearDisplay = types
         },
       }
     },
-    get renderProps() {
-      return this.composedRenderProps
-    },
   }))
   .actions(self => ({
     async renderSvg(opts: ExportSvgOptions & { overrideHeight: number }) {
@@ -405,12 +387,8 @@ export const BaseLinearDisplay = types
             }
           }
 
-          const {
-            rpcManager,
-            renderArgs,
-            renderProps,
-            rendererType,
-          } = renderBlockData(blockState, self)
+          const { rpcManager, renderArgs, renderProps, rendererType } =
+            renderBlockData(blockState, self)
 
           return rendererType.renderInClient(rpcManager, {
             ...renderArgs,

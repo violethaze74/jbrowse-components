@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toByteArray, fromByteArray } from 'base64-js'
 import {
   getParent,
@@ -32,6 +33,7 @@ export * from './aborting'
 export * from './when'
 
 export * from './offscreenCanvasPonyfill'
+export * from './offscreenCanvasUtils'
 
 if (!Object.fromEntries) {
   // @ts-ignore
@@ -110,7 +112,6 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 // https://stackoverflow.com/questions/56283920/how-to-debounce-a-callback-in-functional-component-using-hooks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useDebouncedCallback<A extends any[]>(
   callback: (...args: A) => void,
   wait = 400,
@@ -231,7 +232,7 @@ export function springAnimate(
 
 /** find the first node in the hierarchy that matches the given 'is' typescript type guard predicate */
 export function findParentThatIs<
-  PREDICATE extends (thing: IAnyStateTreeNode) => boolean
+  PREDICATE extends (thing: IAnyStateTreeNode) => boolean,
 >(
   node: IAnyStateTreeNode,
   predicate: PREDICATE,
@@ -614,12 +615,10 @@ export function iterMap<T, U>(
 
 interface Assembly {
   name: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 interface Track {
   trackId: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 interface Config {
@@ -691,11 +690,11 @@ export function makeAbortableReaction<T, U, V>(
   reactionOptions: IReactionOptions,
   startedFunction: (aborter: AbortController) => void,
   successFunction: (arg: V) => void,
-  errorFunction: (err: Error) => void,
+  errorFunction: (err: unknown) => void,
 ) {
   let inProgress: AbortController | undefined
 
-  function handleError(error: Error) {
+  function handleError(error: unknown) {
     if (!isAbortException(error)) {
       if (isAlive(self)) {
         errorFunction(error)
@@ -709,8 +708,8 @@ export function makeAbortableReaction<T, U, V>(
     () => {
       try {
         return dataFunction(self)
-      } catch (error) {
-        handleError(error)
+      } catch (e) {
+        handleError(e)
         return undefined
       }
     },
@@ -738,11 +737,11 @@ export function makeAbortableReaction<T, U, V>(
         if (isAlive(self)) {
           successFunction(result)
         }
-      } catch (error) {
+      } catch (e) {
         if (thisInProgress && !thisInProgress.signal.aborted) {
           thisInProgress.abort()
         }
-        handleError(error)
+        handleError(e)
       }
     },
     reactionOptions,
@@ -789,7 +788,7 @@ export async function renameRegionsIfNeeded<
     adapterConfig: unknown
     sessionId: string
     statusCallback?: Function
-  }
+  },
 >(assemblyManager: AssemblyManager, args: ARGTYPE) {
   const { regions = [], adapterConfig } = args
   if (!args.sessionId) {
@@ -1010,7 +1009,6 @@ export const defaultCodonTable = {
  *  take CodonTable above and generate larger codon table that includes
  *  all permutations of upper and lower case nucleotides
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateCodonTable(table: any) {
   const tempCodonTable: { [key: string]: string } = {}
   Object.keys(table).forEach(codon => {
@@ -1064,7 +1062,6 @@ export function hashCode(str: string) {
   return hash
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function objectHash(obj: Record<string, any>) {
   return `${hashCode(JSON.stringify(obj))}`
 }

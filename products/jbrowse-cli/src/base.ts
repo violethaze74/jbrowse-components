@@ -10,6 +10,22 @@ import fetch from 'node-fetch'
 
 export interface UriLocation {
   uri: string
+  locationType: 'UriLocation'
+}
+
+export interface Gff3TabixAdapter {
+  type: 'Gff3TabixAdapter'
+  gffGzLocation: UriLocation
+}
+
+export interface GtfTabixAdapter {
+  type: 'GtfTabixAdapter'
+  gtfGzLocation: UriLocation
+}
+
+export interface VcfTabixAdapter {
+  type: 'VcfTabixAdapter'
+  vcfGzLocation: UriLocation
 }
 
 export interface IndexedFastaAdapter {
@@ -60,6 +76,7 @@ export interface Sequence {
 }
 
 export interface Assembly {
+  displayName?: string
   name: string
   aliases?: string[]
   sequence: Sequence
@@ -69,14 +86,32 @@ export interface Assembly {
   refNameColors?: string[]
 }
 
+export interface TrixTextSearchAdapter {
+  type: string
+  textSearchAdapterId: string
+  ixFilePath: UriLocation
+  ixxFilePath: UriLocation
+  metaFilePath: UriLocation
+  assemblyNames: string[]
+}
+export interface TextSearching {
+  indexingFeatureTypesToExclude?: string[]
+  indexingAttributes?: string[]
+  textSearchAdapter: TrixTextSearchAdapter
+}
 export interface Track {
   trackId: string
   name: string
+  assemblyNames: string[]
+  adapter: Gff3TabixAdapter | GtfTabixAdapter | VcfTabixAdapter
+  textSearching?: TextSearching
 }
 
 export interface Config {
   assemblies?: Assembly[]
+  assembly?: Assembly
   configuration?: {}
+  aggregateTextSearchAdapters?: TrixTextSearchAdapter[]
   connections?: unknown[]
   defaultSession?: {}
   tracks?: Track[]
@@ -104,9 +139,9 @@ export default abstract class JBrowseCommand extends Command {
     try {
       contents = await fsPromises.readFile(location, { encoding: 'utf8' })
     } catch (error) {
-      this.error(error instanceof Error ? error : error.message, {
+      this.error(error instanceof Error ? error : `${error}`, {
         suggestions: [
-          `Make sure the file "${location}" exists`,
+          `Make sure the file "${location}" exists or use --out to point to a directory with a config.json`,
           'Run `jbrowse add-assembly` to create a config file',
         ],
         exit: 40,
@@ -116,7 +151,7 @@ export default abstract class JBrowseCommand extends Command {
     try {
       result = parseJSON(contents)
     } catch (error) {
-      this.error(error instanceof Error ? error : error.message, {
+      this.error(error instanceof Error ? error : `${error}`, {
         suggestions: [`Make sure "${location}" is a valid JSON file`],
         exit: 50,
       })

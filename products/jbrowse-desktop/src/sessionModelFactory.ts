@@ -18,15 +18,16 @@ import {
   getParent,
   getSnapshot,
   getType,
-  IAnyStateTreeNode,
   isAlive,
   isModelType,
   isReferenceType,
-  SnapshotIn,
   types,
   walk,
+  IAnyStateTreeNode,
+  SnapshotIn,
 } from 'mobx-state-tree'
 import PluginManager from '@jbrowse/core/PluginManager'
+import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
 
 import SettingsIcon from '@material-ui/icons/Settings'
 import CopyIcon from '@material-ui/icons/FileCopy'
@@ -66,6 +67,13 @@ export default function sessionModelFactory(
         pluginManager.pluggableMstType('connection', 'stateModel'),
       ),
       sessionAssemblies: types.array(assemblyConfigSchemasType),
+
+      minimized: types.optional(types.boolean, false),
+
+      drawerPosition: types.optional(
+        types.string,
+        localStorage.getItem('drawerPosition') || 'right',
+      ),
     })
     .volatile((/* self */) => ({
       /**
@@ -80,11 +88,23 @@ export default function sessionModelFactory(
        * `{ taskName: "configure", target: thing_being_configured }`
        */
       task: undefined,
-
-      DialogComponent: undefined as DialogComponentType | undefined,
-      DialogProps: undefined as any,
+      queueOfDialogs: observable.array([] as [DialogComponentType, any][]),
     }))
     .views(self => ({
+      get DialogComponent() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[0]
+        }
+        return undefined
+      },
+      get DialogProps() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[1]
+        }
+        return undefined
+      },
       get rpcManager() {
         return getParent<any>(self).jbrowse.rpcManager
       },
@@ -99,6 +119,9 @@ export default function sessionModelFactory(
       },
       get tracks() {
         return getParent<any>(self).jbrowse.tracks
+      },
+      get textSearchManager(): TextSearchManager {
+        return getParent<any>(self).textSearchManager
       },
       get connections() {
         return getParent<any>(self).jbrowse.connections
@@ -122,7 +145,7 @@ export default function sessionModelFactory(
       get version() {
         return getParent<any>(self).version
       },
-      get renderProps() {
+      renderProps() {
         return { theme: readConfObject(this.configuration, 'theme') }
       },
       get visibleWidget() {
@@ -162,11 +185,18 @@ export default function sessionModelFactory(
       },
     }))
     .actions(self => ({
-      setDialogComponent(comp?: DialogComponentType, props?: unknown) {
-        self.DialogComponent = comp
-        self.DialogProps = props
+      setDrawerPosition(arg: string) {
+        self.drawerPosition = arg
+        localStorage.setItem('drawerPosition', arg)
       },
-
+      queueDialog(
+        callback: (doneCallback: Function) => [DialogComponentType, any],
+      ): void {
+        const [component, props] = callback(() => {
+          self.queueOfDialogs.shift()
+        })
+        self.queueOfDialogs.push([component, props])
+      },
       makeConnection(
         configuration: AnyConfigurationModel,
         initialSnapshot = {},
@@ -435,6 +465,12 @@ export default function sessionModelFactory(
       hideWidget(widget: any) {
         self.activeWidgets.delete(widget.id)
       },
+      minimizeWidgetDrawer() {
+        self.minimized = true
+      },
+      showWidgetDrawer() {
+        self.minimized = false
+      },
 
       hideAllWidgets() {
         self.activeWidgets.clear()
@@ -540,7 +576,10 @@ export default function sessionModelFactory(
           {
             label: 'About track',
             onClick: () => {
-              session.setDialogComponent(AboutDialog, { config })
+              session.queueDialog((doneCallback: Function) => [
+                AboutDialog,
+                { config, handleClose: doneCallback },
+              ])
             },
             icon: InfoIcon,
           },

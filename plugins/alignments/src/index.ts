@@ -29,6 +29,7 @@ import {
   configSchemaFactory as linearPileupDisplayConfigSchemaFactory,
   modelFactory as linearPileupDisplayModelFactory,
 } from './LinearPileupDisplay'
+import { LinearPileupDisplayModel } from './LinearPileupDisplay/model'
 import {
   configSchemaFactory as linearSNPCoverageDisplayConfigSchemaFactory,
   modelFactory as linearSNPCoverageDisplayModelFactory,
@@ -48,6 +49,7 @@ import {
 } from './PileupRPC/rpcMethods'
 
 export { MismatchParser }
+export type { LinearPileupDisplayModel }
 
 export default class AlignmentsPlugin extends Plugin {
   name = 'AlignmentsPlugin'
@@ -92,9 +94,8 @@ export default class AlignmentsPlugin extends Plugin {
       })
     })
     pluginManager.addDisplayType(() => {
-      const configSchema = linearSNPCoverageDisplayConfigSchemaFactory(
-        pluginManager,
-      )
+      const configSchema =
+        linearSNPCoverageDisplayConfigSchemaFactory(pluginManager)
       return new DisplayType({
         name: 'LinearSNPCoverageDisplay',
         configSchema,
@@ -108,9 +109,8 @@ export default class AlignmentsPlugin extends Plugin {
       })
     })
     pluginManager.addDisplayType(() => {
-      const configSchema = linearAligmentsDisplayConfigSchemaFactory(
-        pluginManager,
-      )
+      const configSchema =
+        linearAligmentsDisplayConfigSchemaFactory(pluginManager)
       return new DisplayType({
         name: 'LinearAlignmentsDisplay',
         configSchema,

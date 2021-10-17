@@ -1,7 +1,7 @@
 import jsonStableStringify from 'json-stable-stringify'
 import { getParent, IAnyType, types, Instance } from 'mobx-state-tree'
 import AbortablePromiseCache from 'abortable-promise-cache'
-import { readConfObject } from '../configuration'
+import { getConf } from '../configuration'
 import {
   BaseRefNameAliasAdapter,
   RegionsAdapter,
@@ -120,6 +120,13 @@ interface CacheData {
   sessionId: string
   options: BaseOptions
 }
+
+export interface BasicRegion {
+  start: number
+  end: number
+  refName: string
+  assemblyName: string
+}
 export default function assemblyFactory(
   assemblyConfigType: IAnyType,
   pluginManager: PluginManager,
@@ -146,14 +153,8 @@ export default function assemblyFactory(
       configuration: types.safeReference(assemblyConfigType),
     })
     .volatile(() => ({
-      regions: undefined as
-        | {
-            start: number
-            end: number
-            refName: string
-            assemblyName: string
-          }[]
-        | undefined,
+      error: undefined as Error | undefined,
+      regions: undefined as BasicRegion[] | undefined,
       refNameAliases: undefined as { [key: string]: string } | undefined,
     }))
     .views(self => ({
@@ -161,11 +162,11 @@ export default function assemblyFactory(
         return Boolean(self.refNameAliases)
       },
       get name(): string {
-        return readConfObject(self.configuration, 'name')
+        return getConf(self, 'name')
       },
 
       get aliases(): string[] {
-        return readConfObject(self.configuration, 'aliases')
+        return getConf(self, 'aliases')
       },
 
       hasName(name: string) {
@@ -179,20 +180,15 @@ export default function assemblyFactory(
         return self.regions && self.regions.map(region => region.refName)
       },
       get allRefNames() {
-        if (!self.refNameAliases) {
-          return undefined
-        }
-        return Object.keys(self.refNameAliases)
+        return !self.refNameAliases
+          ? undefined
+          : Object.keys(self.refNameAliases)
       },
       get rpcManager() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return getParent<any>(self, 2).rpcManager
       },
       get refNameColors() {
-        const colors = readConfObject(
-          self.configuration,
-          'refNameColors',
-        ) as string[]
+        const colors: string[] = getConf(self, 'refNameColors')
         if (colors.length === 0) {
           return refNameColors
         }
@@ -237,10 +233,8 @@ export default function assemblyFactory(
         this.setRefNameAliases(refNameAliases)
       },
       setError(error: Error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rootModel = getParent<any>(self, 3)
-        if (!rootModel.isAssemblyEditing) {
-          rootModel.setError(error)
+        if (!getParent<any>(self, 3).isAssemblyEditing) {
+          self.error = error
         }
       },
       setRegions(regions: Region[]) {
@@ -347,7 +341,11 @@ async function loadAssemblyReaction(
   if (!CLASS) {
     throw new Error('Failed to get adapter class')
   }
-  const adapter = new CLASS(sequenceAdapterConfig) as RegionsAdapter
+  const adapter = new CLASS(
+    sequenceAdapterConfig,
+    undefined,
+    pluginManager,
+  ) as RegionsAdapter
   const adapterRegions = (await adapter.getRegions({ signal })) as Region[]
 
   const adapterRegionsWithAssembly = adapterRegions.map(adapterRegion => {

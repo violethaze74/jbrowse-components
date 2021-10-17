@@ -20,7 +20,13 @@ File->Add->Linear genome view
 - Enter syntax chr1:1-100 or chr1:1..100
 - You can also specify an assembly name with the locstring {hg19}chr1:1-100
 
-Note: searching by gene name is not yet available but will be added soon!
+You can also use the search box to search by gene name (if it is configured)
+
+<Figure caption="Search for gene names or other features via the location search box." src="/img/searching_lgv.png" />
+
+In order to enable name searching, you or the admin on the instance will need to
+create a "text index". See the [quickstart
+guide](../quickstart_cli#indexing-feature-names-for-searching) for more info.
 
 #### Scrolling
 
@@ -80,8 +86,8 @@ as filename+'.bai' for example, but if it is different than this, make sure to
 specify the index file explicitly.
 
 Note: If you are an administrator, you can add tracks with the command line or
-with the admin server [add-track](cli#jbrowse-add-track) or [admin-server
-guide](quickstart_gui)
+with the admin server [add-track](../cli#jbrowse-add-track) or [admin-server
+guide](../quickstart_gui)
 
 ### Sharing sessions
 
@@ -375,7 +381,7 @@ assemblies in the PAFAdapter
 
 <Figure caption="Example of a dotplot visualization of the grape vs the peach genome" src="/img/dotplot.png" />
 
-See the [dotplot configuration](config_guide#dotplot-view-config) for more
+See the [dotplot configuration](../config_guide#dotplot-view-config) for more
 detailed descriptions
 
 ### Opening a linear synteny view
@@ -389,7 +395,7 @@ File->Add->Linear synteny view
 <Figure caption="Example screenshot showing the linear synteny view for grape vs peach" src="/img/linear_synteny.png" />
 
 See the [linear synteny
-configuration](config_guide#configuring-linear-synteny-views) for more details
+configuration](../config_guide#configuring-linear-synteny-views) for more details
 on manually configuring the synteny view
 
 ### Opening a synteny view from a dotplot view
@@ -422,7 +428,7 @@ the Juicebox software suite. It uses the hic-straw module developed by the
 juicebox/igv.js team to visualize it in jbrowse.
 
 Currently configuration options are basic for Hi-C tracks, see
-[configuration](config_guide#hictrack-config) for info about configuring Hi-C
+[configuration](../config_guide#hictrack-config) for info about configuring Hi-C
 tracks
 
 <Figure caption="Screenshot of a Hi-C track" src="/img/hic_track.png" />

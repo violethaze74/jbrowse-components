@@ -17,6 +17,7 @@ import {
   Menu,
   MenuItem,
   TextField,
+  Tooltip,
   Typography,
   makeStyles,
 } from '@material-ui/core'
@@ -111,14 +112,18 @@ const Node = props => {
     id,
     name,
     onChange,
+    toggleCollapse,
     conf,
     onMoreInfo,
+    drawerPosition,
   } = data
+
   const classes = useStyles()
   const width = 10
   const marginLeft = nestingLevel * width + (isLeaf ? width : 0)
   const unsupported =
     name && (name.endsWith('(Unsupported)') || name.endsWith('(Unknown)'))
+  const description = (conf && readConfObject(conf, ['description'])) || ''
 
   return (
     <div style={style} className={!isLeaf ? classes.accordionBase : undefined}>
@@ -131,7 +136,10 @@ const Node = props => {
       ))}
       <div
         className={!isLeaf ? classes.accordionCard : undefined}
-        onClick={() => setOpen(!isOpen)}
+        onClick={() => {
+          toggleCollapse(id)
+          setOpen(!isOpen)
+        }}
         style={{
           marginLeft,
           whiteSpace: 'nowrap',
@@ -148,22 +156,27 @@ const Node = props => {
             </div>
           ) : (
             <>
-              <FormControlLabel
-                className={classes.checkboxLabel}
-                control={
-                  <Checkbox
-                    className={classes.compactCheckbox}
-                    checked={checked}
-                    onChange={() => onChange(id)}
-                    color="primary"
-                    disabled={unsupported}
-                    inputProps={{
-                      'data-testid': `htsTrackEntry-${id}`,
-                    }}
-                  />
-                }
-                label={name}
-              />
+              <Tooltip
+                title={description}
+                placement={drawerPosition === 'left' ? 'right' : 'left'}
+              >
+                <FormControlLabel
+                  className={classes.checkboxLabel}
+                  control={
+                    <Checkbox
+                      className={classes.compactCheckbox}
+                      checked={checked}
+                      onChange={() => onChange(id)}
+                      color="primary"
+                      disabled={unsupported}
+                      inputProps={{
+                        'data-testid': `htsTrackEntry-${id}`,
+                      }}
+                    />
+                  }
+                  label={name}
+                />
+              </Tooltip>
               <IconButton
                 onClick={e => onMoreInfo({ target: e.currentTarget, id, conf })}
                 color="secondary"
@@ -199,17 +212,20 @@ const getNodeData = (node, nestingLevel, extra) => {
 // in jbrowse-web the toolbar is position="sticky" which means the autosizer
 // includes the height of the toolbar, so we subtract the given offsets
 const HierarchicalTree = observer(({ height, tree, model }) => {
+  const { filterText, view } = model
   const treeRef = useRef(null)
   const [info, setMoreInfo] = useState()
   const session = getSession(model)
-  const { filterText } = model
+  const { drawerPosition } = session
 
   const extra = useMemo(
     () => ({
-      onChange: trackId => model.view.toggleTrack(trackId),
+      onChange: trackId => view.toggleTrack(trackId),
+      toggleCollapse: pathName => model.toggleCategory(pathName),
       onMoreInfo: setMoreInfo,
+      drawerPosition,
     }),
-    [model.view],
+    [view, model, drawerPosition],
   )
   const treeWalker = useCallback(
     function* treeWalker() {
@@ -542,12 +558,7 @@ const HierarchicalTrackSelector = observer(({ model, toolbarHeight = 0 }) => {
 
   const { assemblyNames } = model
   const assemblyName = assemblyNames[assemblyIdx]
-  if (!assemblyName) {
-    return null
-  }
-  const nodes = model.hierarchy(assemblyNames[assemblyIdx])
-
-  return (
+  return assemblyName ? (
     <>
       <HierarchicalTrackSelectorHeader
         model={model}
@@ -556,12 +567,12 @@ const HierarchicalTrackSelector = observer(({ model, toolbarHeight = 0 }) => {
         assemblyIdx={assemblyIdx}
       />
       <AutoSizedHierarchicalTree
-        tree={nodes}
+        tree={model.hierarchy(assemblyName)}
         model={model}
         offset={toolbarHeight + headerHeight}
       />
     </>
-  )
+  ) : null
 })
 
 export default HierarchicalTrackSelectorContainer

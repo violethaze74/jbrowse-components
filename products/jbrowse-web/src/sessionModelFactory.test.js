@@ -24,6 +24,7 @@ describe('JBrowseWebSessionModel', () => {
       { pluginManager },
     )
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rest } = getSnapshot(session)
     expect(rest).toMatchSnapshot()
   })
@@ -44,6 +45,7 @@ describe('JBrowseWebSessionModel', () => {
       connectionId: 'TestConnection-test1-1',
       hubTxtLocation: {
         uri: 'https://example.com',
+        locationType: 'UriLocation',
       },
       type: 'JBrowse1Connection',
     })

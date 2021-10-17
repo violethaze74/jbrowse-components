@@ -1,66 +1,90 @@
-/**
- * Based on:
- *  https://material-ui.com/components/autocomplete/#Virtualize.tsx
- * Asynchronous Requests for autocomplete:
- *  https://material-ui.com/components/autocomplete/
- */
 import React, { useMemo, useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
-import { getEnv } from 'mobx-state-tree'
 
 // jbrowse core
-import { Region } from '@jbrowse/core/util/types'
-import { getSession, useDebounce } from '@jbrowse/core/util' // useDebounce
+import { getSession, useDebounce, measureText } from '@jbrowse/core/util'
 import BaseResult, {
   RefSequenceResult,
 } from '@jbrowse/core/TextSearch/BaseResults'
+
 // material ui
-import CircularProgress from '@material-ui/core/CircularProgress'
-import TextField, { TextFieldProps as TFP } from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
+import {
+  CircularProgress,
+  InputAdornment,
+  Popper,
+  TextField,
+  TextFieldProps as TFP,
+  PopperProps,
+  Typography,
+} from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import { InputAdornment } from '@material-ui/core'
-import Autocomplete, {
-  createFilterOptions,
-} from '@material-ui/lab/Autocomplete'
-// other
+import Autocomplete from '@material-ui/lab/Autocomplete'
+
+// locals
 import { LinearGenomeViewModel } from '..'
 
-/**
- *  Option interface used to format results to display in dropdown
- *  of the materila ui interface
- */
 export interface Option {
   group?: string
   result: BaseResult
 }
-
-// filters for options to display in dropdown
-const filter = createFilterOptions<Option>({
-  trim: true,
-  ignoreCase: true,
-  limit: 100,
-})
 
 async function fetchResults(
   self: LinearGenomeViewModel,
   query: string,
   assemblyName: string,
 ) {
-  const session = getSession(self)
-  const { pluginManager } = getEnv(session)
+  const { textSearchManager } = getSession(self)
   const { rankSearchResults } = self
-  const { textSearchManager } = pluginManager.rootModel
   const searchScope = self.searchScope(assemblyName)
-  const args = {
-    queryString: query,
-    searchType: 'prefix',
-  }
-  const searchResults =
-    (await textSearchManager?.search(args, searchScope, rankSearchResults)) ||
-    []
-  return searchResults
+  return textSearchManager
+    ?.search(
+      {
+        queryString: query,
+        searchType: 'prefix',
+      },
+      searchScope,
+      rankSearchResults,
+    )
+    .then(results =>
+      results.filter(
+        (elem, index, self) =>
+          index === self.findIndex(t => t.label === elem.label),
+      ),
+    )
 }
+
+// the logic of this method is to only apply a filter to RefSequenceResults
+// because they do not have a matchedObject. the trix search results already
+// filter so don't need re-filtering
+function filterOptions(options: Option[], searchQuery: string) {
+  return options.filter(option => {
+    const { result } = option
+    return (
+      result.getLabel().toLowerCase().includes(searchQuery) ||
+      result.matchedObject
+    )
+  })
+}
+
+// MyPopper used to expand search results box wider if needed
+// xref https://stackoverflow.com/a/63583835/2129219
+const MyPopper = function (
+  props: PopperProps & { style?: { width?: unknown } },
+) {
+  const { style } = props
+  return (
+    <Popper
+      {...props}
+      style={{
+        width: 'fit-content',
+        minWidth: Math.min(+(style?.width || 0), 200),
+        background: 'white',
+      }}
+      placement="bottom-start"
+    />
+  )
+}
+
 function RefNameAutocomplete({
   model,
   onSelect,
@@ -77,55 +101,52 @@ function RefNameAutocomplete({
   TextFieldProps?: TFP
 }) {
   const session = getSession(model)
-  const [open, setOpen] = useState(false)
-  const [, setError] = useState<Error>()
-  const [currentSearch, setCurrentSearch] = useState('')
-  const debouncedSearch = useDebounce(currentSearch, 300)
-  const [searchOptions, setSearchOptions] = useState<Option[]>([])
   const { assemblyManager } = session
-  const { coarseVisibleLocStrings } = model
+  const [open, setOpen] = useState(false)
+  const [loaded, setLoaded] = useState(true)
+  const [currentSearch, setCurrentSearch] = useState('')
+  const [inputValue, setInputValue] = useState('')
+  const [searchOptions, setSearchOptions] = useState([] as Option[])
+  const debouncedSearch = useDebounce(currentSearch, 300)
+  const { coarseVisibleLocStrings, hasDisplayedRegions } = model
   const assembly = assemblyName ? assemblyManager.get(assemblyName) : undefined
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const regions: Region[] = assembly?.regions || []
+  const regions = assembly?.regions || []
 
-  const options: Option[] = useMemo(() => {
-    const defaultOptions = regions.map(option => {
-      return {
+  const options = useMemo(
+    () =>
+      regions.map(option => ({
         result: new RefSequenceResult({
           refName: option.refName,
           label: option.refName,
           matchedAttribute: 'refName',
         }),
-      }
-    })
-    return defaultOptions
-  }, [regions])
+      })),
+    [regions],
+  )
 
   useEffect(() => {
     let active = true
 
     ;(async () => {
       try {
-        let results: BaseResult[] = []
-        if (debouncedSearch && debouncedSearch !== '' && assemblyName) {
-          const searchResults = await fetchResults(
-            model,
-            debouncedSearch,
-            assemblyName,
-          )
-          results = results.concat(searchResults)
+        if (debouncedSearch === '' || !assemblyName) {
+          return
         }
-        if (results.length > 0 && active) {
-          const adapterResults: Option[] = results.map(result => {
-            return { result }
-          })
-          setSearchOptions(adapterResults)
+
+        setLoaded(false)
+        const results = await fetchResults(model, debouncedSearch, assemblyName)
+        if (active) {
+          if (results && results.length >= 0) {
+            setSearchOptions(results.map(result => ({ result })))
+          }
+          setLoaded(true)
         }
       } catch (e) {
         console.error(e)
         if (active) {
-          setError(e)
+          session.notify(`${e}`, 'error')
         }
       }
     })()
@@ -133,88 +154,105 @@ function RefNameAutocomplete({
     return () => {
       active = false
     }
-  }, [assemblyName, debouncedSearch, model])
+  }, [assemblyName, debouncedSearch, session, model])
 
-  function onChange(selectedOption: Option | string) {
-    if (selectedOption && assemblyName) {
-      if (typeof selectedOption === 'string') {
-        // handles string inputs on keyPress enter
-        const newResult = new BaseResult({
-          label: selectedOption,
-        })
-        onSelect(newResult)
-      } else {
-        const { result } = selectedOption
-        onSelect(result)
-      }
-    }
-  }
+  const inputBoxVal = coarseVisibleLocStrings || value || ''
 
+  // heuristic, text width + icon width, minimum 200
+  const width = Math.min(Math.max(measureText(inputBoxVal, 16) + 25, 200), 550)
+
+  // notes on implementation:
+  // The selectOnFocus setting helps highlight the field when clicked
   return (
     <Autocomplete
       id={`refNameAutocomplete-${model.id}`}
       data-testid="autocomplete"
-      freeSolo
       disableListWrap
       disableClearable
-      includeInputInList
-      clearOnBlur
-      selectOnFocus
+      PopperComponent={MyPopper}
       disabled={!assemblyName}
-      style={style}
-      value={coarseVisibleLocStrings || value || ''}
+      freeSolo
+      includeInputInList
+      selectOnFocus
+      style={{ ...style, width }}
+      value={inputBoxVal}
+      loading={!loaded}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+      loadingText="loading results"
       open={open}
       onOpen={() => setOpen(true)}
       onClose={() => {
         setOpen(false)
-        setCurrentSearch('')
-        setSearchOptions([])
+        setLoaded(true)
+        if (hasDisplayedRegions) {
+          setCurrentSearch('')
+          setSearchOptions([])
+        }
+      }}
+      onChange={(_event, selectedOption) => {
+        if (!selectedOption || !assemblyName) {
+          return
+        }
+
+        if (typeof selectedOption === 'string') {
+          // handles string inputs on keyPress enter
+          onSelect(new BaseResult({ label: selectedOption }))
+        } else {
+          onSelect(selectedOption.result)
+        }
+        setInputValue(inputBoxVal)
       }}
       options={searchOptions.length === 0 ? options : searchOptions}
       getOptionDisabled={option => option?.group === 'limitOption'}
-      filterOptions={(possibleOptions, params) => {
-        const filtered = filter(possibleOptions, params)
-        return filtered.length >= 100
-          ? filtered.concat([
-              {
-                group: 'limitOption',
-                result: new BaseResult({
-                  label: 'keep typing for more results',
-                  renderingComponent: (
-                    <Typography>{'keep typing for more results'}</Typography>
-                  ),
-                }),
-              },
-            ])
-          : filtered
+      filterOptions={(options, params) => {
+        const filtered = filterOptions(
+          options,
+          params.inputValue.toLocaleLowerCase(),
+        )
+        return [
+          ...filtered.slice(0, 100),
+          ...(filtered.length > 100
+            ? [
+                {
+                  group: 'limitOption',
+                  result: new BaseResult({
+                    label: 'keep typing for more results',
+                  }),
+                },
+              ]
+            : []),
+        ]
       }}
-      ListboxProps={{ style: { maxHeight: 250 } }}
-      onChange={(_, selectedOption) => onChange(selectedOption)}
       renderInput={params => {
         const { helperText, InputProps = {} } = TextFieldProps
-        const TextFieldInputProps = {
-          ...params.InputProps,
-          ...InputProps,
-          endAdornment: (
-            <>
-              {regions.length === 0 && searchOptions.length === 0 ? (
-                <CircularProgress color="inherit" size={20} />
-              ) : (
-                <InputAdornment position="end" style={{ marginRight: 7 }}>
-                  <SearchIcon />
-                </InputAdornment>
-              )}
-              {params.InputProps.endAdornment}
-            </>
-          ),
-        }
         return (
           <TextField
+            onBlur={() => {
+              // this is used to restore a refName or the non-user-typed input
+              // to the box on blurring
+              setInputValue(inputBoxVal)
+            }}
             {...params}
             {...TextFieldProps}
             helperText={helperText}
-            value={coarseVisibleLocStrings || value || ''}
-            InputProps={TextFieldInputProps}
+            InputProps={{
+              ...params.InputProps,
+              ...InputProps,
+
+              endAdornment: (
+                <>
+                  {regions.length === 0 ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : (
+                    <InputAdornment position="end" style={{ marginRight: 7 }}>
+                      <SearchIcon />
+                    </InputAdornment>
+                  )}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
             placeholder="Search for location"
             onChange={e => {
               setCurrentSearch(e.target.value)
@@ -224,22 +262,16 @@ function RefNameAutocomplete({
       }}
       renderOption={option => {
         const { result } = option
-        const rendering = result.getLabel()
-        // if renderingComponent is provided render that
         const component = result.getRenderingComponent()
-        if (component) {
-          if (React.isValidElement(component)) {
-            return component
-          }
+        if (component && React.isValidElement(component)) {
+          return component
         }
-        return <Typography noWrap>{rendering}</Typography>
+
+        return <Typography noWrap>{result.getDisplayString()}</Typography>
       }}
-      getOptionLabel={option => {
-        // needed for filtering options and value
-        return (
-          (typeof option === 'string' ? option : option.result.getLabel()) || ''
-        )
-      }}
+      getOptionLabel={option =>
+        (typeof option === 'string' ? option : option.result.getLabel()) || ''
+      }
     />
   )
 }

@@ -4,7 +4,7 @@ import assemblyManagerFactory, {
 import { PluginConstructor } from '@jbrowse/core/Plugin'
 import PluginManager from '@jbrowse/core/PluginManager'
 import RpcManager from '@jbrowse/core/rpc/RpcManager'
-import TextSearchManagerF from '@jbrowse/core/TextSearch/TextSearchManager'
+import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
 import { cast, getSnapshot, Instance, SnapshotIn, types } from 'mobx-state-tree'
 import corePlugins from '../corePlugins'
 import createConfigModel from './createConfigModel'
@@ -16,9 +16,8 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
   )
   pluginManager.createPluggableElements()
   const Session = createSessionModel(pluginManager)
-  const { assemblyConfigSchemas, dispatcher } = createAssemblyConfigSchemas(
-    pluginManager,
-  )
+  const { assemblyConfigSchemas, dispatcher } =
+    createAssemblyConfigSchemas(pluginManager)
   const assemblyConfigSchemasType = types.union(
     { dispatcher },
     ...assemblyConfigSchemas,
@@ -27,14 +26,15 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
     assemblyConfigSchemasType,
     pluginManager,
   )
-  const TextSearchManager = pluginManager.load(TextSearchManagerF)
   const rootModel = types
     .model('ReactLinearGenomeView', {
       config: createConfigModel(pluginManager, assemblyConfigSchemasType),
       session: Session,
       assemblyManager: assemblyManagerType,
-      error: types.maybe(types.string),
     })
+    .volatile(() => ({
+      error: undefined as Error | undefined,
+    }))
     .actions(self => ({
       setSession(sessionSnapshot: SnapshotIn<typeof Session>) {
         self.session = cast(sessionSnapshot)
@@ -46,8 +46,8 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
           this.setSession(snapshot)
         }
       },
-      setError(errorMessage: string | Error) {
-        self.error = String(errorMessage)
+      setError(errorMessage: Error | undefined) {
+        self.error = errorMessage
       },
     }))
     .views(self => ({
@@ -59,7 +59,7 @@ export default function createModel(runtimePlugins: PluginConstructor[]) {
       rpcManager: new RpcManager(pluginManager, self.config.configuration.rpc, {
         MainThreadRpcDriver: {},
       }),
-      textSearchManager: new TextSearchManager(),
+      textSearchManager: new TextSearchManager(pluginManager),
     }))
   return { model: rootModel, pluginManager }
 }

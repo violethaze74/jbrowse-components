@@ -2,21 +2,19 @@
 import { MenuItem } from '@jbrowse/core/ui'
 import CompositeMap from '@jbrowse/core/util/compositeMap'
 import { LinearGenomeViewStateModel } from '@jbrowse/plugin-linear-genome-view'
-import { types, Instance } from 'mobx-state-tree'
+import {
+  types,
+  getParent,
+  onAction,
+  addDisposer,
+  getPath,
+  Instance,
+} from 'mobx-state-tree'
+import { BaseViewModel } from '@jbrowse/core/pluggableElementTypes/models'
 import { Feature } from '@jbrowse/core/util/simpleFeature'
-import isObject from 'is-object'
-
-// https://stackoverflow.com/a/49186706/2129219
-// the array-intersection package on npm has a large kb size, and we are just
-// intersecting open track ids so simple is better
-function intersect<T>(a1: T[] = [], a2: T[] = [], ...rest: T[]): T[] {
-  const a12 = a1.filter(value => a2.includes(value))
-  if (rest.length === 0) {
-    return a12
-  }
-  // @ts-ignore
-  return intersect(a12, ...rest)
-}
+import { parseBreakend } from '@gmod/vcf'
+import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
+import { intersect } from './util'
 
 export const VIEW_DIVIDER_HEIGHT = 3
 
@@ -30,21 +28,9 @@ export interface Breakend {
 export type LayoutRecord = [number, number, number, number]
 
 export default function stateModelFactory(pluginManager: any) {
-  const { jbrequire } = pluginManager
-  const {
-    types: jbrequiredTypes,
-    getParent,
-    onAction,
-    addDisposer,
-    getPath,
-  } = jbrequire('mobx-state-tree')
-  const { BaseViewModel } = jbrequire(
-    '@jbrowse/core/pluggableElementTypes/models',
-  )
-
   const minHeight = 40
   const defaultHeight = 400
-  const model = (jbrequiredTypes as Instance<typeof types>)
+  const model = types
     .model('BreakpointSplitView', {
       type: types.literal('BreakpointSplitView'),
       headerHeight: 0,
@@ -70,16 +56,18 @@ export default function stateModelFactory(pluginManager: any) {
     }))
     .views(self => ({
       // Find all track ids that match across multiple views
-      get matchedTracks(): string[] {
+      get matchedTracks() {
         return intersect(
-          // @ts-ignore expects at least two params but this is fine
           ...self.views.map(view =>
-            view.tracks.map(t => t.configuration.trackId),
+            view.tracks.map(
+              (t: { configuration: AnyConfigurationModel }) =>
+                t.configuration.trackId as string,
+            ),
           ),
         )
       },
 
-      menuItems(): MenuItem[] {
+      menuItems() {
         const menuItems: MenuItem[] = []
         self.views.forEach((view, idx) => {
           if (view.menuItems?.()) {
@@ -118,12 +106,13 @@ export default function stateModelFactory(pluginManager: any) {
         )
       },
 
-      // Get a composite map of featureId->feature map for a track
-      // across multiple views
+      // Get a composite map of featureId->feature map for a track across
+      // multiple views
       getTrackFeatures(trackConfigId: string) {
-        const tracks = this.getMatchedTracks(trackConfigId)
         return new CompositeMap<string, Feature>(
-          (tracks || []).map(t => t.displays[0].features),
+          this.getMatchedTracks(trackConfigId)?.map(
+            t => t.displays[0].features,
+          ) || [],
         )
       },
 
@@ -155,12 +144,13 @@ export default function stateModelFactory(pluginManager: any) {
         for (const f of features.values()) {
           if (!alreadySeen.has(f.id())) {
             if (f.get('type') === 'breakend') {
-              f.get('ALT').forEach((a: Breakend | string) => {
+              const alts = f.get('ALT') as string[] | undefined
+              alts?.forEach(a => {
                 const cur = `${f.get('refName')}:${f.get('start') + 1}`
-                if (isObject(a)) {
-                  const alt = a as Breakend
+                const bnd = parseBreakend(a)
+                if (bnd) {
                   if (!candidates[cur]) {
-                    candidates[alt.MatePosition] = [f]
+                    candidates[bnd.MatePosition] = [f]
                   } else {
                     candidates[cur].push(f)
                   }
@@ -230,7 +220,7 @@ export default function stateModelFactory(pluginManager: any) {
         const tracks = this.getMatchedTracks(trackConfigId)
 
         const calc = (track: any, feat: Feature) => {
-          return track.displays[0].getFeatureByID(feat.id())
+          return track.displays[0].searchFeatureByID(feat.id())
         }
 
         return features.map(c =>
@@ -258,8 +248,8 @@ export default function stateModelFactory(pluginManager: any) {
               args,
             }: {
               name: string
-              path: string
-              args: any[]
+              path?: string
+              args?: any[]
             }) => {
               if (self.linkViews) {
                 const actions = [
@@ -281,12 +271,12 @@ export default function stateModelFactory(pluginManager: any) {
         )
       },
 
-      onSubviewAction(actionName: string, path: string, args: any[]) {
+      onSubviewAction(actionName: string, path: string, args?: any[]) {
         self.views.forEach(view => {
           const ret = getPath(view)
           if (ret.lastIndexOf(path) !== ret.length - path.length) {
             // @ts-ignore
-            view[actionName](args[0])
+            view[actionName](args?.[0])
           }
         })
       },
@@ -301,7 +291,7 @@ export default function stateModelFactory(pluginManager: any) {
       },
 
       closeView() {
-        getParent(self, 2).removeView(self)
+        getParent<any>(self, 2).removeView(self)
       },
 
       setHeaderHeight(height: number) {
@@ -319,10 +309,7 @@ export default function stateModelFactory(pluginManager: any) {
       },
     }))
 
-  const stateModel = (jbrequiredTypes as typeof types).compose(
-    BaseViewModel,
-    model,
-  )
+  const stateModel = types.compose(BaseViewModel, model)
 
   return { stateModel }
 }

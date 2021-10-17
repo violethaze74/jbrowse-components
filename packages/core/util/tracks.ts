@@ -50,12 +50,12 @@ export function getRpcSessionId(thisNode: IAnyStateTreeNode) {
  */
 export function getParentRenderProps(node: IAnyStateTreeNode) {
   for (
-    let currentNode = getParent(node);
+    let currentNode = getParent<any>(node);
     !isRoot(currentNode);
-    currentNode = getParent(currentNode)
+    currentNode = getParent<any>(currentNode)
   ) {
     if ('renderProps' in currentNode) {
-      return currentNode.renderProps
+      return currentNode.renderProps()
     }
   }
 
@@ -90,7 +90,7 @@ export function storeBlobLocation(location: PreFileLocation) {
     // @ts-ignore
     const blobId = `b${+Date.now()}`
     blobMap[blobId] = location.blob
-    return { name: location?.blob.name, blobId }
+    return { name: location?.blob.name, blobId, locationType: 'BlobLocation' }
   }
   return location
 }
@@ -103,10 +103,13 @@ export function guessAdapter(
 ) {
   function makeIndex(location: FileLocation, suffix: string) {
     if ('uri' in location) {
-      return { uri: location.uri + suffix }
+      return { uri: location.uri + suffix, locationType: 'UriLocation' }
     }
     if ('localPath' in location) {
-      return { localPath: location.localPath + suffix }
+      return {
+        localPath: location.localPath + suffix,
+        locationType: 'LocalPathLocation',
+      }
     }
     return location
   }
@@ -142,7 +145,8 @@ export function guessAdapter(
 
   if (/\.gff3?$/i.test(fileName)) {
     return {
-      type: 'UNSUPPORTED',
+      type: 'Gff3Adapter',
+      gffLocation: file,
     }
   }
 
@@ -163,7 +167,7 @@ export function guessAdapter(
     }
   }
 
-  if (/\.vcf$/i.test(fileName)) {
+  if (/\.vcf$/i.test(fileName) || adapterHint === 'VcfAdapter') {
     return {
       type: 'VcfAdapter',
       vcfLocation: file,

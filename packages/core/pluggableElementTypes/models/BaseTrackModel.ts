@@ -87,14 +87,6 @@ export function createBaseTrackModel(
             }))
         )
       },
-      // distinct set of track items that are particular to this track type.
-      // for base, there are none
-      //
-      // note: this attribute is helpful when composing together multiple
-      // subtracks
-      get composedTrackMenuItems(): MenuItem[] {
-        return []
-      },
     }))
     .actions(self => ({
       activateConfigurationUI() {
@@ -112,9 +104,8 @@ export function createBaseTrackModel(
         }
       },
       showDisplay(displayId: string, initialSnapshot = {}) {
-        const displayTypeConfigSchema = pluginManager.pluggableConfigSchemaType(
-          'display',
-        )
+        const displayTypeConfigSchema =
+          pluginManager.pluggableConfigSchemaType('display')
         const configuration = resolveIdentifier(
           displayTypeConfigSchema as IAnyModelType,
           getRoot(self),
@@ -133,9 +124,8 @@ export function createBaseTrackModel(
       },
 
       hideDisplay(displayId: string) {
-        const displayTypeConfigSchema = pluginManager.pluggableConfigSchemaType(
-          'display',
-        )
+        const displayTypeConfigSchema =
+          pluginManager.pluggableConfigSchemaType('display')
         const configuration = resolveIdentifier(
           displayTypeConfigSchema as IAnyModelType,
           getRoot(self),
@@ -161,9 +151,8 @@ export function createBaseTrackModel(
             `could not find display id ${oldDisplayId} to replace`,
           )
         }
-        const displayTypeConfigSchema = pluginManager.pluggableConfigSchemaType(
-          'display',
-        )
+        const displayTypeConfigSchema =
+          pluginManager.pluggableConfigSchemaType('display')
         const configuration = resolveIdentifier(
           displayTypeConfigSchema as IAnyModelType,
           getRoot(self),
@@ -181,10 +170,10 @@ export function createBaseTrackModel(
       },
     }))
     .views(self => ({
-      get trackMenuItems(): MenuItem[] {
+      trackMenuItems(): MenuItem[] {
         const menuItems: MenuItem[] = []
         self.displays.forEach(display => {
-          menuItems.push(...display.trackMenuItems)
+          menuItems.push(...display.trackMenuItems())
         })
         const displayChoices: MenuItem[] = []
         const view = getContainingView(self)

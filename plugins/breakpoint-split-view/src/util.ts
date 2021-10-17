@@ -63,8 +63,20 @@ export function yPos(
 // re-render once the useEffect is called, which is generally the
 // "next frame". If we removed the below use
 export const useNextFrame = (variable: unknown) => {
-  const [, setNextFrameState] = useState()
+  const [, setNextFrameState] = useState<unknown>()
   useEffect(() => {
     setNextFrameState(variable)
   }, [variable])
+}
+
+// https://stackoverflow.com/a/49186706/2129219 the array-intersection package
+// on npm has a large kb size, and we are just intersecting open track ids so
+// simple is better
+export function intersect<T>(a1: T[] = [], a2: T[] = [], ...rest: T[]): T[] {
+  const a12 = a1.filter(value => a2.includes(value))
+  if (rest.length === 0) {
+    return a12
+  }
+  // @ts-ignore
+  return intersect(a12, ...rest)
 }

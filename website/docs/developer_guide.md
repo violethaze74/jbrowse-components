@@ -88,10 +88,7 @@ tracks, renderers, and so forth.
 
 ## Pluggable elements
 
-Pluggable elements are basic "extension points" that you can customize in
-JBrowse 2 plugins
-
-The pluggable types that we have in JBrowse 2 are
+Pluggable elements are pieces of functionality that plugins can add to JBrowse. Examples of pluggable types include:
 
 - Adapters
 - Track types
@@ -114,7 +111,7 @@ below
 
 Adapters basically are parsers for a given data format. We will review
 what adapters the alignments plugin has (to write your own adapter,
-see [creating adapters](developer_guide#creating-adapters))
+see [creating adapters](#creating-adapters))
 
 Example adapters: the `@jbrowse/plugin-alignments` plugin creates
 multiple adapter types
@@ -153,7 +150,7 @@ Renderers are a new concept in JBrowse 2, and are related to the concept of
 server side rendering (SSR), but can be used not just on the server but also in
 contexts like the web worker (e.g. the webworker can draw the features to an
 OffscreenCanvas). For more info see [creating
-renderers](developer_guide#creating-custom-renderers)
+renderers](#creating-custom-renderers)
 
 Example renderers: the `@jbrowse/plugin-alignments` exports several
 renderer types
@@ -468,7 +465,7 @@ types
     // model
   })
   .views(self => ({
-    get trackMenuItems() {
+    trackMenuItems() {
       return [
         {
           label: 'Menu Item',
@@ -490,19 +487,17 @@ types
     // model
   })
   .views(self => {
-    const { trackMenuitems } = self
+    const { trackMenuItems: superTrackMenuItems } = self
     return {
-      get composedTrackMenuItems() {
+      get trackMenuItems() {
         return [
+          ...superTrackMenuItems(),
           {
             label: 'Menu Item',
             icon: AddIcon,
             onClick: () => {},
           },
         ]
-      },
-      get trackMenuItems() {
-        return [...trackMenuItems, ...this.composedTrackMenuItems]
       },
     }
   })
@@ -513,51 +508,50 @@ types
 When you right-click in a linear track, a context menu will appear if there are
 any menu items defined for it. It's possible to add items to that menu, and you
 can also have different menu items based on if the click was on a feature or
-not, and based on what feature is clicked. This is done by adding a callback
-that takes the feature and track and returns a list of menu items to add based
-on those. This has to be done via a mobx `autorun` because it needs to add the
-callback to tracks after they are created. Here is an example:
+not, and based on what feature is clicked. This is done by extending the
+`contextMenuItems` view of the display model. Here is an example:
 
 ```js
 class SomePlugin extends Plugin {
   name = 'SomePlugin'
 
   install(pluginManager) {
-    // install some stuff
-  }
-
-  configure(pluginManager) {
-    const menuItemCallback = (feature, track) => {
-      const menuItem = {
-        label: 'Some menu item',
-        icon: SomeIcon,
-        onClick: session => {
-          // do some stuff
-        },
-      }
-      return [menuItem]
-    }
-
-    const session = pluginManager.rootModel?.session
-    autorun(() => {
-      const views = session?.views
-
-      views.forEach(view => {
-        if (view.type === 'LinearGenomeView') {
-          const { tracks } = view
-          tracks.forEach(track => {
-            if (
-              track.type === 'VariantTrack' &&
-              !track.additionalContextMenuItemCallbacks.includes(
-                menuItemCallback,
-              )
-            ) {
-              track.addAdditionalContextMenuItemCallback(menuItemCallback)
+    pluginManager.addToExtensionPoint(
+      'Core-extendPluggableElement',
+      pluggableElement => {
+        if (pluggableElement.name === 'LinearPileupDisplay') {
+          const { stateModel } = pluggableElement
+          const newStateModel = stateModel.extend(self => {
+            const superContextMenuItems = self.contextMenuItems
+            return {
+              views: {
+                contextMenuItems() {
+                  const feature = self.contextMenuFeature
+                  if (!feature) {
+                    // we're not adding any menu items since the click was not
+                    // on a feature
+                    return superContextMenuItems()
+                  }
+                  return [
+                    ...superContextMenuItems(),
+                    {
+                      label: 'Some menu item',
+                      icon: SomeIcon,
+                      onClick: () => {
+                        // do some stuff
+                      },
+                    },
+                  ]
+                },
+              },
             }
           })
+
+          pluggableElement.stateModel = newStateModel
         }
-      })
-    })
+        return pluggableElement
+      },
+    )
   }
 }
 ```
@@ -678,11 +672,13 @@ callback for color, it might look like this
   "adapter": {
     "type": "VcfTabixAdapter",
     "vcfGzLocation": {
-      "uri": "volvox.filtered.vcf.gz"
+      "uri": "volvox.filtered.vcf.gz",
+      "locationType": "UriLocation"
     },
     "index": {
       "location": {
-        "uri": "volvox.filtered.vcf.gz.tbi"
+        "uri": "volvox.filtered.vcf.gz.tbi",
+        "locationType": "UriLocation"
       }
     }
   },
@@ -743,7 +739,7 @@ ConfigurationSchema(
   {
     bamLocation: {
       type: 'fileLocation',
-      defaultValue: { uri: '/path/to/my.bam' },
+      defaultValue: { uri: '/path/to/my.bam', locationType: 'UriLocation' },
     },
     // this is a sub-config schema
     index: ConfigurationSchema('BamIndex', {
@@ -754,7 +750,10 @@ ConfigurationSchema(
       },
       location: {
         type: 'fileLocation',
-        defaultValue: { uri: '/path/to/my.bam.bai' },
+        defaultValue: {
+          uri: '/path/to/my.bam.bai',
+          locationType: 'UriLocation',
+        },
       },
     }),
   },
@@ -814,6 +813,7 @@ with your adapter.
   aliases for reference sequence names, for example to define that "chr1" is an
   alias for "1". An example of this in JBrowse is an adapter for
   (alias files)[http://software.broadinstitute.org/software/igv/LoadData/#aliasfile]
+- **Text search adapter** - This type of adapter is used to search through text search indexes. Returns list of search results. An example of this in JBrowse is the trix text search adapter.
 
 Note about refname alias adapter: the first column must match what is seen in
 your FASTA file
@@ -921,7 +921,7 @@ like human chromosomes which have, for example, chr1 vs 1.
 
 Returning the refNames used by a given file or resource allows JBrowse to
 automatically smooth these small naming disparities over. See [reference
-renaming](config_guide#configuring-reference-renaming)
+renaming](../config_guide#configuring-reference-renaming)
 
 #### getFeatures
 
@@ -996,7 +996,7 @@ JBrowse 2 plugins can be used to add new pluggable elements (views, tracks,
 adapters, etc), and to modify behavior of the application by adding code
 that watches the application's state. For the full list of what kinds of
 pluggable element types plugins can add, see the [pluggable
-elements](developer_guide#pluggable-elements) page.
+elements](#pluggable-elements) page.
 
 The first thing that we have is a `src/index.js` which exports a default class
 containing the plugin registration code
@@ -1043,6 +1043,7 @@ export const configSchema = ConfigurationSchema(
       description: 'base URL for the UCSC API',
       defaultValue: {
         uri: 'https://cors-anywhere.herokuapp.com/https://api.genome.ucsc.edu/',
+        locationType: 'UriLocation',
       },
     },
     track: {
@@ -1229,13 +1230,8 @@ export const ReactComponent = props => {
 // which draws to a canvas and returns the results in a React component
 export default class ArcRenderer extends ServerSideRendererType {
   async render(renderProps) {
-    const {
-      features,
-      config,
-      regions,
-      bpPerPx,
-      highResolutionScaling,
-    } = renderProps
+    const { features, config, regions, bpPerPx, highResolutionScaling } =
+      renderProps
     const region = regions[0]
     const width = (region.end - region.start) / bpPerPx
     const height = 500
@@ -1420,21 +1416,23 @@ const model = types
       type: types.literal('WiggleTrack'),
     }),
   )
-  .views(self => ({
-    get renderProps() {
-      return {
-        ...self.composedRenderProps, // props that the blockBasedTrack adds,
-        ...getParentRenderProps(self), // props that the view wants to add,
-        scaleOpts: {
-          domain: this.domain,
-          stats: self.stats,
-          autoscaleType: getConf(self, 'autoscale'),
-          scaleType: getConf(self, 'scaleType'),
-          inverted: getConf(self, 'inverted'),
-        },
-      }
-    },
-  }))
+  .views(self => {
+    const { renderProps: superRenderProps } = self
+    return {
+      renderProps() {
+        return {
+          ...superRenderProps(),
+          scaleOpts: {
+            domain: this.domain,
+            stats: self.stats,
+            autoscaleType: getConf(self, 'autoscale'),
+            scaleType: getConf(self, 'scaleType'),
+            inverted: getConf(self, 'inverted'),
+          },
+        }
+      },
+    }
+  })
 ```
 
 ### Rendering SVG

@@ -52,7 +52,7 @@ const stateModelFactory = (
       },
     }))
     .views(self => {
-      const { trackMenuItems } = self
+      const { trackMenuItems: superTrackMenuItems } = self
       return {
         get pileupDisplayConfig() {
           const conf = getConf(self, 'pileupDisplay')
@@ -65,8 +65,11 @@ const stateModelFactory = (
           }
         },
 
-        getFeatureByID(id: string) {
-          return self.PileupDisplay.getFeatureByID(id)
+        getFeatureByID(blockKey: string, id: string) {
+          return self.PileupDisplay.getFeatureByID(blockKey, id)
+        },
+        searchFeatureByID(id: string) {
+          return self.PileupDisplay.searchFeatureByID(id)
         },
 
         get features() {
@@ -98,21 +101,18 @@ const stateModelFactory = (
           }
         },
 
-        get trackMenuItems(): MenuItem[] {
+        trackMenuItems(): MenuItem[] {
           return [
-            ...trackMenuItems,
+            ...superTrackMenuItems(),
             {
               type: 'subMenu',
               label: 'Pileup settings',
-              subMenu: self.PileupDisplay.composedTrackMenuItems,
+              subMenu: self.PileupDisplay.trackMenuItems(),
             },
             {
               type: 'subMenu',
               label: 'SNPCoverage settings',
-              subMenu: [
-                ...self.SNPCoverageDisplay.composedTrackMenuItems,
-                ...self.SNPCoverageDisplay.extraTrackMenuItems,
-              ],
+              subMenu: self.SNPCoverageDisplay.trackMenuItems(),
             },
           ]
         },

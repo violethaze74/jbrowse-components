@@ -4,10 +4,14 @@
   "url": "https://jbrowse.com",
   "baseUrl": "/jb2/",
   "favicon": "img/favicon.ico",
+  "trailingSlash": true,
+  "onBrokenLinks": "ignore",
   "organizationName": "GMOD",
   "projectName": "jbrowse-components",
   "customFields": {
-    "currentVersion": "v1.3.3"
+    "currentVersionNo": "1.4.5",
+    "currentVersion": "v1.4.5",
+    "bannerBulletin": "Introducing JBrowse desktop"
   },
   "themeConfig": {
     "colorMode": {
@@ -67,9 +71,14 @@
           "position": "right"
         },
         {
-          "href": "https://github.com/GMOD/jbrowse-components",
-          "label": "GitHub",
-          "position": "right"
+          "className": "navbar-social-github",
+          "position": "right",
+          "href": "https://github.com/GMOD/jbrowse-components"
+        },
+        {
+          "className": "navbar-social-twitter",
+          "position": "right",
+          "href": "https://twitter.com/usejbrowse"
         }
       ]
     },

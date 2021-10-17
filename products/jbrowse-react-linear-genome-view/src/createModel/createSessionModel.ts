@@ -1,29 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { lazy } from 'react'
-import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import {
   NotificationLevel,
   AbstractSessionModel,
   TrackViewModel,
   DialogComponentType,
 } from '@jbrowse/core/util/types'
+import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import { getContainingView } from '@jbrowse/core/util'
+import { readConfObject } from '@jbrowse/core/configuration'
 import { observable } from 'mobx'
 import {
   getMembers,
   getParent,
   getSnapshot,
   getType,
-  IAnyStateTreeNode,
   isAlive,
   isModelType,
   isReferenceType,
   types,
   walk,
   Instance,
+  IAnyStateTreeNode,
 } from 'mobx-state-tree'
 import PluginManager from '@jbrowse/core/PluginManager'
-import { readConfObject } from '@jbrowse/core/configuration'
+import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
 import InfoIcon from '@material-ui/icons/Info'
 import { ReferringNode } from '../types'
 
@@ -61,10 +62,26 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
        */
       task: undefined,
 
-      DialogComponent: undefined as DialogComponentType | undefined,
-      DialogProps: undefined as any,
+      queueOfDialogs: observable.array([] as [DialogComponentType, any][]),
     }))
     .views(self => ({
+      get DialogComponent() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[0]
+        }
+        return undefined
+      },
+      get DialogProps() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[1]
+        }
+        return undefined
+      },
+      get textSearchManager(): TextSearchManager {
+        return getParent<any>(self).textSearchManager
+      },
       get rpcManager() {
         return getParent<any>(self).rpcManager
       },
@@ -81,7 +98,7 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
         return getParent<any>(self).config.tracks
       },
       get aggregateTextSearchAdapters() {
-        return getParent(self).config.aggregateTextSearchAdapters
+        return getParent<any>(self).config.aggregateTextSearchAdapters
       },
       get connections() {
         return getParent<any>(self).config.connections
@@ -98,7 +115,7 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
       get views() {
         return [self.view]
       },
-      get renderProps() {
+      renderProps() {
         return { theme: readConfObject(this.configuration, 'theme') }
       },
       get visibleWidget() {
@@ -119,7 +136,7 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
        */
       getReferring(object: IAnyStateTreeNode) {
         const refs: ReferringNode[] = []
-        walk(getParent(self), node => {
+        walk(getParent<any>(self), node => {
           if (isModelType(getType(node))) {
             const members = getMembers(node)
             Object.entries(members.properties).forEach(([key, value]) => {
@@ -134,9 +151,13 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
       },
     }))
     .actions(self => ({
-      setDialogComponent(comp?: DialogComponentType, props?: any) {
-        self.DialogComponent = comp
-        self.DialogProps = props
+      queueDialog(
+        callback: (doneCallback: Function) => [DialogComponentType, any],
+      ): void {
+        const [component, props] = callback(() => {
+          self.queueOfDialogs.shift()
+        })
+        self.queueOfDialogs.push([component, props])
       },
       makeConnection(
         configuration: AnyConfigurationModel,
@@ -314,7 +335,10 @@ export default function sessionModelFactory(pluginManager: PluginManager) {
           {
             label: 'About track',
             onClick: () => {
-              self.setDialogComponent(AboutDialog, { config })
+              self.queueDialog((doneCallback: Function) => [
+                AboutDialog,
+                { config, handleClose: doneCallback },
+              ])
             },
             icon: InfoIcon,
           },

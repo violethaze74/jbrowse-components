@@ -60,9 +60,7 @@ function PluginCard({
   )
   const [tempDisabled, setTempDisabled] = useState(false)
   const disableButton = isInstalled || tempDisabled
-
-  const rootModel = getParent(model, 3)
-  const { jbrowse } = rootModel
+  const { jbrowse } = getSession(model)
 
   return (
     <Card variant="outlined" key={plugin.name} className={classes.card}>

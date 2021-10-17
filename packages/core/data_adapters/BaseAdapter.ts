@@ -2,7 +2,7 @@ import { Observable, merge } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { isStateTreeNode, getSnapshot } from 'mobx-state-tree'
 import { ObservableCreate } from '../util/rxjs'
-import { checkAbortSignal, hashCode, observeAbortSignal } from '../util'
+import { checkAbortSignal, observeAbortSignal } from '../util'
 import { Feature } from '../util/simpleFeature'
 import {
   AnyConfigurationModel,
@@ -12,6 +12,8 @@ import { getSubAdapterType } from './dataAdapterCache'
 import { Region, NoAssemblyRegion } from '../util/types'
 import { blankStats, rectifyStats, scoresToStats } from '../util/stats'
 import BaseResult from '../TextSearch/BaseResults'
+import idMaker from '../util/idMaker'
+import PluginManager from '../PluginManager'
 
 export interface BaseOptions {
   signal?: AbortSignal
@@ -38,6 +40,7 @@ export interface AnyAdapter {
   new (
     config: AnyConfigurationModel,
     getSubAdapter?: getSubAdapterType,
+    pluginManager?: PluginManager | undefined,
   ): AnyDataAdapter
 }
 
@@ -49,26 +52,6 @@ export type AnyDataAdapter =
   | RegionsAdapter
   | SequenceAdapter
 
-// generates a short "id fingerprint" from the config passed to the base
-// feature adapter by recursively enumerating props, but if config is too big
-// does not process entire config (FromConfigAdapter for example can be large)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function idMaker(args: any, id = '') {
-  const keys = Object.keys(args)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    if (id.length > 5000) {
-      break
-    }
-    if (typeof args[key] === 'object' && args[key]) {
-      id += idMaker(args[key], id)
-    } else {
-      id += `${key}-${args[key]};`
-    }
-  }
-  return hashCode(id)
-}
-
 export abstract class BaseAdapter {
   public id: string
 
@@ -78,12 +61,16 @@ export abstract class BaseAdapter {
 
   getSubAdapter?: getSubAdapterType
 
+  pluginManager: PluginManager | undefined
+
   constructor(
     config: AnyConfigurationModel = ConfigurationSchema('empty', {}).create(),
     getSubAdapter?: getSubAdapterType,
+    pluginManager?: PluginManager,
   ) {
     this.config = config
     this.getSubAdapter = getSubAdapter
+    this.pluginManager = pluginManager
     // note: we use switch on jest here for more simple feature IDs
     // in test environment
     if (typeof jest === 'undefined') {
@@ -114,7 +101,7 @@ export abstract class BaseFeatureDataAdapter extends BaseAdapter {
    * the array will be empty
    * @param opts - Feature adapter options
    */
-  public abstract async getRefNames(opts?: BaseOptions): Promise<string[]>
+  public abstract getRefNames(opts?: BaseOptions): Promise<string[]>
   // public abstract async getRefNames(opts?: BaseOptions): Promise<string[]>
   //   await this.setup()
   //   const { refNames } = this.metadata

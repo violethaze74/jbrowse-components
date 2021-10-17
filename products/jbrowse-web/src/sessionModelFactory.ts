@@ -22,16 +22,17 @@ import {
   getRoot,
   getSnapshot,
   getType,
-  IAnyStateTreeNode,
   isAlive,
   isModelType,
   isReferenceType,
-  SnapshotIn,
   types,
   walk,
+  IAnyStateTreeNode,
   Instance,
+  SnapshotIn,
 } from 'mobx-state-tree'
 import PluginManager from '@jbrowse/core/PluginManager'
+import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
 import RpcManager from '@jbrowse/core/rpc/RpcManager'
 import SettingsIcon from '@material-ui/icons/Settings'
 import CopyIcon from '@material-ui/icons/FileCopy'
@@ -44,6 +45,10 @@ const AboutDialog = lazy(() => import('@jbrowse/core/ui/AboutDialog'))
 declare interface ReferringNode {
   node: IAnyStateTreeNode
   key: string
+}
+
+declare interface ReactProps {
+  [key: string]: any
 }
 
 export default function sessionModelFactory(
@@ -81,6 +86,11 @@ export default function sessionModelFactory(
       sessionAssemblies: types.array(assemblyConfigSchemasType),
       sessionPlugins: types.array(types.frozen()),
       minimized: types.optional(types.boolean, false),
+
+      drawerPosition: types.optional(
+        types.string,
+        localStorage.getItem('drawerPosition') || 'right',
+      ),
     })
     .volatile((/* self */) => ({
       /**
@@ -96,10 +106,25 @@ export default function sessionModelFactory(
        */
       task: undefined,
 
-      DialogComponent: undefined as DialogComponentType | undefined,
-      DialogProps: undefined as any,
+      queueOfDialogs: observable.array(
+        [] as [DialogComponentType, ReactProps][],
+      ),
     }))
     .views(self => ({
+      get DialogComponent() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[0]
+        }
+        return undefined
+      },
+      get DialogProps() {
+        if (self.queueOfDialogs.length) {
+          const firstInQueue = self.queueOfDialogs[0]
+          return firstInQueue && firstInQueue[1]
+        }
+        return undefined
+      },
       get shareURL() {
         return getConf(getParent<any>(self).jbrowse, 'shareURL')
       },
@@ -117,6 +142,9 @@ export default function sessionModelFactory(
       },
       get tracks() {
         return [...self.sessionTracks, ...getParent<any>(self).jbrowse.tracks]
+      },
+      get textSearchManager(): TextSearchManager {
+        return getParent<any>(self).textSearchManager
       },
       get connections() {
         return [
@@ -148,9 +176,11 @@ export default function sessionModelFactory(
       get version() {
         return getParent<any>(self).version
       },
-      get renderProps() {
+
+      renderProps() {
         return { theme: readConfObject(this.configuration, 'theme') }
       },
+
       get visibleWidget() {
         if (isAlive(self)) {
           // returns most recently added item in active widgets
@@ -169,10 +199,11 @@ export default function sessionModelFactory(
        */
       getReferring(object: IAnyStateTreeNode) {
         const refs: ReferringNode[] = []
-        walk(getParent<any>(self), (node: any) => {
+        walk(getParent<any>(self), node => {
           if (isModelType(getType(node))) {
             const members = getMembers(node)
             Object.entries(members.properties).forEach(([key, value]) => {
+              // @ts-ignore
               if (isReferenceType(value) && node[key] === object) {
                 refs.push({ node, key })
               }
@@ -183,9 +214,17 @@ export default function sessionModelFactory(
       },
     }))
     .actions(self => ({
-      setDialogComponent(comp?: DialogComponentType, props?: any) {
-        self.DialogComponent = comp
-        self.DialogProps = props
+      setDrawerPosition(arg: string) {
+        self.drawerPosition = arg
+        localStorage.setItem('drawerPosition', arg)
+      },
+      queueDialog(
+        callback: (doneCallback: Function) => [DialogComponentType, ReactProps],
+      ): void {
+        const [component, props] = callback(() => {
+          self.queueOfDialogs.shift()
+        })
+        self.queueOfDialogs.push([component, props])
       },
       setName(str: string) {
         self.name = str
@@ -206,8 +245,7 @@ export default function sessionModelFactory(
           throw new Error('session plugin cannot be installed twice')
         }
         self.sessionPlugins.push(plugin)
-        const rootModel = getRoot<any>(self)
-        rootModel.setPluginsUpdated(true)
+        getParent<any>(self).setPluginsUpdated(true)
       },
       removeAssembly(assemblyName: string) {
         const index = self.sessionAssemblies.findIndex(
@@ -218,14 +256,11 @@ export default function sessionModelFactory(
         }
       },
       removeSessionPlugin(pluginUrl: string) {
-        const index = self.sessionPlugins.findIndex(
-          plugin => plugin.url === pluginUrl,
-        )
+        const index = self.sessionPlugins.findIndex(p => p.url === pluginUrl)
         if (index !== -1) {
           self.sessionPlugins.splice(index, 1)
         }
-        const rootModel = getRoot<any>(self)
-        rootModel.setPluginsUpdated(true)
+        getParent<any>(self).setPluginsUpdated(true)
       },
       makeConnection(
         configuration: AnyConfigurationModel,
@@ -328,9 +363,8 @@ export default function sessionModelFactory(
       deleteConnection(configuration: AnyConfigurationModel) {
         let deletedConn
         if (self.adminMode) {
-          deletedConn = getParent<any>(self).jbrowse.deleteConnectionConf(
-            configuration,
-          )
+          deletedConn =
+            getParent<any>(self).jbrowse.deleteConnectionConf(configuration)
         }
         if (!deletedConn) {
           const { connectionId } = configuration
@@ -358,6 +392,9 @@ export default function sessionModelFactory(
       },
 
       resizeDrawer(distance: number) {
+        if (self.drawerPosition === 'left') {
+          distance *= -1
+        }
         const oldDrawerWidth = self.drawerWidth
         const newDrawerWidth = this.updateDrawerWidth(oldDrawerWidth - distance)
         const actualDistance = oldDrawerWidth - newDrawerWidth
@@ -651,7 +688,10 @@ export default function sessionModelFactory(
           {
             label: 'About track',
             onClick: () => {
-              session.setDialogComponent(AboutDialog, { config })
+              session.queueDialog((doneCallback: Function) => [
+                AboutDialog,
+                { config, handleClose: doneCallback },
+              ])
             },
             icon: InfoIcon,
           },

@@ -107,18 +107,11 @@ function InstalledPlugin({
   pluginManager: PluginManager
 }) {
   const [dialogPlugin, setDialogPlugin] = useState<string>()
-
   const session = getSession(model)
-
-  // @ts-ignore
-  const { sessionPlugins } = session
+  const { sessionPlugins, jbrowse, adminMode } = session
   const isSessionPlugin = sessionPlugins?.some(
     (p: BasePlugin) => pluginManager.pluginMetadata[plugin.name].url === p.url,
   )
-
-  const rootModel = getParent(model, 3)
-  const { jbrowse, adminMode } = rootModel
-
   return (
     <>
       {dialogPlugin ? (
