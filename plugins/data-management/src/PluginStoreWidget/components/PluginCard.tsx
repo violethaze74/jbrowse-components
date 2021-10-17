@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react'
-import { getEnv, getParent } from 'mobx-state-tree'
-
-import { makeStyles } from '@material-ui/core/styles'
+import { getEnv } from 'mobx-state-tree'
 import {
   Card,
   CardActions,
@@ -10,8 +8,10 @@ import {
   Button,
   Link,
   Typography,
+  makeStyles,
 } from '@material-ui/core'
 
+// icons
 import PersonIcon from '@material-ui/icons/Person'
 import AddIcon from '@material-ui/icons/Add'
 import CheckIcon from '@material-ui/icons/Check'
@@ -60,7 +60,7 @@ function PluginCard({
   )
   const [tempDisabled, setTempDisabled] = useState(false)
   const disableButton = isInstalled || tempDisabled
-  const { jbrowse } = getSession(model)
+  const { jbrowse } = session
 
   return (
     <Card variant="outlined" key={plugin.name} className={classes.card}>

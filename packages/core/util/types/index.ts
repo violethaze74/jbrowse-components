@@ -25,6 +25,7 @@ export * from './util'
 
 /** abstract type for a model that contains multiple views */
 export interface AbstractViewContainer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extends IStateTreeNode<IType<any, any, any>> {
   views: AbstractViewModel[]
   removeView(view: AbstractViewModel): void

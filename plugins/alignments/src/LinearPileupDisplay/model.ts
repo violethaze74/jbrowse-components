@@ -26,7 +26,7 @@ import SortIcon from '@material-ui/icons/Sort'
 import PaletteIcon from '@material-ui/icons/Palette'
 import FilterListIcon from '@material-ui/icons/ClearAll'
 
-import { autorun, observable } from 'mobx'
+import { autorun, observable, toJS } from 'mobx'
 import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
 import SerializableFilterChain from '@jbrowse/core/pluggableElementTypes/renderers/util/serializableFilterChain'
 import { LinearPileupDisplayConfigModel } from './configSchema'
@@ -410,10 +410,10 @@ const stateModelFactory = (
           const view = getContainingView(self) as LGV
           const {
             ready,
+            colorBy,
             colorTagMap,
             modificationTagMap,
             sortedBy,
-            colorBy,
             rpcDriverName,
           } = self
           return {
@@ -423,8 +423,8 @@ const stateModelFactory = (
             displayModel: self,
             sortedBy,
             colorBy,
-            colorTagMap: JSON.parse(JSON.stringify(colorTagMap)),
-            modificationTagMap: JSON.parse(JSON.stringify(modificationTagMap)),
+            colorTagMap: Object.fromEntries(toJS(colorTagMap)),
+            modificationTagMap: Object.fromEntries(toJS(modificationTagMap)),
             filters: this.filters,
             showSoftClip: self.showSoftClipping,
             config: self.rendererConfig,

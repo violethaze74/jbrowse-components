@@ -35,10 +35,10 @@ export default function assemblyManagerFactory(
       get assemblyList() {
         // name is the explicit identifier and can be accessed without getConf,
         // hence the union with {name:string}
-        const {
-          jbrowse: { assemblies },
-          session: { sessionAssemblies = [] } = {},
-        } = getParent<any>(self)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { jbrowse, session = {} } = getParent<any>(self)
+        const { sessionAssemblies = [] } = session
+        const { assemblies } = jbrowse
         return [
           ...assemblies,
           ...sessionAssemblies,
@@ -46,9 +46,11 @@ export default function assemblyManagerFactory(
       },
 
       get rpcManager() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return getParent<any>(self).rpcManager
       },
       get pluginManager() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return getParent<any>(self).pluginManager
       },
       get allPossibleRefNames() {

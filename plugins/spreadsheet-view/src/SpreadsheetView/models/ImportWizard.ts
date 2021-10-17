@@ -55,6 +55,7 @@ export default (pluginManager: PluginManager) => {
         )
       },
       get canCancel() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return getParent<any>(self).readyToDisplay
       },
 
@@ -128,6 +129,7 @@ export default (pluginManager: PluginManager) => {
 
       cancelButton() {
         self.error = undefined
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         getParent<any>(self).setDisplayMode()
       },
 
@@ -170,6 +172,7 @@ export default (pluginManager: PluginManager) => {
             .then(buffer => typeParser(buffer as Buffer, self))
             .then(spreadsheet => {
               this.setLoaded()
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               getParent<any>(self).displaySpreadsheet(spreadsheet)
             })
         } catch (error) {

@@ -6,8 +6,8 @@ import RpcManager from '@jbrowse/core/rpc/RpcManager'
 import PluginManager from '@jbrowse/core/PluginManager'
 import Plugin from '@jbrowse/core/Plugin'
 import {
-  getParent,
   getSnapshot,
+  getParent,
   resolveIdentifier,
   types,
   cast,
@@ -25,6 +25,12 @@ import clone from 'clone'
 window.getSnapshot = getSnapshot
 // @ts-ignore
 window.resolveIdentifier = resolveIdentifier
+
+interface Root {
+  rpcManager: RpcManager
+  session: { name: string }
+  setPluginsUpdates: (arg: boolean) => void
+}
 
 export default function JBrowseWeb(
   pluginManager: PluginManager,
@@ -85,7 +91,7 @@ export default function JBrowseWeb(
         return self.assemblies.map(assembly => readConfObject(assembly, 'name'))
       },
       get rpcManager() {
-        return getParent<any>(self).rpcManager
+        return getParent<Root>(self).rpcManager
       },
     }))
     .actions(self => ({
@@ -184,7 +190,7 @@ export default function JBrowseWeb(
       },
       setDefaultSessionConf(sessionConf: AnyConfigurationModel) {
         let newDefault
-        if (getParent<any>(self).session.name === sessionConf.name) {
+        if (getParent<Root>(self).session.name === sessionConf.name) {
           newDefault = getSnapshot(sessionConf)
         } else {
           newDefault = toJS(sessionConf)
@@ -199,11 +205,11 @@ export default function JBrowseWeb(
       },
       addPlugin(plugin: Plugin) {
         self.plugins = cast([...self.plugins, plugin])
-        getParent<any>(self).setPluginsUpdates(true)
+        getParent<Root>(self).setPluginsUpdates(true)
       },
       removePlugin(pluginUrl: string) {
         self.plugins = cast(self.plugins.filter(p => p.url !== pluginUrl))
-        getParent<any>(self).setPluginsUpdates(true)
+        getParent<Root>(self).setPluginsUpdates(true)
       },
       addInternetAccountConf(internetAccountConf: AnyConfigurationModel) {
         const { type } = internetAccountConf

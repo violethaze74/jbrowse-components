@@ -10,10 +10,10 @@ import {
   findLastIndex,
   getContainingView,
   getSession,
+  isSessionModelWithWidgets,
   isViewContainer,
   parseLocString,
   springAnimate,
-  isSessionModelWithWidgets,
 } from '@jbrowse/core/util'
 import BaseResult from '@jbrowse/core/TextSearch/BaseResults'
 import { BlockSet, BaseBlock } from '@jbrowse/core/util/blockTypes'
@@ -1387,7 +1387,6 @@ export function stateModelFactory(pluginManager: PluginManager) {
     }))
     .actions(self => ({
       async exportSvg(opts: ExportSvgOptions = {}) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const html = await renderToSvg(self as any, opts)
         const blob = new Blob([html], { type: 'image/svg+xml' })
         saveAs(blob, 'image.svg')

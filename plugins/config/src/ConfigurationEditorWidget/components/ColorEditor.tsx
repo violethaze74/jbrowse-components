@@ -2,7 +2,7 @@ import React, { lazy, useState } from 'react'
 import { observer } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
 import TextField from '@material-ui/core/TextField'
-import { Color, ColorResult, RGBColor } from 'react-color'
+import { Color, RGBColor } from 'react-color'
 
 const ColorPicker = lazy(() => import('./ColorPicker'))
 

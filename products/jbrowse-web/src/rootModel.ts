@@ -109,10 +109,7 @@ interface Menu {
   menuItems: MenuItem[]
 }
 
-export default function RootModel(
-  pluginManager: PluginManager,
-  adminMode = false,
-) {
+function rootModelFactory(pluginManager: PluginManager, adminMode = false) {
   const { assemblyConfigSchemas, dispatcher } =
     AssemblyConfigSchemasFactory(pluginManager)
   const assemblyConfigSchemasType = types.union(
@@ -736,7 +733,7 @@ export function createTestSession(snapshot = {}, adminMode = false) {
   const pluginManager = new PluginManager(corePlugins.map(P => new P()))
   pluginManager.createPluggableElements()
 
-  const JBrowseRootModel = RootModel(pluginManager, adminMode)
+  const JBrowseRootModel = rootModelFactory(pluginManager, adminMode)
   const root = JBrowseRootModel.create(
     {
       jbrowse: {
@@ -757,3 +754,8 @@ export function createTestSession(snapshot = {}, adminMode = false) {
   pluginManager.configure()
   return root.session as AbstractSessionModel
 }
+
+export type RootModel = ReturnType<typeof rootModelFactory>
+export type Root = Instance<RootModel>
+
+export default rootModelFactory

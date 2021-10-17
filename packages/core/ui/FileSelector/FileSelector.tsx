@@ -11,6 +11,7 @@ import {
   ClickAwayListener,
   Menu,
 } from '@material-ui/core'
+import { BaseInternetAccountModel } from '@jbrowse/core/pluggableElementTypes/models/InternetAccountModel'
 
 import {
   ToggleButtonGroup,
@@ -39,9 +40,9 @@ const FileSelector = observer(
     setName?: (str: string) => void
     name?: string
     description?: string
-    session?: any
+    session?: { internetAccounts?: BaseInternetAccountModel[] }
   }) => {
-    const { location, name, description, session, setLocation } = props
+    const { location, name, description, session = {}, setLocation } = props
     const { internetAccounts = [] } = session
     const fileOrUrl = !location || isUriLocation(location) ? 'url' : 'file'
     const [toggleButtonValue, setToggleButtonValue] = useState(
@@ -60,7 +61,7 @@ const FileSelector = observer(
     const moreMenuRef = useRef(null)
 
     const selectedInternetAccount = internetAccounts.find(
-      (account: any) => account.internetAccountId === toggleButtonValue,
+      account => account.internetAccountId === toggleButtonValue,
     )
 
     const setLocationWithAccount = (location: UriLocation) => {
@@ -134,7 +135,7 @@ const FileSelector = observer(
               <ToggleButton value="url" aria-label="url">
                 URL
               </ToggleButton>
-              {shownInternetAccounts?.map((account: any) => {
+              {shownInternetAccounts?.map(account => {
                 const { toggleContents: customToggleContents, name } = account
                 let toggleContents = customToggleContents || name
                 const maxLength = 5
@@ -203,38 +204,36 @@ const FileSelector = observer(
                           horizontal: 'center',
                         }}
                       >
-                        {hiddenInternetAccounts?.map(
-                          (account: any, idx: number) => (
-                            <MenuItem
-                              key={account.internetAccountId}
-                              value={account.internetAccountId}
-                              onClick={() => {
-                                const newlySelectedInternetAccount =
-                                  hiddenInternetAccounts[idx]
-                                const lastShownInternetAccount =
-                                  shownInternetAccounts[
-                                    shownInternetAccounts.length - 1
-                                  ]
-                                setShownInternetAccounts([
-                                  ...shownInternetAccounts.slice(
-                                    0,
-                                    shownInternetAccounts.length - 1,
-                                  ),
-                                  newlySelectedInternetAccount,
-                                ])
-                                setHiddenInternetAccounts([
-                                  lastShownInternetAccount,
-                                  ...hiddenInternetAccounts.slice(0, idx),
-                                  ...hiddenInternetAccounts.slice(idx + 1),
-                                ])
-                                setToggleButtonValue(account.internetAccountId)
-                                setMoreMenuOpen(false)
-                              }}
-                            >
-                              {account.name}
-                            </MenuItem>
-                          ),
-                        )}
+                        {hiddenInternetAccounts?.map((account, idx) => (
+                          <MenuItem
+                            key={account.internetAccountId}
+                            value={account.internetAccountId}
+                            onClick={() => {
+                              const newlySelectedInternetAccount =
+                                hiddenInternetAccounts[idx]
+                              const lastShownInternetAccount =
+                                shownInternetAccounts[
+                                  shownInternetAccounts.length - 1
+                                ]
+                              setShownInternetAccounts([
+                                ...shownInternetAccounts.slice(
+                                  0,
+                                  shownInternetAccounts.length - 1,
+                                ),
+                                newlySelectedInternetAccount,
+                              ])
+                              setHiddenInternetAccounts([
+                                lastShownInternetAccount,
+                                ...hiddenInternetAccounts.slice(0, idx),
+                                ...hiddenInternetAccounts.slice(idx + 1),
+                              ])
+                              setToggleButtonValue(account.internetAccountId)
+                              setMoreMenuOpen(false)
+                            }}
+                          >
+                            {account.name}
+                          </MenuItem>
+                        ))}
                       </Menu>
                     </ClickAwayListener>
                   </Paper>

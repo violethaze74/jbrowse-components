@@ -45,6 +45,7 @@ function CustomPluginForm({
   return (
     <Dialog open={open} onClose={() => onClose(false)}>
       <DialogTitle>
+        Add custom plugin
         <IconButton
           className={classes.closeDialog}
           aria-label="close-dialog"
@@ -76,9 +77,20 @@ function CustomPluginForm({
       <DialogActions>
         <Button
           variant="contained"
+          color="secondary"
+          style={{ marginTop: '1.5rem' }}
+          onClick={() => onClose()}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
           color="primary"
           style={{ marginTop: '1.5rem' }}
-          onClick={() => jbrowse.addPlugin({ name, url })}
+          onClick={() => {
+            jbrowse.addPlugin({ name, url })
+            onClose()
+          }}
         >
           Add plugin
         </Button>

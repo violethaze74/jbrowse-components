@@ -50,8 +50,10 @@ export function getRpcSessionId(thisNode: IAnyStateTreeNode) {
  */
 export function getParentRenderProps(node: IAnyStateTreeNode) {
   for (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let currentNode = getParent<any>(node);
     !isRoot(currentNode);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     currentNode = getParent<any>(currentNode)
   ) {
     if ('renderProps' in currentNode) {

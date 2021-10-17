@@ -1,6 +1,9 @@
 import jsonStableStringify from 'json-stable-stringify'
-import { getParent, IAnyType, types, Instance } from 'mobx-state-tree'
+import { getParent, types, IAnyType, Instance } from 'mobx-state-tree'
 import AbortablePromiseCache from 'abortable-promise-cache'
+
+// locals
+import RpcManager from '../rpc/RpcManager'
 import { getConf } from '../configuration'
 import {
   BaseRefNameAliasAdapter,
@@ -56,7 +59,7 @@ async function loadRefNameMap(
     name: 'when assembly ready',
   })
 
-  const refNames = await assembly.rpcManager.call(
+  const refNames = (await assembly.rpcManager.call(
     sessionId,
     'CoreGetRefNames',
     {
@@ -65,14 +68,14 @@ async function loadRefNameMap(
       ...options,
     },
     { timeout: 1000000 },
-  )
+  )) as string[]
   const refNameMap: Record<string, string> = {}
   const { refNameAliases } = assembly
   if (!refNameAliases) {
     throw new Error(`error loading assembly ${assembly.name}'s refNameAliases`)
   }
 
-  refNames.forEach((refName: string) => {
+  refNames.forEach(refName => {
     checkRefName(refName)
     const canon = assembly.getCanonicalRefName(refName)
     if (canon) {
@@ -185,7 +188,7 @@ export default function assemblyFactory(
           : Object.keys(self.refNameAliases)
       },
       get rpcManager() {
-        return getParent<any>(self, 2).rpcManager
+        return getParent<{ rpcManager: RpcManager }>(self, 2).rpcManager
       },
       get refNameColors() {
         const colors: string[] = getConf(self, 'refNameColors')
@@ -233,7 +236,9 @@ export default function assemblyFactory(
         this.setRefNameAliases(refNameAliases)
       },
       setError(error: Error) {
-        if (!getParent<any>(self, 3).isAssemblyEditing) {
+        if (
+          !getParent<{ isAssemblyEditing: boolean }>(self, 3).isAssemblyEditing
+        ) {
           self.error = error
         }
       },

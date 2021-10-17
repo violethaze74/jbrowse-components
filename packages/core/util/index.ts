@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toByteArray, fromByteArray } from 'base64-js'
 import {
-  getParent,
-  isAlive,
-  IAnyStateTreeNode,
+  addDisposer,
+  getParent as getParentMod,
   getSnapshot,
   hasParent,
-  addDisposer,
+  isAlive,
   isStateTreeNode,
   Instance,
+  IAnyStateTreeNode,
 } from 'mobx-state-tree'
 import { reaction, IReactionPublic, IReactionOptions } from 'mobx'
 import { inflate, deflate } from 'pako'
@@ -156,7 +156,7 @@ export function findParentThat(
       return currentNode
     }
     if (hasParent(currentNode)) {
-      currentNode = getParent(currentNode)
+      currentNode = getParentMod(currentNode)
     } else {
       break
     }
@@ -687,7 +687,7 @@ export function makeAbortableReaction<T, U, V>(
     model: T,
     handle: IReactionPublic,
   ) => Promise<V>,
-  reactionOptions: IReactionOptions,
+  reactionOptions: IReactionOptions<any, any>,
   startedFunction: (aborter: AbortController) => void,
   successFunction: (arg: V) => void,
   errorFunction: (err: unknown) => void,
