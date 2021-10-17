@@ -3,7 +3,7 @@ import { InternetAccount } from '@jbrowse/core/pluggableElementTypes/models'
 import { isElectron } from '@jbrowse/core/util'
 
 import { OAuthInternetAccountConfigModel } from './configSchema'
-import crypto from 'crypto'
+import crypto from 'crypto-js'
 import { Instance, types } from 'mobx-state-tree'
 import { RemoteFileWithRangeCache } from '@jbrowse/core/util/io'
 import { UriLocation } from '@jbrowse/core/util/types'
