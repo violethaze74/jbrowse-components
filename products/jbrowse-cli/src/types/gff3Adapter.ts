@@ -1,17 +1,79 @@
 import { Gff3TabixAdapter, Track } from '../base'
+import { Transform, TransformOptions } from 'stream'
 import { isURL, createRemoteStream } from '../types/common'
-import { SingleBar, Presets } from 'cli-progress'
+import { MultiBar } from 'cli-progress'
 import { createGunzip } from 'zlib'
-import readline from 'readline'
+import pump from 'pump'
+import split2 from 'split2'
 import path from 'path'
 import fs from 'fs'
 
-export async function* indexGff3(
+class Gff3Transform extends Transform {
+  typesToExclude: string[]
+  attributes: string[]
+  trackId: string
+
+  constructor(
+    args: TransformOptions & {
+      typesToExclude: string[]
+      attributes: string[]
+      trackId: string
+    },
+  ) {
+    super(args)
+    this.typesToExclude = args.typesToExclude
+    this.attributes = args.attributes
+    this.trackId = args.trackId
+  }
+  _transform(chunk: Buffer, encoding: unknown, done: () => void) {
+    if (!chunk) {
+      console.error('hererere', chunk)
+    }
+    const line = chunk.toString()
+    if (!line.startsWith('#') && !line.startsWith('>')) {
+      const [seq_id, , type, start, end, , , , col9] = line.split('\t')
+      const locStr = `${seq_id}:${start}..${end}`
+
+      if (!this.typesToExclude.includes(type)) {
+        // turns gff3 attrs into a map, and converts the arrays into space
+        // separated strings
+        const col9attrs = Object.fromEntries(
+          col9
+            .split(';')
+            .map(f => f.trim())
+            .filter(f => !!f)
+            .map(f => f.split('='))
+            .map(([key, val]) => [
+              key.trim(),
+              decodeURIComponent(val).trim().split(',').join(' '),
+            ]),
+        )
+        const attrs = this.attributes
+          .map(attr => col9attrs[attr])
+          .filter((f): f is string => !!f)
+
+        if (attrs.length) {
+          const record = JSON.stringify([
+            encodeURIComponent(locStr),
+            encodeURIComponent(this.trackId),
+            ...attrs.map(a => encodeURIComponent(a)),
+          ]).replace(/,/g, '|')
+
+          this.push(`${record} ${[...new Set(attrs)].join(' ')}\n`)
+        }
+      }
+    }
+    done()
+  }
+}
+
+export async function indexGff3(
   config: Track,
   attributes: string[],
   outLocation: string,
   typesToExclude: string[],
   quiet: boolean,
+  multibar: MultiBar,
 ) {
   const { adapter, trackId } = config
   const {
@@ -20,13 +82,14 @@ export async function* indexGff3(
 
   // progress bar code was aided by blog post at
   // https://webomnizz.com/download-a-file-with-progressbar-using-node-js/
-  const progressBar = new SingleBar(
-    {
-      format: '{bar} ' + trackId + ' {percentage}% | ETA: {eta}s',
-      etaBuffer: 2000,
-    },
-    Presets.shades_classic,
-  )
+  // const progressBar = new SingleBar(
+  //   {
+  //     format: '{bar} ' + trackId + ' {percentage}% | ETA: {eta}s',
+  //     etaBuffer: 2000,
+  //   },
+  //   Presets.shades_classic,
+  // )
+  let progressBar: any
 
   let fileDataStream
   let totalBytes = 0
@@ -41,59 +104,25 @@ export async function* indexGff3(
   }
 
   if (!quiet) {
-    progressBar.start(totalBytes, 0)
+    progressBar = multibar.create(totalBytes, 0, { file: trackId })
   }
 
   fileDataStream.on('data', chunk => {
     receivedBytes += chunk.length
-    progressBar.update(receivedBytes)
+    progressBar?.update(receivedBytes, { file: trackId })
   })
 
-  const rl = readline.createInterface({
-    input: uri.endsWith('.gz')
-      ? fileDataStream.pipe(createGunzip())
-      : fileDataStream,
-  })
-
-  for await (const line of rl) {
-    if (line.startsWith('#')) {
-      continue
-    } else if (line.startsWith('>')) {
-      break
-    }
-
-    const [seq_id, , type, start, end, , , , col9] = line.split('\t')
-    const locStr = `${seq_id}:${start}..${end}`
-
-    if (!typesToExclude.includes(type)) {
-      // turns gff3 attrs into a map, and converts the arrays into space
-      // separated strings
-      const col9attrs = Object.fromEntries(
-        col9
-          .split(';')
-          .map(f => f.trim())
-          .filter(f => !!f)
-          .map(f => f.split('='))
-          .map(([key, val]) => [
-            key.trim(),
-            decodeURIComponent(val).trim().split(',').join(' '),
-          ]),
-      )
-      const attrs = attributes
-        .map(attr => col9attrs[attr])
-        .filter((f): f is string => !!f)
-
-      if (attrs.length) {
-        const record = JSON.stringify([
-          encodeURIComponent(locStr),
-          encodeURIComponent(trackId),
-          ...attrs.map(a => encodeURIComponent(a)),
-        ]).replace(/,/g, '|')
-
-        yield `${record} ${[...new Set(attrs)].join(' ')}\n`
+  return pump(
+    ...(uri.endsWith('.gz')
+      ? [fileDataStream, createGunzip()]
+      : [fileDataStream]),
+    split2(),
+    new Gff3Transform({ attributes, typesToExclude, trackId }),
+    function (err) {
+      if (err) {
+        console.error('failed', err)
       }
-    }
-  }
-
-  progressBar.stop()
+      progressBar?.stop()
+    },
+  )
 }

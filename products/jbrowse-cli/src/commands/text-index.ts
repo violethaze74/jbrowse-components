@@ -3,6 +3,10 @@ import path from 'path'
 import { Readable } from 'stream'
 import { ixIxxStream } from 'ixixx'
 import { flags } from '@oclif/command'
+import mergeStream from 'merge-stream'
+import cliProgress from 'cli-progress'
+
+// locals
 import { indexGff3 } from '../types/gff3Adapter'
 import { indexVcf } from '../types/vcfAdapter'
 import JBrowseCommand, { Track, Config, TrixTextSearchAdapter } from '../base'
@@ -342,8 +346,24 @@ export default class TextIndex extends JBrowseCommand {
     exclude: string[]
     assemblyNames: string[]
   }) {
-    const readable = Readable.from(
-      this.indexFiles(configs, attributes, outDir, quiet, exclude),
+    // create new container
+    const multibar = new cliProgress.MultiBar(
+      {
+        clearOnComplete: false,
+        hideCursor: true,
+        format: '{bar} {percentage}% | {file} | ETA: {eta}s',
+      },
+      cliProgress.Presets.shades_grey,
+    )
+    const readable = mergeStream(
+      ...(await this.indexFiles(
+        configs,
+        attributes,
+        outDir,
+        quiet,
+        exclude,
+        multibar,
+      )),
     )
 
     const ixIxxStream = await this.runIxIxx(readable, outDir, name)
@@ -359,13 +379,15 @@ export default class TextIndex extends JBrowseCommand {
     return ixIxxStream
   }
 
-  async *indexFiles(
+  async indexFiles(
     trackConfigs: Track[],
     attributes: string[],
-    outLocation: string,
+    out: string,
     quiet: boolean,
     typesToExclude: string[],
+    multibar: unknown,
   ) {
+    const iterables = []
     for (const config of trackConfigs) {
       const { adapter, textSearching } = config
       const { type } = adapter
@@ -375,13 +397,17 @@ export default class TextIndex extends JBrowseCommand {
       } = textSearching || {}
 
       if (type === 'Gff3TabixAdapter') {
-        yield* indexGff3(config, attrs, outLocation, types, quiet)
+        iterables.push(
+          await indexGff3(config, attrs, out, types, quiet, multibar),
+        )
       } else if (type === 'VcfTabixAdapter') {
-        yield* indexVcf(config, attrs, outLocation, types, quiet)
+        iterables.push(
+          await indexVcf(config, attrs, out, types, quiet, multibar),
+        )
       }
-
-      // gtf unused currently
     }
+
+    return iterables
   }
 
   runIxIxx(readStream: Readable, outLocation: string, name: string) {
