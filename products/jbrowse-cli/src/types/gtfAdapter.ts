@@ -35,7 +35,7 @@ export async function* indexGtf(
     fileDataStream = await createRemoteStream(uri)
     totalBytes = +(fileDataStream.headers['content-length'] || 0)
   } else {
-    const filename = path.join(outLocation, uri)
+    const filename = path.isAbsolute(uri) ? uri : path.join(outLocation, uri)
     totalBytes = fs.statSync(filename).size
     fileDataStream = fs.createReadStream(filename)
   }
@@ -82,7 +82,7 @@ export async function* indexGtf(
           }),
       )
       const name = col9Attrs['gene_name'] || ''
-      const id = col9Attrs['gene_id'] || ''
+      const id = col9Attrs['gene_id_id'] || ''
       const attrs = attributes
         .map(attr => col9Attrs[attr])
         .filter((f): f is string => !!f)

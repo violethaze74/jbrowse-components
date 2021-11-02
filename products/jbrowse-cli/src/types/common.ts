@@ -53,7 +53,7 @@ export function guessAdapterFromFileName(filePath: string): Track {
         gffGzLocation: { uri, locationType: 'UriLocation' },
       },
     }
-  } else if (/\.gtf?$/i.test(filePath)) {
+  } else if (/\.gtf?\.b?gz$/i.test(filePath)) {
     return {
       trackId: name,
       name,
