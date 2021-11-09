@@ -1,4 +1,5 @@
 import { toArray } from 'rxjs/operators'
+import { getConf } from '../configuration'
 import {
   freeAdapterResources,
   getAdapter,
@@ -22,6 +23,27 @@ import SimpleFeature, { SimpleFeatureSerialized } from '../util/simpleFeature'
 export class CoreGetRefNames extends RpcMethodType {
   name = 'CoreGetRefNames'
 
+  async serializeArguments(args: RenderArgs, rpcDriverClassName: string) {
+    const assemblyManager = this.pluginManager.rootModel?.session
+      ?.assemblyManager
+
+    if (!assemblyManager) {
+      console.warn('no assembly manager available')
+      return args
+    }
+    const ret = await super.serializeArguments(args, rpcDriverClassName)
+
+    // @ts-ignore
+    const assembly = assemblyManager.get(args.assemblyName)
+
+    // @ts-ignore
+    ret.adapterConfig.sequenceAdapter = getConf(assembly, [
+      'sequence',
+      'adapter',
+    ])
+    return ret
+  }
+
   async execute(
     args: {
       sessionId: string
@@ -40,10 +62,11 @@ export class CoreGetRefNames extends RpcMethodType {
       sessionId,
       adapterConfig,
     )
-    if (dataAdapter instanceof BaseFeatureDataAdapter) {
-      return dataAdapter.getRefNames(deserializedArgs)
+    if (!(dataAdapter instanceof BaseFeatureDataAdapter)) {
+      throw new Error('unrecognized dataAdapter type for getRefNames')
     }
-    return []
+
+    return dataAdapter.getRefNames(deserializedArgs)
   }
 }
 
@@ -95,6 +118,7 @@ export class CoreGetMetadata extends RpcMethodType {
       sessionId,
       adapterConfig,
     )
+
     return isFeatureAdapter(dataAdapter)
       ? dataAdapter.getMetadata(deserializedArgs)
       : null
@@ -171,9 +195,6 @@ export class CoreFreeResources extends RpcMethodType {
 
     return deleteCount
   }
-  async serializeArguments(args: {}, _rpcDriverClassName: string): Promise<{}> {
-    return args
-  }
 }
 
 export interface RenderArgs extends ServerSideRenderArgs {
@@ -197,14 +218,19 @@ export class CoreRender extends RpcMethodType {
   async serializeArguments(args: RenderArgs, rpcDriverClassName: string) {
     const assemblyManager = this.pluginManager.rootModel?.session
       ?.assemblyManager
-    const renamedArgs = assemblyManager
-      ? await renameRegionsIfNeeded(assemblyManager, args)
-      : args
+
+    if (!assemblyManager) {
+      console.warn('no assembly manager available')
+      return args
+    }
+
+    const renamedArgs = await renameRegionsIfNeeded(assemblyManager, args)
 
     const superArgs = (await super.serializeArguments(
       renamedArgs,
       rpcDriverClassName,
     )) as RenderArgs
+
     if (rpcDriverClassName === 'MainThreadRpcDriver') {
       return superArgs
     }
@@ -216,6 +242,14 @@ export class CoreRender extends RpcMethodType {
       this.pluginManager.getRendererType(rendererType),
     )
 
+    // @ts-ignore
+    const assembly = assemblyManager.get(args.assemblyName)
+
+    // @ts-ignore
+    superArgs.adapterConfig.sequenceAdapter = getConf(assembly, [
+      'sequence',
+      'adapter',
+    ])
     return RendererType.serializeArgsInClient(superArgs)
   }
 

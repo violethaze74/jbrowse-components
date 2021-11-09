@@ -57,22 +57,20 @@ export default class CramAdapter extends BaseFeatureDataAdapter {
       checkSequenceMD5: false,
       fetchSizeLimit: this.config.fetchSizeLimit || 600000000,
     })
-    // instantiate the sequence adapter
-    const sequenceAdapterType = readConfObject(this.config, [
-      'sequenceAdapter',
-      'type',
-    ])
 
     if (!this.getSubAdapter) {
       throw new Error('Error getting subadapter')
     }
-
     const { dataAdapter } = await this.getSubAdapter(
       readConfObject(this.config, 'sequenceAdapter'),
     )
     if (dataAdapter instanceof BaseFeatureDataAdapter) {
       this.sequenceAdapter = dataAdapter
     } else {
+      const sequenceAdapterType = readConfObject(this.config, [
+        'sequenceAdapter',
+        'type',
+      ])
       throw new Error(
         `CRAM feature adapters cannot use sequence adapters of type '${sequenceAdapterType}'`,
       )
