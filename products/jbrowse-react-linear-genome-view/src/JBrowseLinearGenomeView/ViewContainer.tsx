@@ -5,17 +5,20 @@ import {
   Paper,
   SvgIconProps,
   Typography,
+  alpha,
   makeStyles,
   useTheme,
 } from '@material-ui/core'
-import { alpha } from '@material-ui/core/styles'
-import MenuIcon from '@material-ui/icons/Menu'
+
 import { observer } from 'mobx-react'
 import { isAlive } from 'mobx-state-tree'
 import useDimensions from 'react-use-dimensions'
 import { IBaseViewModel } from '@jbrowse/core/pluggableElementTypes/models/BaseViewModel'
 import { Menu, Logomark } from '@jbrowse/core/ui'
 import { getSession } from '@jbrowse/core/util'
+
+// icons
+import MenuIcon from '@material-ui/icons/Menu'
 
 const useStyles = makeStyles(theme => ({
   viewContainer: {
@@ -51,14 +54,17 @@ const ViewMenu = observer(
     model,
     IconButtonProps,
     IconProps,
+    HeaderComponent,
   }: {
     model: IBaseViewModel
     IconButtonProps: IconButtonPropsType
     IconProps: SvgIconProps
+    HeaderComponent?: React.ReactNode
   }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLElement>()
 
-    if (!model.menuItems?.().length) {
+    const items = model.menuItems?.()
+    if (!items?.length) {
       return null
     }
 
@@ -86,15 +92,24 @@ const ViewMenu = observer(
           onClose={() => {
             setAnchorEl(undefined)
           }}
-          menuItems={model.menuItems()}
+          menuItems={items}
         />
+        {HeaderComponent}
       </>
     )
   },
 )
 
 const ViewContainer = observer(
-  ({ view, children }: { view: IBaseViewModel; children: React.ReactNode }) => {
+  ({
+    view,
+    children,
+    HeaderComponent,
+  }: {
+    view: IBaseViewModel
+    children: React.ReactNode
+    HeaderComponent?: React.ReactNode
+  }) => {
     const classes = useStyles()
     const theme = useTheme()
     const session = getSession(view)
@@ -130,6 +145,7 @@ const ViewContainer = observer(
               edge: 'start',
             }}
             IconProps={{ className: classes.icon }}
+            HeaderComponent={HeaderComponent}
           />
           <div className={classes.grow} />
           {view.displayName ? (
