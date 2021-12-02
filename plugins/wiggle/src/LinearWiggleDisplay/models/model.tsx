@@ -462,7 +462,11 @@ const stateModelFactory = (
       }
     })
     .actions(self => {
-      const { reload: superReload, renderSvg: superRenderSvg } = self
+      const {
+        renderProps: superRenderProps,
+        reload: superReload,
+        renderSvg: superRenderSvg,
+      } = self
 
       type ExportSvgOpts = Parameters<typeof superRenderSvg>[0]
 
@@ -588,21 +592,22 @@ const stateModelFactory = (
             self,
             () => {
               const view = getContainingView(self) as LGV
+              const renderProps = superRenderProps()
 
               if (!view.initialized) {
                 return
               }
 
-                  if (renderProps.statsNotReady) {
-                    return
-                  }
+              if (renderProps.statsNotReady) {
+                return
+              }
 
-                  if (
-                    self.globalStats?.featureDensity * view.bpPerPx >
-                    self.maxFeatureScreenDensity
-                  ) {
-                    return
-                  }
+              if (
+                self.globalStats?.featureDensity * view.bpPerPx >
+                self.maxFeatureScreenDensity
+              ) {
+                return
+              }
               return getStatsData()
             },
             async (args, signal) => {
