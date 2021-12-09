@@ -60,7 +60,10 @@ export interface JBrowsePlugin {
   authors: string[]
   description: string
   location: string
-  url: string
+  url?: string
+  umdUrl?: string
+  esmUrl?: string
+  cjsUrl?: string
   license: string
   image?: string
 }
@@ -97,7 +100,6 @@ export interface AbstractSessionModel extends AbstractViewContainer {
   showWidget?: Function
   addWidget?: Function
 
-  addTrackConf?: Function
   DialogComponent?: DialogComponentType
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   DialogProps: any
@@ -125,6 +127,18 @@ export function isSessionModelWithConfigEditing(
   thing: unknown,
 ): thing is SessionWithConfigEditing {
   return isSessionModel(thing) && 'editConfiguration' in thing
+}
+
+/** abstract interface for a session allows adding tracks */
+export interface SessionWithConfigEditing extends AbstractSessionModel {
+  addTrackConf(
+    configuration: AnyConfigurationModel | SnapshotIn<AnyConfigurationModel>,
+  ): void
+}
+export function isSessionWithAddTracks(
+  thing: unknown,
+): thing is SessionWithConfigEditing {
+  return isSessionModel(thing) && 'addTrackConf' in thing
 }
 
 export interface Widget {

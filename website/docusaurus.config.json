@@ -9,9 +9,8 @@
   "organizationName": "GMOD",
   "projectName": "jbrowse-components",
   "customFields": {
-    "currentVersionNo": "1.4.5",
-    "currentVersion": "v1.4.5",
-    "bannerBulletin": "Introducing JBrowse desktop"
+    "currentVersion": "v1.5.1",
+    "bannerBulletin": "Introducing JBrowse Desktop"
   },
   "themeConfig": {
     "colorMode": {
@@ -73,10 +72,12 @@
         {
           "className": "navbar-social-github",
           "position": "right",
+          "alt": "Github",
           "href": "https://github.com/GMOD/jbrowse-components"
         },
         {
           "className": "navbar-social-twitter",
+          "alt": "Twitter",
           "position": "right",
           "href": "https://twitter.com/usejbrowse"
         }

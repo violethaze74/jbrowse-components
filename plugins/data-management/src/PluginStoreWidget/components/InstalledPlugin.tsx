@@ -32,12 +32,16 @@ const useStyles = makeStyles(() => ({
   dialogContainer: {
     margin: 15,
   },
+  lockedPluginTooltip: {
+    marginRight: '0.5rem',
+  },
 }))
 
 function LockedPlugin() {
+  const classes = useStyles()
   return (
     <Tooltip
-      style={{ marginRight: '0.5rem' }}
+      className={classes.lockedPluginTooltip}
       title="This plugin was installed by an administrator, you cannot remove it."
     >
       <LockIcon />
@@ -119,7 +123,11 @@ function InstalledPlugin({
           onClose={name => {
             if (name) {
               const pluginMetadata = pluginManager.pluginMetadata[plugin.name]
-              const pluginUrl = pluginMetadata.url
+              const pluginUrl =
+                pluginMetadata.url ||
+                pluginMetadata.esmUrl ||
+                pluginMetadata.umdUrl ||
+                pluginMetadata.cjsUrl
               if (adminMode) {
                 jbrowse.removePlugin(pluginUrl)
               } else if (isSessionWithSessionPlugins(session)) {

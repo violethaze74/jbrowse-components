@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react'
-import { getPropertyMembers } from 'mobx-state-tree'
+import { getPropertyMembers, getEnv } from 'mobx-state-tree'
 import { FileSelector } from '@jbrowse/core/ui'
 import {
   getPropertyType,
   getSubType,
   getUnionSubTypes,
 } from '@jbrowse/core/util/mst-reflection'
-import { getSession } from '@jbrowse/core/util'
 import {
   Card,
   CardContent,
@@ -345,7 +344,7 @@ const FileSelectorWrapper = observer(({ slot }) => {
       setLocation={location => slot.set(location)}
       name={slot.name}
       description={slot.description}
-      session={getSession(slot)}
+      rootModel={getEnv(slot).pluginManager?.rootModel}
     />
   )
 })

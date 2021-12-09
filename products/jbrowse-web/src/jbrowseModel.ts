@@ -4,10 +4,11 @@ import {
 } from '@jbrowse/core/configuration'
 import RpcManager from '@jbrowse/core/rpc/RpcManager'
 import PluginManager from '@jbrowse/core/PluginManager'
-import Plugin from '@jbrowse/core/Plugin'
+import { PluginDefinition } from '@jbrowse/core/PluginLoader'
 import {
-  getSnapshot,
   getParent,
+  getRoot,
+  getSnapshot,
   resolveIdentifier,
   types,
   cast,
@@ -25,12 +26,6 @@ import clone from 'clone'
 window.getSnapshot = getSnapshot
 // @ts-ignore
 window.resolveIdentifier = resolveIdentifier
-
-interface Root {
-  rpcManager: RpcManager
-  session: { name: string }
-  setPluginsUpdates: (arg: boolean) => void
-}
 
 export default function JBrowseWeb(
   pluginManager: PluginManager,
@@ -67,7 +62,7 @@ export default function JBrowseWeb(
         },
         ...pluginManager.pluginConfigurationSchemas(),
       }),
-      plugins: types.array(types.frozen<Plugin>()),
+      plugins: types.array(types.frozen<PluginDefinition>()),
       assemblies: types.array(assemblyConfigSchemasType),
       // track configuration is an array of track config schemas. multiple
       // instances of a track can exist that use the same configuration
@@ -91,7 +86,7 @@ export default function JBrowseWeb(
         return self.assemblies.map(assembly => readConfObject(assembly, 'name'))
       },
       get rpcManager() {
-        return getParent<Root>(self).rpcManager
+        return getParent(self).rpcManager
       },
     }))
     .actions(self => ({
@@ -190,7 +185,7 @@ export default function JBrowseWeb(
       },
       setDefaultSessionConf(sessionConf: AnyConfigurationModel) {
         let newDefault
-        if (getParent<Root>(self).session.name === sessionConf.name) {
+        if (getParent(self).session.name === sessionConf.name) {
           newDefault = getSnapshot(sessionConf)
         } else {
           newDefault = toJS(sessionConf)
@@ -203,13 +198,23 @@ export default function JBrowseWeb(
         // @ts-ignore complains about name missing, but above line checks this
         self.defaultSession = cast(newDefault)
       },
-      addPlugin(plugin: Plugin) {
-        self.plugins = cast([...self.plugins, plugin])
-        getParent<Root>(self).setPluginsUpdates(true)
+      addPlugin(pluginDefinition: PluginDefinition) {
+        self.plugins.push(pluginDefinition)
+        const rootModel = getRoot(self)
+        rootModel.setPluginsUpdated(true)
       },
-      removePlugin(pluginUrl: string) {
-        self.plugins = cast(self.plugins.filter(p => p.url !== pluginUrl))
-        getParent<Root>(self).setPluginsUpdates(true)
+      removePlugin(pluginDefinition: PluginDefinition) {
+        self.plugins = cast(
+          self.plugins.filter(
+            plugin =>
+              plugin.url === pluginDefinition.url ||
+              plugin.umdUrl === pluginDefinition.umdUrl ||
+              plugin.cjsUrl === pluginDefinition.cjsUrl ||
+              plugin.esmUrl === pluginDefinition.esmUrl,
+          ),
+        )
+        const rootModel = getRoot(self)
+        rootModel.setPluginsUpdated(true)
       },
       addInternetAccountConf(internetAccountConf: AnyConfigurationModel) {
         const { type } = internetAccountConf
@@ -242,8 +247,6 @@ export default function JBrowseWeb(
         }
         return obj
       }
-
-      // @ts-ignore
       return removeAttr(clone(snapshot), 'baseUri')
     },
   })

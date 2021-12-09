@@ -13,7 +13,6 @@ import {
   resolveIdentifier,
   types,
   IAnyStateTreeNode,
-  IAnyModelType,
   IAnyType,
   Instance,
   SnapshotIn,
@@ -21,16 +20,14 @@ import {
 
 import { saveAs } from 'file-saver'
 import { observable, autorun } from 'mobx'
-import assemblyManagerFactory, {
-  assemblyConfigSchemas as AssemblyConfigSchemasFactory,
-} from '@jbrowse/core/assemblyManager'
+import assemblyManagerFactory from '@jbrowse/core/assemblyManager'
+import assemblyConfigSchemaFactory from '@jbrowse/core/assemblyManager/assemblyConfigSchema'
 import PluginManager from '@jbrowse/core/PluginManager'
 import RpcManager from '@jbrowse/core/rpc/RpcManager'
 import TextSearchManager from '@jbrowse/core/TextSearch/TextSearchManager'
 import { UriLocation } from '@jbrowse/core/util/types'
 import { AbstractSessionModel, SessionWithWidgets } from '@jbrowse/core/util'
 import { MenuItem } from '@jbrowse/core/ui'
-import { AnyConfigurationSchemaType } from '@jbrowse/core/configuration/configurationSchema'
 
 // icons
 import AddIcon from '@material-ui/icons/Add'
@@ -109,25 +106,19 @@ interface Menu {
   menuItems: MenuItem[]
 }
 
-function rootModelFactory(pluginManager: PluginManager, adminMode = false) {
-  const { assemblyConfigSchemas, dispatcher } =
-    AssemblyConfigSchemasFactory(pluginManager)
-  const assemblyConfigSchemasType = types.union(
-    { dispatcher },
-    ...assemblyConfigSchemas,
-  )
-  const Session = sessionModelFactory(pluginManager, assemblyConfigSchemasType)
+export default function RootModel(
+  pluginManager: PluginManager,
+  adminMode = false,
+) {
+  const assemblyConfigSchema = assemblyConfigSchemaFactory(pluginManager)
+  const Session = sessionModelFactory(pluginManager, assemblyConfigSchema)
   const assemblyManagerType = assemblyManagerFactory(
-    assemblyConfigSchemasType,
+    assemblyConfigSchema,
     pluginManager,
   )
   return types
     .model('Root', {
-      jbrowse: jbrowseWebFactory(
-        pluginManager,
-        Session,
-        assemblyConfigSchemasType as AnyConfigurationSchemaType,
-      ),
+      jbrowse: jbrowseWebFactory(pluginManager, Session, assemblyConfigSchema),
       configPath: types.maybe(types.string),
       session: types.maybe(Session),
       assemblyManager: assemblyManagerType,
@@ -270,7 +261,7 @@ function rootModelFactory(pluginManager: PluginManager, adminMode = false) {
         const internetAccountConfigSchema =
           pluginManager.pluggableConfigSchemaType('internet account')
         const configuration = resolveIdentifier(
-          internetAccountConfigSchema as IAnyModelType,
+          internetAccountConfigSchema,
           self,
           internetAccountId,
         )
@@ -733,7 +724,7 @@ export function createTestSession(snapshot = {}, adminMode = false) {
   const pluginManager = new PluginManager(corePlugins.map(P => new P()))
   pluginManager.createPluggableElements()
 
-  const JBrowseRootModel = rootModelFactory(pluginManager, adminMode)
+  const JBrowseRootModel = RootModel(pluginManager, adminMode)
   const root = JBrowseRootModel.create(
     {
       jbrowse: {
@@ -754,8 +745,3 @@ export function createTestSession(snapshot = {}, adminMode = false) {
   pluginManager.configure()
   return root.session as AbstractSessionModel
 }
-
-export type RootModel = ReturnType<typeof rootModelFactory>
-export type Root = Instance<RootModel>
-
-export default rootModelFactory

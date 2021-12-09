@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getConf } from '@jbrowse/core/configuration'
 import { BaseViewModel } from '@jbrowse/core/pluggableElementTypes/models'
 import { Region } from '@jbrowse/core/util/types'
@@ -10,8 +9,9 @@ import {
   findLastIndex,
   getContainingView,
   getSession,
-  isSessionModelWithWidgets,
   isViewContainer,
+  isSessionModelWithWidgets,
+  measureText,
   parseLocString,
   springAnimate,
 } from '@jbrowse/core/util'
@@ -20,21 +20,24 @@ import { BlockSet, BaseBlock } from '@jbrowse/core/util/blockTypes'
 import calculateDynamicBlocks from '@jbrowse/core/util/calculateDynamicBlocks'
 import calculateStaticBlocks from '@jbrowse/core/util/calculateStaticBlocks'
 import { getParentRenderProps } from '@jbrowse/core/util/tracks'
-// misc
 import { transaction, autorun } from 'mobx'
 import {
-  getSnapshot,
-  types,
+  addDisposer,
   cast,
-  Instance,
+  getSnapshot,
   getRoot,
   resolveIdentifier,
-  addDisposer,
-  IAnyModelType,
+  types,
+  Instance,
 } from 'mobx-state-tree'
 
 import Base1DView from '@jbrowse/core/util/Base1DViewModel'
 import PluginManager from '@jbrowse/core/PluginManager'
+import clone from 'clone'
+import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
+import { saveAs } from 'file-saver'
+
+// icons
 import { TrackSelector as TrackSelectorIcon } from '@jbrowse/core/ui/Icons'
 import SyncAltIcon from '@material-ui/icons/SyncAlt'
 import VisibilityIcon from '@material-ui/icons/Visibility'
@@ -43,15 +46,12 @@ import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera'
 import ZoomInIcon from '@material-ui/icons/ZoomIn'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
-import clone from 'clone'
-import { AnyConfigurationModel } from '@jbrowse/core/configuration/configurationSchema'
-import { saveAs } from 'file-saver'
-import { renderToSvg } from './components/LinearGenomeView'
+
+// locals
+import { renderToSvg } from './components/LinearGenomeViewSvg'
 import RefNameAutocomplete from './components/RefNameAutocomplete'
 import ExportSvgDlg from './components/ExportSvgDialog'
 import ReturnToImportFormDlg from './components/ReturnToImportFormDialog'
-
-export { default as ReactComponent } from './components/LinearGenomeView'
 
 export interface BpOffset {
   refName?: string
@@ -124,6 +124,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         ),
         trackLabels: 'overlapping' as 'overlapping' | 'hidden' | 'offset',
         showCenterLine: false,
+        showCytobandsSetting: true,
       }),
     )
     .volatile(() => ({
@@ -136,6 +137,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
       // which is basically like an onLoad
       afterDisplayedRegionsSetCallbacks: [] as Function[],
       scaleFactor: 1,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       trackRefs: {} as { [key: string]: any },
       coarseDynamicBlocks: [] as BaseBlock[],
       coarseTotalBp: 0,
@@ -341,7 +343,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
           const region = self.displayedRegions[0]
           const offset = bp
           return {
-            ...(getSnapshot(region) as any),
+            ...getSnapshot(region),
             oob: true,
             coord: region.reversed
               ? Math.floor(region.end - offset) + 1
@@ -360,7 +362,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
           const offset = bp - bpSoFar
           if (len + bpSoFar > bp && bpSoFar <= bp) {
             return {
-              ...(getSnapshot(region) as any),
+              ...getSnapshot(region),
               oob: false,
               offset,
               coord: region.reversed
@@ -470,6 +472,9 @@ export function stateModelFactory(pluginManager: PluginManager) {
       },
     }))
     .actions(self => ({
+      setShowCytobands(flag: boolean) {
+        self.showCytobandsSetting = flag
+      },
       setWidth(newWidth: number) {
         self.volatileWidth = newWidth
       },
@@ -556,7 +561,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         const trackConfigSchema =
           pluginManager.pluggableConfigSchemaType('track')
         const configuration = resolveIdentifier(
-          trackConfigSchema as IAnyModelType,
+          trackConfigSchema,
           getRoot(self),
           trackId,
         )
@@ -606,7 +611,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         const trackConfigSchema =
           pluginManager.pluggableConfigSchemaType('track')
         const configuration = resolveIdentifier(
-          trackConfigSchema as IAnyModelType,
+          trackConfigSchema,
           getRoot(self),
           trackId,
         )
@@ -1216,11 +1221,34 @@ export function stateModelFactory(pluginManager: PluginManager) {
 
       return { zoom }
     })
+    .views(self => ({
+      get canShowCytobands() {
+        return self.displayedRegions.length === 1 && this.anyCytobandsExist
+      },
+      get showCytobands() {
+        return this.canShowCytobands && self.showCytobandsSetting
+      },
+      get anyCytobandsExist() {
+        const { assemblyManager } = getSession(self)
+        const { assemblyNames } = self
+        return assemblyNames.some(
+          asm => assemblyManager.get(asm)?.cytobands?.length,
+        )
+      },
+
+      get cytobandOffset() {
+        return this.showCytobands
+          ? measureText(self.displayedRegions[0].refName, 12) + 15
+          : 0
+      },
+    }))
     .views(self => {
       let currentlyCalculatedStaticBlocks: BlockSet | undefined
       let stringifiedCurrentlyCalculatedStaticBlocks = ''
       return {
         menuItems(): MenuItem[] {
+          const { canShowCytobands, showCytobands } = self
+
           const menuItems: MenuItem[] = [
             {
               label: 'Return to import form',
@@ -1307,6 +1335,16 @@ export function stateModelFactory(pluginManager: PluginManager) {
                 },
               ],
             },
+            ...(canShowCytobands
+              ? [
+                  {
+                    label: showCytobands ? 'Hide ideogram' : 'Show ideograms',
+                    onClick: () => {
+                      self.setShowCytobands(!showCytobands)
+                    },
+                  },
+                ]
+              : []),
           ]
 
           // add track's view level menu options
@@ -1387,6 +1425,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
     }))
     .actions(self => ({
       async exportSvg(opts: ExportSvgOptions = {}) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const html = await renderToSvg(self as any, opts)
         const blob = new Blob([html], { type: 'image/svg+xml' })
         saveAs(blob, 'image.svg')
@@ -1399,8 +1438,9 @@ export function stateModelFactory(pluginManager: PluginManager) {
             label: 'Zoom to region',
             icon: ZoomInIcon,
             onClick: () => {
-              if (self.leftOffset && self.rightOffset) {
-                self.moveTo(self.leftOffset, self.rightOffset)
+              const { leftOffset, rightOffset } = self
+              if (leftOffset && rightOffset) {
+                self.moveTo(leftOffset, rightOffset)
               }
             },
           },
@@ -1419,3 +1459,4 @@ export function stateModelFactory(pluginManager: PluginManager) {
 export { renderToSvg, RefNameAutocomplete }
 export type LinearGenomeViewStateModel = ReturnType<typeof stateModelFactory>
 export type LinearGenomeViewModel = Instance<LinearGenomeViewStateModel>
+export { default as ReactComponent } from './components/LinearGenomeView'

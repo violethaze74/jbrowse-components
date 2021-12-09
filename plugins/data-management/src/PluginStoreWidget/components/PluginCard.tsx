@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
+import PluginManager from '@jbrowse/core/PluginManager'
 import { observer } from 'mobx-react'
-import { getEnv } from 'mobx-state-tree'
+import { getEnv, getParent } from 'mobx-state-tree'
+import { getSession } from '@jbrowse/core/util'
+import { JBrowsePlugin } from '@jbrowse/core/util/types'
+import { isSessionWithSessionPlugins } from '@jbrowse/core/util/types'
 import {
   Card,
   CardActions,
@@ -15,13 +19,7 @@ import {
 import PersonIcon from '@material-ui/icons/Person'
 import AddIcon from '@material-ui/icons/Add'
 import CheckIcon from '@material-ui/icons/Check'
-
-import PluginManager from '@jbrowse/core/PluginManager'
-import { getSession } from '@jbrowse/core/util'
-import type { JBrowsePlugin } from '@jbrowse/core/util/types'
-import { isSessionWithSessionPlugins } from '@jbrowse/core/util/types'
-
-import type { PluginStoreModel } from '../model'
+import { PluginStoreModel } from '../model'
 
 const useStyles = makeStyles(() => ({
   card: {
