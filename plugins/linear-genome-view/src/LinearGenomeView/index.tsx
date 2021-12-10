@@ -342,8 +342,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
         if (bp < 0) {
           const region = self.displayedRegions[0]
           const offset = bp
+          const snap = getSnapshot(region)
           return {
-            ...getSnapshot(region),
+            // xref https://github.com/mobxjs/mobx-state-tree/issues/1524 for Omit
+            ...(snap as Omit<typeof snap, symbol>),
             oob: true,
             coord: region.reversed
               ? Math.floor(region.end - offset) + 1
@@ -361,8 +363,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
           const len = region.end - region.start
           const offset = bp - bpSoFar
           if (len + bpSoFar > bp && bpSoFar <= bp) {
+            const snap = getSnapshot(region)
             return {
-              ...getSnapshot(region),
+              // xref https://github.com/mobxjs/mobx-state-tree/issues/1524 for Omit
+              ...(snap as Omit<typeof snap, symbol>),
               oob: false,
               offset,
               coord: region.reversed
@@ -389,8 +393,10 @@ export function stateModelFactory(pluginManager: PluginManager) {
           const region = self.displayedRegions[n - 1]
           const len = region.end - region.start
           const offset = bp - bpSoFar + len
+          const snap = getSnapshot(region)
           return {
-            ...getSnapshot(region),
+            // xref https://github.com/mobxjs/mobx-state-tree/issues/1524 for Omit
+            ...(snap as Omit<typeof snap, symbol>),
             oob: true,
             offset,
             coord: region.reversed
@@ -1030,21 +1036,21 @@ export function stateModelFactory(pluginManager: PluginManager) {
         leftOffset: BpOffset | undefined,
         rightOffset: BpOffset | undefined,
       ) {
+        const snap = getSnapshot(self)
         const simView = Base1DView.create({
-          ...getSnapshot(self),
+          // xref https://github.com/mobxjs/mobx-state-tree/issues/1524 for Omit
+          ...(snap as Omit<typeof self, symbol>),
           interRegionPaddingWidth: self.interRegionPaddingWidth,
         })
 
         simView.setVolatileWidth(self.width)
         simView.zoomToDisplayedRegions(leftOffset, rightOffset)
 
-        return simView.dynamicBlocks.contentBlocks.map(region => {
-          return {
-            ...region,
-            start: Math.floor(region.start),
-            end: Math.ceil(region.end),
-          }
-        })
+        return simView.dynamicBlocks.contentBlocks.map(region => ({
+          ...region,
+          start: Math.floor(region.start),
+          end: Math.ceil(region.end),
+        }))
       },
 
       // schedule something to be run after the next time displayedRegions is set
