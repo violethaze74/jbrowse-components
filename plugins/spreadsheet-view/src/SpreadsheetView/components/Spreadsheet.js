@@ -136,7 +136,7 @@ const useStyles = makeStyles(theme => {
 })
 
 const CellData = observer(({ cell, spreadsheetModel, columnNumber }) => {
-  const { dataType } = spreadsheetModel.columns.get(columnNumber)
+  const { dataType } = spreadsheetModel.columns[columnNumber]
   if (dataType.DataCellReactComponent) {
     return (
       <dataType.DataCellReactComponent
@@ -303,7 +303,7 @@ const DataTable = observer(({ model, page, rowsPerPage }) => {
                 onMouseOut={columnHeaderMouseOut.bind(null, colNumber)}
               >
                 <SortIndicator model={model} columnNumber={colNumber} />
-                {(hasColumnNames && columns.get(colNumber).name) ||
+                {(hasColumnNames && columns[colNumber].name) ||
                   numToColName(colNumber)}
                 <div
                   className={classes.columnButtonContainer}
