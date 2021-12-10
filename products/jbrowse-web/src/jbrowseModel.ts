@@ -86,7 +86,8 @@ export default function JBrowseWeb(
         return self.assemblies.map(assembly => readConfObject(assembly, 'name'))
       },
       get rpcManager() {
-        return getParent(self).rpcManager
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return getParent<any>(self).rpcManager
       },
     }))
     .actions(self => ({
@@ -185,7 +186,8 @@ export default function JBrowseWeb(
       },
       setDefaultSessionConf(sessionConf: AnyConfigurationModel) {
         let newDefault
-        if (getParent(self).session.name === sessionConf.name) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (getParent<any>(self).session.name === sessionConf.name) {
           newDefault = getSnapshot(sessionConf)
         } else {
           newDefault = toJS(sessionConf)
@@ -200,7 +202,8 @@ export default function JBrowseWeb(
       },
       addPlugin(pluginDefinition: PluginDefinition) {
         self.plugins.push(pluginDefinition)
-        const rootModel = getRoot(self)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rootModel = getRoot<any>(self)
         rootModel.setPluginsUpdated(true)
       },
       removePlugin(pluginDefinition: PluginDefinition) {
@@ -213,7 +216,8 @@ export default function JBrowseWeb(
               plugin.esmUrl === pluginDefinition.esmUrl,
           ),
         )
-        const rootModel = getRoot(self)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rootModel = getRoot<any>(self)
         rootModel.setPluginsUpdated(true)
       },
       addInternetAccountConf(internetAccountConf: AnyConfigurationModel) {
@@ -247,6 +251,8 @@ export default function JBrowseWeb(
         }
         return obj
       }
+
+      // @ts-ignore
       return removeAttr(clone(snapshot), 'baseUri')
     },
   })

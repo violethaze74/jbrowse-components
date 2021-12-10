@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import PluginManager from '@jbrowse/core/PluginManager'
 import { observer } from 'mobx-react'
-import { getEnv, getParent } from 'mobx-state-tree'
+import { getEnv } from 'mobx-state-tree'
 import { getSession } from '@jbrowse/core/util'
 import { JBrowsePlugin } from '@jbrowse/core/util/types'
 import { isSessionWithSessionPlugins } from '@jbrowse/core/util/types'

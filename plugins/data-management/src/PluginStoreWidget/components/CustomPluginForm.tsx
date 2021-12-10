@@ -83,7 +83,8 @@ function CustomPluginForm({
     setAdvancedOptionsOpen(!advancedOptionsOpen)
   }
 
-  const rootModel = getRoot(model)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rootModel = getRoot<any>(model)
   const { jbrowse } = rootModel
 
   const ready = Boolean(

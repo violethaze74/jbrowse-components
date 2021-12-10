@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   addDisposer,
-  getParent as getParentMod,
+  getParent,
   getSnapshot,
   hasParent,
   isAlive,
@@ -102,13 +102,13 @@ export function findParentThat(
   if (!hasParent(node)) {
     throw new Error('node does not have parent')
   }
-  let currentNode: IAnyStateTreeNode | undefined = getParent(node)
+  let currentNode: IAnyStateTreeNode | undefined = getParent<any>(node)
   while (currentNode && isAlive(currentNode)) {
     if (predicate(currentNode)) {
       return currentNode
     }
     if (hasParent(currentNode)) {
-      currentNode = getParentMod(currentNode)
+      currentNode = getParent<any>(currentNode)
     } else {
       break
     }

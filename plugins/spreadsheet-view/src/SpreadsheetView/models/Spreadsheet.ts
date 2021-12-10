@@ -81,7 +81,8 @@ const Spreadsheet = types
     },
     get hideRowSelection() {
       // just delegates to parent
-      return getParent(self).hideRowSelection
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return getParent<any>(self).hideRowSelection
     },
 
     // list of data type names to be made available in the column
