@@ -169,7 +169,7 @@ function RefNameAutocomplete({
         value={inputBoxVal}
         loading={!loaded}
         inputValue={inputValue}
-        onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+        onInputChange={(_event, newInputValue) => setInputValue(newInputValue)}
         loadingText="loading results"
         open={open}
         onOpen={() => setOpen(true)}
@@ -249,7 +249,7 @@ function RefNameAutocomplete({
                   </>
                 ),
               }}
-              placeholder="Search for location"
+              placeholder="Loading..."
               onChange={e => {
                 setCurrentSearch(e.target.value)
               }}

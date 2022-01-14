@@ -146,7 +146,7 @@ const ImportForm = observer(({ model }: { model: LGV }) => {
               {selectedAsm ? (
                 err ? (
                   <CloseIcon style={{ color: 'red' }} />
-                ) : selectedRegion ? (
+                ) : (
                   <RefNameAutocomplete
                     fetchResults={fetchResults}
                     model={model}
@@ -161,12 +161,6 @@ const ImportForm = observer(({ model }: { model: LGV }) => {
                       helperText:
                         'Enter sequence name, feature name, or location',
                     }}
-                  />
-                ) : (
-                  <CircularProgress
-                    role="progressbar"
-                    size={20}
-                    disableShrink
                   />
                 )
               ) : null}
