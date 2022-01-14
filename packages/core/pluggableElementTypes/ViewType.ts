@@ -18,14 +18,18 @@ export default class ViewType extends PluggableElementBase {
 
   displayTypes: DisplayType[] = []
 
+  launchView: (args: unknown) => Promise<void>
+
   constructor(stuff: {
     name: string
     ReactComponent: ViewReactComponent
     stateModel: IAnyModelType
+    launchView: (args: unknown) => Promise<void>
   }) {
     super(stuff)
     this.ReactComponent = stuff.ReactComponent
     this.stateModel = stuff.stateModel
+    this.launchView = stuff.launchView
     if (!this.ReactComponent) {
       throw new Error(`no ReactComponent defined for view ${this.name}`)
     }

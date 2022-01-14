@@ -485,12 +485,10 @@ export function loadSessionSpec(
       })
 
       await Promise.all(
-        views.map(async view => {
-          const { type } = view
+        views.map(view => {
           const { session } = rootModel
-
-          //@ts-ignore
-          await pluginManager.getPlugin(type)?.launchView({
+          const viewType = pluginManager.getViewType(view.type)
+          return viewType?.launchView({
             ...view,
             session,
           })
