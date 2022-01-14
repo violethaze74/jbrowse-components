@@ -473,33 +473,34 @@ export function loadSessionSpec(
 ) {
   const { views } = sessionSpec
 
-  return () => {
+  return async () => {
     const { rootModel } = pluginManager
-
     if (!rootModel) {
       throw new Error('rootModel not initialized')
     }
+    try {
+      // @ts-ignore
+      rootModel.setSession({
+        name: `New session ${new Date().toLocaleString()}`,
+      })
 
-    // @ts-ignore
-    rootModel.setSession({
-      name: `New session ${new Date().toLocaleString()}`,
-    })
+      await Promise.all(
+        views.map(async view => {
+          const { type } = view
+          const { session } = rootModel
 
-    return Promise.all(
-      views.map(async view => {
-        const { type } = view
-        const { session } = rootModel
-
-        await pluginManager.evaluateExtensionPoint('LaunchView-' + type, {
-          ...view,
-          session,
-        })
-      }),
-    ).catch(e => {
+          //@ts-ignore
+          await pluginManager.getPlugin(type)?.launchView({
+            ...view,
+            session,
+          })
+        }),
+      )
+    } catch (e) {
       console.error(e)
       if (rootModel.session) {
         rootModel.session.notify(`${e}`)
       }
-    })
+    }
   }
 }
