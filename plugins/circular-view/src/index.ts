@@ -15,6 +15,38 @@ export default class CircularViewPlugin extends Plugin {
   name = 'CircularViewPlugin'
 
   install(pluginManager: PluginManager) {
+    async function launchView({
+      session,
+      assembly,
+      tracks = [],
+    }: {
+      session: AbstractSessionModel
+      assembly?: string
+      loc: string
+      tracks?: string[]
+    }) {
+      const { assemblyManager } = session
+      const view = session.addView('CircularView', {}) as CGV
+
+      await when(() => view.initialized)
+
+      if (!assembly) {
+        throw new Error(
+          'No assembly provided when launching circular genome view',
+        )
+      }
+
+      const asm = await assemblyManager.waitForAssembly(assembly)
+      if (!asm) {
+        throw new Error(
+          `Assembly "${assembly}" not found when launching circular genome view`,
+        )
+      }
+
+      view.setDisplayedRegions(asm.regions || [])
+
+      tracks.forEach(track => view.showTrack(track))
+    }
     pluginManager.addViewType(
       () =>
         new ViewType({
@@ -23,41 +55,9 @@ export default class CircularViewPlugin extends Plugin {
           ),
           stateModel: stateModelFactory(pluginManager),
           name: 'CircularView',
+          launchView,
         }),
     )
-  }
-
-  async launchView({
-    session,
-    assembly,
-    tracks = [],
-  }: {
-    session: AbstractSessionModel
-    assembly?: string
-    loc: string
-    tracks?: string[]
-  }) {
-    const { assemblyManager } = session
-    const view = session.addView('CircularView', {}) as CGV
-
-    await when(() => view.initialized)
-
-    if (!assembly) {
-      throw new Error(
-        'No assembly provided when launching circular genome view',
-      )
-    }
-
-    const asm = await assemblyManager.waitForAssembly(assembly)
-    if (!asm) {
-      throw new Error(
-        `Assembly "${assembly}" not found when launching circular genome view`,
-      )
-    }
-
-    view.setDisplayedRegions(asm.regions || [])
-
-    tracks.forEach(track => view.showTrack(track))
   }
 
   configure(pluginManager: PluginManager) {
