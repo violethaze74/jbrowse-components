@@ -9,10 +9,7 @@ import JBrowseRootModelFactory from '../rootModel'
 import corePlugins from '../corePlugins'
 import { version } from '../../package.json'
 
-import {
-  writeAWSAnalytics,
-  writeGAAnalytics,
-} from '@jbrowse/core/util/analytics'
+import { writeAWSAnalytics } from '@jbrowse/core/util/analytics'
 
 function uniqBy<T>(a: T[], key: (arg: T) => string) {
   const seen = new Set()
@@ -134,7 +131,6 @@ export async function createPluginManager(
 
   if (rootModel && !readConfObject(config, 'disableAnalytics')) {
     writeAWSAnalytics(rootModel, initialTimestamp)
-    writeGAAnalytics(rootModel, initialTimestamp)
   }
 
   rootModel.setDefaultSession()

@@ -26,10 +26,7 @@ import 'requestidlecallback-polyfill'
 import 'core-js/stable'
 import queryString from 'query-string'
 import shortid from 'shortid'
-import {
-  writeAWSAnalytics,
-  writeGAAnalytics,
-} from '@jbrowse/core/util/analytics'
+import { writeAWSAnalytics } from '@jbrowse/core/util/analytics'
 import { readConfObject } from '@jbrowse/core/configuration'
 
 // locals
@@ -641,7 +638,6 @@ const Renderer = observer(
                 initialTimestamp,
                 initialSessionQuery,
               )
-              writeGAAnalytics(rootModel, initialTimestamp)
             }
 
             pluginManager.setRootModel(rootModel)
