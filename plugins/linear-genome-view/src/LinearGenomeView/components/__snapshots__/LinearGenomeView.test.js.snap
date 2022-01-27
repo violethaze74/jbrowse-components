@@ -528,13 +528,12 @@ exports[`<LinearGenomeView /> renders one track, one region 1`] = `
         </button>
       </div>
       <div
-        class="MuiPaper-root makeStyles-trackRenderingContainer MuiPaper-outlined MuiPaper-rounded"
+        class="makeStyles-trackRenderingContainer"
         data-testid="trackRenderingContainer-lgv-testConfig"
         role="presentation"
         style="height: 100px;"
       >
         <div
-          class="makeStyles-renderingComponentContainer"
           style="transform: scaleX(1);"
         >
           <div
@@ -1420,13 +1419,12 @@ exports[`<LinearGenomeView /> renders two tracks, two regions 1`] = `
         </button>
       </div>
       <div
-        class="MuiPaper-root makeStyles-trackRenderingContainer MuiPaper-outlined MuiPaper-rounded"
+        class="makeStyles-trackRenderingContainer"
         data-testid="trackRenderingContainer-lgv-testConfig"
         role="presentation"
         style="height: 100px;"
       >
         <div
-          class="makeStyles-renderingComponentContainer"
           style="transform: scaleX(1);"
         >
           <div
@@ -1574,13 +1572,12 @@ exports[`<LinearGenomeView /> renders two tracks, two regions 1`] = `
         </button>
       </div>
       <div
-        class="MuiPaper-root makeStyles-trackRenderingContainer MuiPaper-outlined MuiPaper-rounded"
+        class="makeStyles-trackRenderingContainer"
         data-testid="trackRenderingContainer-lgv-testConfig2"
         role="presentation"
         style="height: 100px;"
       >
         <div
-          class="makeStyles-renderingComponentContainer"
           style="transform: scaleX(1);"
         >
           <div
