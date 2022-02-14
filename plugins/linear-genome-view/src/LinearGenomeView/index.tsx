@@ -86,7 +86,7 @@ function calculateVisibleLocStrings(contentBlocks: BaseBlock[]) {
       assemblyName: isSingleAssemblyName ? undefined : block.assemblyName,
     }),
   )
-  return locs.join(',')
+  return locs.join(' ')
 }
 
 export interface NavLocation {
@@ -675,7 +675,7 @@ export function stateModelFactory(pluginManager: PluginManager) {
         const { assemblyNames } = self
         const { assemblyManager } = getSession(self)
         const { isValidRefName } = assemblyManager
-        const locStrings = locString.split(',')
+        const locStrings = locString.split(' ')
         if (locStrings.length > 1) {
           let assemblyName: string | undefined
           if (optAssemblyName) {
