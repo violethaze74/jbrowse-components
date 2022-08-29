@@ -21,7 +21,7 @@
     "@emotion/styled": "^11.3.0",
     "@mui/icons-material": "^5.0.4",
     "@mui/material": "^5.0.4",
-    "@mui/styles": "^5.0.1",
+    "@mui/styles": "^5.9.3",
     "acorn": "^8.1.1",
     "acorn-jsx": "^5.3.1",
     "clsx": "^1.1.1",
