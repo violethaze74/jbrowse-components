@@ -100,7 +100,7 @@
     "use-query-params": "1.2.3"
   },
   "devDependencies": {
-    "electron": "16.0.4"
+    "electron": "18.3.7"
   },
   "browserslist": [
     "last 1 chrome version"
